@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#100f1a">
+<meta name="description" content="yozora — seu diário pessoal de animes assistidos">
+<title>yozora — diário de animes</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff8fb1' d='M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z'/%3E%3Cpath fill='%238de8d0' d='m26 6 .9 2.1L29 9l-2.1.9L26 12l-.9-2.1L23 9l2.1-.9Z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ============ TOKENS ============ */
+  :root{
+    --ink:#100f1a;
+    --dusk:#1a1826;
+    --card:#1e1c2c;
+    --line:rgba(241,238,252,.08);
+    --paper:#f1eefc;
+    --mist:#a9a6c6;
+    --bloom:#ff8fb1;
+    --bloom-ink:#2b0f18;
+    --aurora:#8de8d0;
+    --violet:#b79bff;
+    --danger:#ff8a8a;
+    --radius-lg:28px;
+    --radius-md:18px;
+    --radius-sm:12px;
+    --shadow-soft:0 24px 60px -28px rgba(0,0,0,.65);
+    --ease:cubic-bezier(.22,1,.36,1);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Manrope',sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    letter-spacing:-.01em;
+    margin:0;
+  }
+  ::selection{background:var(--bloom);color:var(--bloom-ink);}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--bloom);outline-offset:3px;border-radius:6px;}
+
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ============ AMBIENT BACKGROUND ============ */
+  #ambient{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:0;
+    pointer-events:none;
+  }
+  .lantern{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(60px);
+    opacity:.5;
+    animation:drift ease-in-out infinite alternate;
+    will-change:transform;
+  }
+  .star{
+    position:absolute;
+    width:3px;height:3px;
+    border-radius:50%;
+    background:var(--paper);
+    animation:twinkle ease-in-out infinite;
+  }
+  @keyframes drift{
+    from{ transform:translate(0,0) scale(1); }
+    to{ transform:translate(var(--dx,40px),var(--dy,-30px)) scale(1.08); }
+  }
+  @keyframes twinkle{
+    0%,100%{ opacity:.15; transform:scale(1); }
+    50%{ opacity:.9; transform:scale(1.4); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .lantern,.star{animation:none !important;}
+  }
+
+  /* ============ LAYOUT / SCREENS ============ */
+  #app{
+    position:relative;
+    z-index:1;
+    min-height:100vh;
+  }
+  .screen{
+    position:absolute;
+    inset:0;
+    min-height:100vh;
+    opacity:0;
+    transform:translateY(14px);
+    pointer-events:none;
+    transition:opacity .6s var(--ease), transform .6s var(--ease);
+  }
+  .screen.active{
+    position:relative;
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+  }
+
+  /* ---- landing ---- */
+  #screen-landing .landing-wrap{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:32px;
+    gap:22px;
+  }
+  .mark{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Manrope',sans-serif;
+    font-weight:800;
+    font-size:14px;
+    letter-spacing:.32em;
+    text-transform:uppercase;
+    color:var(--mist);
+  }
+  .mark svg{width:18px;height:18px;flex:none;}
+  .landing-wrap h1{
+    font-size:clamp(2.6rem,7vw,5rem);
+    line-height:1.02;
+    color:var(--paper);
+  }
+  .landing-wrap h1 em{
+    font-style:italic;
+    color:var(--bloom);
+  }
+  .landing-sub{
+    color:var(--mist);
+    font-size:16px;
+    max-width:420px;
+    line-height:1.6;
+    margin:0;
+  }
+  .landing-count{
+    font-size:13px;
+    color:var(--aurora);
+    letter-spacing:.04em;
+  }
+
+  /* ---- buttons ---- */
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:15px 30px;
+    font-size:15px;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    transition:transform .35s var(--ease), box-shadow .35s var(--ease), background .3s;
+  }
+  .btn-primary{
+    background:var(--bloom);
+    color:var(--bloom-ink);
+    box-shadow:0 14px 34px -12px rgba(255,143,177,.55);
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 20px 40px -12px rgba(255,143,177,.7); }
+  .btn-secondary{
+    background:transparent;
+    color:var(--paper);
+    border:1.5px solid var(--line);
+  }
+  .btn-secondary:hover{ background:var(--dusk); border-color:rgba(241,238,252,.2); transform:translateY(-2px); }
+  .btn-ghost{
+    background:none;
+    border:none;
+    color:var(--mist);
+    padding:10px 6px;
+    font-weight:600;
+    font-size:14px;
+  }
+  .btn-ghost:hover{ color:var(--paper); }
+  .btn-danger{
+    background:none;
+    border:1.5px solid rgba(255,138,138,.35);
+    color:var(--danger);
+    border-radius:999px;
+    padding:11px 20px;
+    font-weight:700;
+    font-size:13.5px;
+  }
+  .btn-danger:hover{ background:rgba(255,138,138,.1); }
+  .btn[disabled]{ opacity:.45; pointer-events:none; }
+
+  /* ---- list screen ---- */
+  .list-wrap{
+    max-width:1100px;
+    margin:0 auto;
+    padding:44px 32px 100px;
+  }
+  .list-header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:20px;
+    flex-wrap:wrap;
+    margin-bottom:34px;
+  }
+  .list-header h2{
+    font-size:clamp(1.8rem,4vw,2.4rem);
+    color:var(--paper);
+  }
+  .list-eyebrow{
+    color:var(--aurora);
+    font-size:13px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    margin:0 0 6px;
+  }
+  .list-actions{ display:flex; gap:12px; flex-wrap:wrap; }
+
+  .anime-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:22px;
+  }
+  @media (max-width:880px){ .anime-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .anime-grid{ grid-template-columns:1fr; } }
+
+  .card{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    overflow:hidden;
+    text-align:left;
+    padding:0;
+    color:inherit;
+    animation:rise .5s var(--ease) both;
+    animation-delay:calc(var(--i,0) * 45ms);
+    transition:transform .35s var(--ease), box-shadow .35s var(--ease), border-color .35s;
+  }
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(16px) scale(.98); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  .card.is-clickable{ cursor:pointer; }
+  .card.is-clickable:hover{
+    transform:translateY(-5px);
+    box-shadow:var(--shadow-soft);
+    border-color:rgba(255,143,177,.35);
+  }
+  .card-cover{
+    position:relative;
+    width:100%;
+    aspect-ratio:2/3;
+    background:linear-gradient(160deg,#26233a,#181624);
+    overflow:hidden;
+  }
+  .card-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .card-cover .no-cover{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--mist); opacity:.5;
+  }
+  .card-cover .no-cover svg{ width:38px; height:38px; }
+  .card-rating{
+    position:absolute;
+    top:10px; right:10px;
+    background:var(--aurora);
+    color:#0f2b23;
+    font-weight:800;
+    font-size:12.5px;
+    padding:5px 10px;
+    border-radius:999px;
+    box-shadow:0 6px 14px -4px rgba(0,0,0,.4);
+  }
+  .card-body{ padding:16px 16px 18px; }
+  .card-body h3{
+    font-size:17px;
+    color:var(--paper);
+    line-height:1.25;
+    margin-bottom:8px;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .card-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 10px;
+    font-size:12.5px;
+    color:var(--mist);
+  }
+  .card-meta .tag{
+    background:var(--dusk);
+    border:1px solid var(--line);
+    padding:3px 9px;
+    border-radius:999px;
+  }
+
+  .empty-state{
+    grid-column:1/-1;
+    text-align:center;
+    padding:70px 20px;
+    color:var(--mist);
+  }
+  .empty-state svg{ width:44px; height:44px; margin-bottom:14px; opacity:.7; }
+  .empty-state p{ margin:0; font-size:15px; line-height:1.6; }
+  .empty-state strong{ color:var(--paper); display:block; font-family:'Fraunces',serif; font-size:22px; margin-bottom:8px; font-weight:600;}
+
+  /* ============ OVERLAYS / MODALS ============ */
+  .overlay{
+    position:fixed;
+    inset:0;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:rgba(8,7,14,.66);
+    backdrop-filter:blur(10px);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .4s var(--ease), visibility 0s linear .4s;
+  }
+  .overlay.open{
+    opacity:1;
+    visibility:visible;
+    transition:opacity .4s var(--ease), visibility 0s;
+  }
+  .modal{
+    background:var(--dusk);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    width:100%;
+    max-width:480px;
+    max-height:88vh;
+    overflow-y:auto;
+    padding:34px;
+    transform:translateY(18px) scale(.97);
+    transition:transform .45s var(--ease);
+  }
+  .overlay.open .modal{ transform:translateY(0) scale(1); }
+  .modal-select{ max-width:760px; }
+  .modal h3{ font-size:24px; margin-bottom:6px; }
+  .modal-hint{ color:var(--mist); font-size:14px; margin:0 0 22px; }
+
+  .field{ margin-bottom:18px; }
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--mist);
+    margin-bottom:8px;
+  }
+  .field input[type="text"],
+  .field input[type="date"]{
+    width:100%;
+    background:var(--ink);
+    border:1px solid var(--line);
+    color:var(--paper);
+    padding:12px 14px;
+    border-radius:var(--radius-sm);
+    font-size:15px;
+    font-family:inherit;
+  }
+  .field input::placeholder{ color:#605d78; }
+  .field input[type="date"]{ color-scheme:dark; }
+
+  .rating-row{ display:flex; align-items:center; gap:14px; }
+  .rating-row input[type="range"]{ flex:1; accent-color:var(--bloom); }
+  .rating-value{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:17px;
+    color:var(--aurora);
+    min-width:52px;
+    text-align:right;
+  }
+
+  .dropzone{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    border:1.5px dashed var(--line);
+    border-radius:var(--radius-md);
+    padding:14px;
+    cursor:pointer;
+    transition:border-color .3s, background .3s;
+  }
+  .dropzone:hover{ border-color:rgba(255,143,177,.4); background:rgba(255,143,177,.05); }
+  .dropzone-preview{
+    width:64px; height:64px;
+    border-radius:12px;
+    background:var(--ink);
+    overflow:hidden;
+    flex:none;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .dropzone-preview img{ width:100%; height:100%; object-fit:cover; }
+  .dropzone-preview svg{ width:24px; height:24px; color:var(--mist); }
+  .dropzone-text{ font-size:13.5px; color:var(--mist); line-height:1.5; }
+  .dropzone-text strong{ color:var(--paper); font-weight:700; }
+  .dropzone input[type="file"]{ display:none; }
+
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:26px;
+    flex-wrap:wrap;
+  }
+  .modal-actions.split{ justify-content:space-between; }
+
+  .select-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    max-height:56vh;
+    overflow-y:auto;
+    padding:2px;
+  }
+  @media (max-width:560px){ .select-grid{ grid-template-columns:repeat(2,1fr); } }
+  .select-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    text-align:left;
+    color:inherit;
+    cursor:pointer;
+    transition:transform .25s var(--ease), border-color .25s;
+  }
+  .select-card:hover{ transform:translateY(-3px); border-color:rgba(255,143,177,.4); }
+  .select-card .sc-cover{ width:100%; aspect-ratio:2/3; background:var(--ink); }
+  .select-card .sc-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .select-card .sc-name{
+    font-size:12.5px;
+    padding:8px;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    line-height:1.3;
+  }
+
+  /* fullscreen "modo calmo" de edição */
+  .overlay-fullscreen{ background:rgba(8,7,14,.86); }
+  .overlay-fullscreen .modal{
+    max-width:520px;
+  }
+
+  ::-webkit-scrollbar{ width:9px; }
+  ::-webkit-scrollbar-thumb{ background:var(--line); border-radius:99px; }
+
+  .top-nav{
+    display:flex; justify-content:flex-start; padding:22px 32px 0;
+  }
+</style>
+</head>
+<body>
+
+<div id="ambient"></div>
+
+<main id="app">
+
+  <!-- ===================== TELA 1 — LANDING ===================== -->
+  <section id="screen-landing" class="screen active">
+    <div class="landing-wrap">
+      <span class="mark">
+        <svg viewBox="0 0 32 32" fill="none"><path d="M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z" fill="#ff8fb1"/></svg>
+        yozora
+      </span>
+      <h1>seu <em>diário</em><br>de animes</h1>
+      <p class="landing-sub">guarde as capas, onde assistiu, a data e a nota de cada anime — tudo salvo só no seu navegador.</p>
+      <p class="landing-count" id="landing-count"></p>
+      <button class="btn btn-primary" id="btn-go-list">
+        Ver lista de animes
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===================== TELA 2 — LISTA ===================== -->
+  <section id="screen-list" class="screen">
+    <div class="top-nav">
+      <button class="btn-ghost" id="btn-back">
+        ← voltar
+      </button>
+    </div>
+    <div class="list-wrap">
+      <div class="list-header">
+        <div>
+          <p class="list-eyebrow" id="list-eyebrow">sua coleção</p>
+          <h2>Meus animes</h2>
+        </div>
+        <div class="list-actions">
+          <button class="btn btn-secondary" id="btn-edit">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            Editar
+          </button>
+          <button class="btn btn-primary" id="btn-add">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Adicionar
+          </button>
+        </div>
+      </div>
+
+      <div class="anime-grid" id="anime-grid"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===================== OVERLAY: ADICIONAR ===================== -->
+<div class="overlay" id="overlay-add">
+  <div class="modal">
+    <h3>Adicionar anime</h3>
+    <p class="modal-hint">preencha os detalhes de um anime que você assistiu.</p>
+    <form id="form-add" novalidate>
+      <div class="field">
+        <label>Capa</label>
+        <label class="dropzone" id="dropzone-add">
+          <span class="dropzone-preview" id="preview-add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+          </span>
+          <span class="dropzone-text"><strong>Escolher imagem</strong><br>PNG ou JPG</span>
+          <input type="file" accept="image/*" id="input-cover-add">
+        </label>
+      </div>
+      <div class="field">
+        <label for="input-name-add">Nome do anime</label>
+        <input type="text" id="input-name-add" placeholder="ex: Frieren" required>
+      </div>
+      <div class="field">
+        <label for="input-place-add">Onde assistiu</label>
+        <input type="text" id="input-place-add" placeholder="ex: Crunchyroll, Netflix...">
+      </div>
+      <div class="field">
+        <label for="input-date-add">Data</label>
+        <input type="date" id="input-date-add">
+      </div>
+      <div class="field">
+        <label>Nota</label>
+        <div class="rating-row">
+          <input type="range" min="0" max="10" step="0.5" value="8" id="input-rating-add">
+          <span class="rating-value" id="rating-value-add">8/10</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close="overlay-add">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Confirmar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== OVERLAY: ESCOLHER QUAL EDITAR ===================== -->
+<div class="overlay" id="overlay-select">
+  <div class="modal modal-select">
+    <h3>Editar anime</h3>
+    <p class="modal-hint">toque no anime que você quer editar.</p>
+    <div class="select-grid" id="select-grid"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" data-close="overlay-select">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== OVERLAY: EDITAR (tela cheia, modo calmo) ===================== -->
+<div class="overlay overlay-fullscreen" id="overlay-edit">
+  <div class="modal">
+    <h3>Editar com calma</h3>
+    <p class="modal-hint">ajuste os detalhes e confirme quando estiver pronto.</p>
+    <form id="form-edit" novalidate>
+      <input type="hidden" id="edit-id">
+      <div class="field">
+        <label>Capa</label>
+        <label class="dropzone" id="dropzone-edit">
+          <span class="dropzone-preview" id="preview-edit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+          </span>
+          <span class="dropzone-text"><strong>Trocar imagem</strong><br>opcional</span>
+          <input type="file" accept="image/*" id="input-cover-edit">
+        </label>
+      </div>
+      <div class="field">
+        <label for="input-name-edit">Nome do anime</label>
+        <input type="text" id="input-name-edit" required>
+      </div>
+      <div class="field">
+        <label for="input-place-edit">Onde assistiu</label>
+        <input type="text" id="input-place-edit">
+      </div>
+      <div class="field">
+        <label for="input-date-edit">Data</label>
+        <input type="date" id="input-date-edit">
+      </div>
+      <div class="field">
+        <label>Nota</label>
+        <div class="rating-row">
+          <input type="range" min="0" max="10" step="0.5" value="8" id="input-rating-edit">
+          <span class="rating-value" id="rating-value-edit">8/10</span>
+        </div>
+      </div>
+      <div class="modal-actions split">
+        <button type="button" class="btn-danger" id="btn-delete">Excluir anime</button>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn btn-secondary" data-close="overlay-edit">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Confirmar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "yozora_animes_v1";
+
+  /* ---------- helpers ---------- */
+  function uid(){
+    if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "id-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+  }
+  function escapeHtml(str){
+    return String(str == null ? "" : str)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function formatDateBR(iso){
+    if(!iso) return "";
+    var p = iso.split("-");
+    if(p.length !== 3) return iso;
+    return p[2] + "/" + p[1] + "/" + p[0];
+  }
+  fun
