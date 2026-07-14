@@ -193,6 +193,7 @@
   }
   .btn-danger:hover{ background:rgba(221,144,144,.08); }
   .btn[disabled]{ opacity:.4; pointer-events:none; }
+  .btn-sm{ padding:10px 16px; font-size:13px; }
 
   /* ---- list screen ---- */
   .list-wrap{
@@ -221,7 +222,13 @@
     font-weight:600;
     margin:0 0 6px;
   }
-  .list-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+  .list-actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .list-actions-divider{
+    width:1px;
+    align-self:stretch;
+    background:var(--line-strong);
+    margin:0 2px;
+  }
 
   .search-row{ margin-bottom:24px; }
   .search-box{
@@ -308,13 +315,14 @@
   .card-rating{
     position:absolute;
     top:8px; right:8px;
-    background:rgba(11,11,16,.72);
+    background:rgba(11,11,16,.78);
     backdrop-filter:blur(4px);
     color:var(--accent);
-    font-weight:600;
+    font-weight:700;
     font-size:11.5px;
     padding:4px 8px;
     border-radius:7px;
+    z-index:2;
   }
   .card-body{ padding:11px 12px 13px; }
   .card-title{
@@ -586,6 +594,16 @@
           <h2>Meus animes</h2>
         </div>
         <div class="list-actions">
+          <button class="btn btn-secondary btn-sm" id="btn-export" title="Salvar um arquivo de backup com toda a sua lista">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+            Exportar
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btn-import" title="Restaurar a lista a partir de um arquivo de backup">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg>
+            Importar
+          </button>
+          <input type="file" id="input-import-file" accept="application/json,.json" hidden>
+          <span class="list-actions-divider"></span>
           <button class="btn btn-secondary" id="btn-edit">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             Editar
@@ -795,19 +813,28 @@
     return animes.find(function(x){ return x.linkedPrevId === a.id; }) || null;
   }
 
+  /* ---------- migração de uma lista bruta (usado no load e no import) ---------- */
+  function migrateList(list){
+    list.forEach(function(a){
+      if(a.season == null) a.season = 1;
+      if(a.dateStart == null) a.dateStart = a.date || "";
+      if(a.dateEnd == null) a.dateEnd = "";
+      if(a.linkedPrevId === undefined) a.linkedPrevId = null;
+      if(!a.id) a.id = uid();
+      if(a.rating == null) a.rating = 0;
+      if(a.cover === undefined) a.cover = null;
+      if(a.name == null) a.name = "";
+      if(a.place == null) a.place = "";
+    });
+    return list;
+  }
+
   /* ---------- storage ---------- */
   function loadAnimes(){
     try{
       var raw = localStorage.getItem(STORAGE_KEY);
       var list = raw ? JSON.parse(raw) : [];
-      // migração: entradas salvas antes da temporada/datas separadas
-      list.forEach(function(a){
-        if(a.season == null) a.season = 1;
-        if(a.dateStart == null) a.dateStart = a.date || "";
-        if(a.dateEnd == null) a.dateEnd = "";
-        if(a.linkedPrevId === undefined) a.linkedPrevId = null;
-      });
-      return list;
+      return migrateList(list);
     }catch(e){
       console.warn("Não foi possível ler o storage:", e);
       return [];
@@ -902,7 +929,7 @@
         '<div class="empty-state">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="4"/></svg>' +
           '<strong>ainda vazio por aqui</strong>' +
-          '<p>adicione o primeiro anime que você assistiu para começar sua coleção.</p>' +
+          '<p>adicione o primeiro anime que você assistiu para começar sua coleção, ou importe um backup.</p>' +
         '</div>';
       return;
     }
@@ -1255,6 +1282,83 @@
       closeOverlay("overlay-edit");
       renderGrid();
     }
+  });
+
+  /* ---------- exportar / importar (backup) ---------- */
+  document.getElementById("btn-export").addEventListener("click", function(){
+    if(!animes.length){
+      alert("Sua lista está vazia — não há nada para exportar ainda.");
+      return;
+    }
+    var payload = {
+      app: "yozora",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      animes: animes
+    };
+    var dataStr = JSON.stringify(payload, null, 2);
+    var blob = new Blob([dataStr], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var stamp = new Date().toISOString().slice(0,10);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "yozora-backup-" + stamp + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  });
+
+  var importFileInput = document.getElementById("input-import-file");
+
+  document.getElementById("btn-import").addEventListener("click", function(){
+    importFileInput.value = "";
+    importFileInput.click();
+  });
+
+  importFileInput.addEventListener("change", function(){
+    var file = importFileInput.files && importFileInput.files[0];
+    if(!file) return;
+
+    var reader = new FileReader();
+    reader.onload = function(){
+      var parsed;
+      try{
+        parsed = JSON.parse(reader.result);
+      }catch(err){
+        alert("Esse arquivo não parece um backup válido do yozora (JSON inválido).");
+        return;
+      }
+
+      var list = Array.isArray(parsed) ? parsed : parsed && Array.isArray(parsed.animes) ? parsed.animes : null;
+      if(!list){
+        alert("Esse arquivo não parece um backup válido do yozora.");
+        return;
+      }
+
+      var proceed = true;
+      if(animes.length){
+        proceed = confirm(
+          "Importar vai substituir sua lista atual (" + animes.length + " " +
+          (animes.length === 1 ? "anime" : "animes") + ") pelos " + list.length + " " +
+          (list.length === 1 ? "anime" : "animes") + " do arquivo.\n\nEssa ação não pode ser desfeita. Continuar?"
+        );
+      }
+      if(!proceed) return;
+
+      animes = migrateList(list);
+      saveAnimes();
+      searchQuery = "";
+      document.getElementById("search-input").value = "";
+      document.getElementById("search-clear").hidden = true;
+      renderGrid();
+      renderLandingCount();
+      alert("Importação concluída: " + animes.length + " " + (animes.length === 1 ? "anime carregado." : "animes carregados."));
+    };
+    reader.onerror = function(){
+      alert("Não foi possível ler esse arquivo.");
+    };
+    reader.readAsText(file);
   });
 
   /* ---------- search ---------- */
