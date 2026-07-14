@@ -3,37 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0e0d13">
+<meta name="theme-color" content="#100f1a">
 <meta name="description" content="yozora — seu diário pessoal de animes assistidos">
 <title>yozora — diário de animes</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff8fb1' d='M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='6' y1='2' x2='28' y2='30' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23ffb0c9'/%3E%3Cstop offset='1' stop-color='%23b79bff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z'/%3E%3Cpath fill='%238de8d0' d='M8 19 9.6 23.4 14 25l-4.4 1.6L8 31l-1.6-4.4L2 25l4.4-1.6Z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   /* ============ TOKENS ============ */
   :root{
-    --ink:#0e0d13;
-    --dusk:#161420;
-    --card:#191722;
-    --card-hover:#1e1c29;
-    --line:rgba(241,238,252,.07);
-    --line-strong:rgba(241,238,252,.16);
+    --ink:#100f1a;
+    --dusk:#1a1826;
+    --card:#1e1c2c;
+    --line:rgba(241,238,252,.08);
     --paper:#f1eefc;
-    --mist:#9d9ab8;
-    --mist-dim:#68657f;
+    --mist:#a9a6c6;
     --bloom:#ff8fb1;
     --bloom-ink:#2b0f18;
     --aurora:#8de8d0;
     --violet:#b79bff;
     --danger:#ff8a8a;
-    --radius-lg:24px;
-    --radius-md:16px;
+    --radius-lg:28px;
+    --radius-md:18px;
     --radius-sm:12px;
-    --shadow-soft:0 20px 50px -24px rgba(0,0,0,.6);
-    --shadow-pop:0 30px 70px -20px rgba(0,0,0,.7);
+    --shadow-soft:0 24px 60px -28px rgba(0,0,0,.65);
     --ease:cubic-bezier(.22,1,.36,1);
-    --ease-spring:cubic-bezier(.34,1.56,.64,1);
   }
 
   *{box-sizing:border-box;}
@@ -55,373 +50,601 @@
   ::selection{background:var(--bloom);color:var(--bloom-ink);}
   a{color:inherit;}
   :focus-visible{outline:2px solid var(--bloom);outline-offset:3px;border-radius:6px;}
+
   button{font-family:inherit;cursor:pointer;}
 
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{ animation-duration:.001s !important; transition-duration:.001s !important; }
-  }
-
   /* ============ AMBIENT BACKGROUND ============ */
-  #ambient{ position:fixed; inset:0; overflow:hidden; z-index:0; pointer-events:none; }
-  .lantern{ position:absolute; border-radius:50%; filter:blur(70px); opacity:.35; animation:drift ease-in-out infinite alternate; will-change:transform; }
-  @keyframes drift{ from{ transform:translate(0,0) scale(1); } to{ transform:translate(var(--dx,40px),var(--dy,-30px)) scale(1.08); } }
-  .star{
-    position:absolute; border-radius:50%; background:var(--paper);
-    animation:twinkle ease-in-out infinite;
+  #ambient{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:0;
+    pointer-events:none;
   }
-  @keyframes twinkle{
-    0%,100%{ opacity:.12; transform:scale(1); }
-    50%{ opacity:.95; transform:scale(1.5); }
-  }
-  .drop{
-    position:absolute; top:-40px; border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.9), rgba(255,255,255,0) 70%);
-    animation:fall linear infinite;
+  .lantern{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(60px);
+    opacity:.5;
+    animation:drift ease-in-out infinite alternate;
     will-change:transform;
   }
-  @keyframes fall{
-    0%{ transform:translateY(0) translateX(0); opacity:0; }
-    8%{ opacity:.7; }
-    92%{ opacity:.5; }
-    100%{ transform:translateY(112vh) translateX(var(--drift,20px)); opacity:0; }
+  .star{
+    position:absolute;
+    width:3px;height:3px;
+    border-radius:50%;
+    background:var(--paper);
+    animation:twinkle ease-in-out infinite;
   }
-  @media (prefers-reduced-motion: reduce){ .lantern,.star,.drop{animation:none !important;} }
+  @keyframes drift{
+    from{ transform:translate(0,0) scale(1); }
+    to{ transform:translate(var(--dx,40px),var(--dy,-30px)) scale(1.08); }
+  }
+  @keyframes twinkle{
+    0%,100%{ opacity:.15; transform:scale(1); }
+    50%{ opacity:.9; transform:scale(1.4); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .lantern,.star{animation:none !important;}
+  }
 
   /* ============ LAYOUT / SCREENS ============ */
-  #app{ position:relative; z-index:1; min-height:100vh; }
-  .screen{
-    position:absolute; inset:0; min-height:100vh;
-    opacity:0; transform:translateY(10px); pointer-events:none;
-    transition:opacity .5s var(--ease), transform .5s var(--ease);
+  #app{
+    position:relative;
+    z-index:1;
+    min-height:100vh;
   }
-  .screen.active{ position:relative; opacity:1; transform:translateY(0); pointer-events:auto; }
+  .screen{
+    position:absolute;
+    inset:0;
+    min-height:100vh;
+    opacity:0;
+    transform:translateY(14px);
+    pointer-events:none;
+    transition:opacity .6s var(--ease), transform .6s var(--ease);
+  }
+  .screen.active{
+    position:relative;
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+  }
 
   /* ---- landing ---- */
   #screen-landing .landing-wrap{
-    min-height:100vh; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; text-align:center;
-    padding:32px; gap:20px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:32px;
+    gap:22px;
   }
   .mark{
-    display:flex; align-items:center; gap:9px;
-    font-weight:800; font-size:13px; letter-spacing:.32em;
-    text-transform:uppercase; color:var(--mist);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Manrope',sans-serif;
+    font-weight:800;
+    font-size:14px;
+    letter-spacing:.32em;
+    text-transform:uppercase;
+    color:var(--mist);
   }
-  .mark svg{width:16px;height:16px;flex:none;}
-  .landing-wrap h1{ font-size:clamp(2.4rem,7vw,4.6rem); line-height:1.04; color:var(--paper); }
-  .landing-wrap h1 em{ font-style:italic; color:var(--bloom); }
-  .landing-sub{ color:var(--mist); font-size:15.5px; max-width:400px; line-height:1.6; margin:0; }
-  .landing-count{ font-size:13px; color:var(--aurora); letter-spacing:.02em; }
+  .mark svg{width:18px;height:18px;flex:none;}
+  .landing-wrap h1{
+    font-size:clamp(2.6rem,7vw,5rem);
+    line-height:1.02;
+    color:var(--paper);
+  }
+  .landing-wrap h1 em{
+    font-style:italic;
+    color:var(--bloom);
+  }
+  .landing-sub{
+    color:var(--mist);
+    font-size:16px;
+    max-width:420px;
+    line-height:1.6;
+    margin:0;
+  }
+  .landing-count{
+    font-size:13px;
+    color:var(--aurora);
+    letter-spacing:.04em;
+  }
 
   /* ---- buttons ---- */
   .btn{
-    border:none; border-radius:999px; padding:14px 26px; font-size:14.5px; font-weight:700;
-    display:inline-flex; align-items:center; gap:9px;
-    transition:transform .3s var(--ease), box-shadow .3s var(--ease), background .25s, opacity .25s;
+    border:none;
+    border-radius:999px;
+    padding:11px 22px;
+    font-size:13.5px;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:transform .35s var(--ease), box-shadow .35s var(--ease), background .3s;
   }
-  .btn:active{ transform:scale(.96); }
-  .btn-primary{ background:var(--bloom); color:var(--bloom-ink); box-shadow:0 12px 28px -12px rgba(255,143,177,.5); }
-  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 18px 36px -12px rgba(255,143,177,.65); }
-  .btn-secondary{ background:var(--card); color:var(--paper); border:1px solid var(--line-strong); }
-  .btn-secondary:hover{ background:var(--card-hover); transform:translateY(-2px); }
-  .btn-icon{
-    background:var(--card); color:var(--paper); border:1px solid var(--line-strong);
-    width:42px; height:42px; border-radius:50%; padding:0; display:inline-flex; align-items:center; justify-content:center;
+  .btn-primary{
+    background:var(--bloom);
+    color:var(--bloom-ink);
+    box-shadow:0 14px 34px -12px rgba(255,143,177,.55);
   }
-  .btn-icon:hover{ background:var(--card-hover); transform:translateY(-2px); }
-  .btn-ghost{ background:none; border:none; color:var(--mist); padding:10px 6px; font-weight:600; font-size:14px; transition:color .25s; }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 20px 40px -12px rgba(255,143,177,.7); }
+  .btn-secondary{
+    background:transparent;
+    color:var(--paper);
+    border:1.5px solid var(--line);
+  }
+  .btn-secondary:hover{ background:var(--dusk); border-color:rgba(241,238,252,.2); transform:translateY(-2px); }
+  .btn-ghost{
+    background:none;
+    border:none;
+    color:var(--mist);
+    padding:10px 6px;
+    font-weight:600;
+    font-size:14px;
+  }
   .btn-ghost:hover{ color:var(--paper); }
   .btn-danger{
-    background:none; border:1.5px solid rgba(255,138,138,.3); color:var(--danger);
-    border-radius:999px; padding:11px 20px; font-weight:700; font-size:13.5px; transition:background .25s, transform .25s;
+    background:none;
+    border:1.5px solid rgba(255,138,138,.35);
+    color:var(--danger);
+    border-radius:999px;
+    padding:11px 20px;
+    font-weight:700;
+    font-size:13.5px;
   }
   .btn-danger:hover{ background:rgba(255,138,138,.1); }
-  .btn[disabled]{ opacity:.4; pointer-events:none; }
-
-  /* ---- top bar ---- */
-  .top-bar{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:22px 32px 0; gap:16px; flex-wrap:wrap;
-  }
-  .top-bar-right{ display:flex; gap:10px; }
-  .file-input-hidden{ display:none; }
+  .btn[disabled]{ opacity:.45; pointer-events:none; }
 
   /* ---- list screen ---- */
-  .list-wrap{ max-width:1080px; margin:0 auto; padding:28px 32px 100px; }
+  .list-wrap{
+    max-width:1100px;
+    margin:0 auto;
+    padding:44px 32px 100px;
+  }
   .list-header{
-    display:flex; align-items:flex-end; justify-content:space-between;
-    gap:18px; flex-wrap:wrap; margin-bottom:28px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:20px;
+    flex-wrap:wrap;
+    margin-bottom:34px;
   }
-  .list-header h2{ font-size:clamp(1.7rem,4vw,2.2rem); color:var(--paper); }
+  .list-header h2{
+    font-size:clamp(1.5rem,3vw,1.9rem);
+    color:var(--paper);
+  }
   .list-eyebrow{
-    color:var(--aurora); font-size:12.5px; letter-spacing:.09em; text-transform:uppercase;
-    font-weight:700; margin:0 0 6px;
+    color:var(--aurora);
+    font-size:13px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-weight:700;
+    margin:0 0 6px;
   }
-  .list-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+  .list-actions{ display:flex; gap:12px; flex-wrap:wrap; }
 
-  .search-row{ margin-bottom:24px; }
+  .search-row{ margin-bottom:26px; }
   .search-box{
-    display:flex; align-items:center; gap:10px; max-width:340px;
-    background:var(--card); border:1px solid var(--line); border-radius:999px;
-    padding:11px 16px; color:var(--mist);
-    transition:border-color .25s, background .25s;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    max-width:360px;
+    background:var(--dusk);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:11px 16px;
+    color:var(--mist);
+    transition:border-color .3s, background .3s;
   }
-  .search-box:focus-within{ border-color:rgba(255,143,177,.35); }
+  .search-box:focus-within{ border-color:rgba(255,143,177,.4); background:var(--card); }
   .search-box svg{ flex:none; opacity:.8; }
-  .search-box input{ flex:1; min-width:0; background:none; border:none; color:var(--paper); font-size:14px; font-family:inherit; }
+  .search-box input{
+    flex:1;
+    min-width:0;
+    background:none;
+    border:none;
+    color:var(--paper);
+    font-size:14.5px;
+    font-family:inherit;
+  }
   .search-box input:focus{ outline:none; }
-  .search-box input::placeholder{ color:var(--mist-dim); }
-  .search-clear{ flex:none; border:none; background:none; color:var(--mist); font-size:19px; line-height:1; padding:0 2px; transition:color .2s; }
+  .search-box input::placeholder{ color:#68657f; }
+  .search-clear{
+    flex:none;
+    border:none;
+    background:none;
+    color:var(--mist);
+    font-size:20px;
+    line-height:1;
+    padding:0 2px;
+  }
   .search-clear:hover{ color:var(--paper); }
 
-  .anime-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
-  @media (max-width:920px){ .anime-grid{ grid-template-columns:repeat(3,1fr); } }
-  @media (max-width:680px){ .anime-grid{ grid-template-columns:repeat(2,1fr); gap:14px; } }
+  .anime-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:22px;
+  }
+  @media (max-width:880px){ .anime-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .anime-grid{ grid-template-columns:1fr; } }
 
   .card{
-    position:relative; background:var(--card); border:1px solid var(--line);
-    border-radius:var(--radius-md); overflow:hidden; text-align:left; padding:0; color:inherit;
-    animation:rise .45s var(--ease) both; animation-delay:calc(var(--i,0) * 35ms);
-    transition:transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    overflow:hidden;
+    text-align:left;
+    padding:0;
+    color:inherit;
+    animation:rise .5s var(--ease) both;
+    animation-delay:calc(var(--i,0) * 45ms);
+    transition:transform .35s var(--ease), box-shadow .35s var(--ease), border-color .35s;
   }
-  @keyframes rise{ from{ opacity:0; transform:translateY(12px) scale(.98); } to{ opacity:1; transform:translateY(0) scale(1); } }
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(16px) scale(.98); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
   .card.is-clickable{ cursor:pointer; }
-  .card.is-clickable:hover{ transform:translateY(-4px); box-shadow:var(--shadow-soft); border-color:rgba(255,143,177,.3); }
-  .card.is-clickable:active{ transform:translateY(-1px) scale(.98); }
-
+  .card.is-clickable:hover{
+    transform:translateY(-5px);
+    box-shadow:var(--shadow-soft);
+    border-color:rgba(255,143,177,.35);
+  }
   .card-cover{
-    position:relative; width:100%; aspect-ratio:2/3;
-    background:linear-gradient(160deg,#221f30,#15131e); overflow:hidden;
+    position:relative;
+    width:100%;
+    flex:none;
+    aspect-ratio:2/3;
+    background:linear-gradient(160deg,#26233a,#181624);
+    overflow:hidden;
   }
   .card-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .card-cover .no-cover{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--mist); opacity:.45; }
-  .card-cover .no-cover svg{ width:32px; height:32px; }
+  .card-cover .no-cover{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--mist); opacity:.5;
+  }
+  .card-cover .no-cover svg{ width:38px; height:38px; }
   .card-rating{
-    position:absolute; top:9px; left:9px;
-    background:rgba(10,9,15,.82); backdrop-filter:blur(6px);
-    color:var(--paper); font-weight:800; font-size:12px;
-    padding:5px 9px; border-radius:8px; letter-spacing:.01em;
+    position:absolute;
+    top:10px; right:10px;
+    background:rgba(241,238,252,.96);
+    color:#0d0c14;
+    font-weight:800;
+    font-size:12.5px;
+    padding:5px 10px;
+    border-radius:999px;
     box-shadow:0 6px 14px -4px rgba(0,0,0,.5);
   }
-  .card-body{ padding:12px 13px 14px; min-height:44px; }
+  .card-body{ padding:14px 14px 16px; }
   .card-title{
-    display:-webkit-box; font-size:15.5px; font-weight:700; font-family:'Fraunces',serif;
-    color:var(--paper) !important; line-height:1.28; -webkit-line-clamp:2; -webkit-box-orient:vertical;
-    overflow:hidden; opacity:1; visibility:visible;
+    display:-webkit-box;
+    font-size:17px;
+    font-weight:700;
+    font-family:'Fraunces',serif;
+    color:var(--paper);
+    line-height:1.25;
+    margin-bottom:0;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
   }
 
-  .empty-state{ grid-column:1/-1; text-align:center; padding:64px 20px; color:var(--mist); }
-  .empty-state svg{ width:40px; height:40px; margin-bottom:14px; opacity:.6; }
-  .empty-state p{ margin:0; font-size:14.5px; line-height:1.6; }
-  .empty-state strong{ color:var(--paper); display:block; font-family:'Fraunces',serif; font-size:20px; margin-bottom:8px; font-weight:600; }
-
-  /* ============ TOAST ============ */
-  #toast{
-    position:fixed; left:50%; bottom:28px; transform:translate(-50%,20px);
-    background:var(--card); border:1px solid var(--line-strong); color:var(--paper);
-    padding:13px 22px; border-radius:999px; font-size:13.5px; font-weight:600;
-    box-shadow:var(--shadow-pop); z-index:100; opacity:0; pointer-events:none;
-    transition:opacity .35s var(--ease), transform .35s var(--ease);
-    display:flex; align-items:center; gap:8px;
+  .empty-state{
+    grid-column:1/-1;
+    text-align:center;
+    padding:70px 20px;
+    color:var(--mist);
   }
-  #toast.show{ opacity:1; transform:translate(-50%,0); }
-  #toast.error{ border-color:rgba(255,138,138,.35); }
+  .empty-state svg{ width:44px; height:44px; margin-bottom:14px; opacity:.7; }
+  .empty-state p{ margin:0; font-size:15px; line-height:1.6; }
+  .empty-state strong{ color:var(--paper); display:block; font-family:'Fraunces',serif; font-size:22px; margin-bottom:8px; font-weight:600;}
 
   /* ============ OVERLAYS / MODALS ============ */
   .overlay{
-    position:fixed; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
-    padding:24px; background:rgba(7,6,11,.7); backdrop-filter:blur(8px);
-    opacity:0; visibility:hidden; transition:opacity .35s var(--ease), visibility 0s linear .35s;
+    position:fixed;
+    inset:0;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:rgba(8,7,14,.66);
+    backdrop-filter:blur(10px);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .4s var(--ease), visibility 0s linear .4s;
   }
-  .overlay.open{ opacity:1; visibility:visible; transition:opacity .35s var(--ease), visibility 0s; }
+  .overlay.open{
+    opacity:1;
+    visibility:visible;
+    transition:opacity .4s var(--ease), visibility 0s;
+  }
   .modal{
-    background:var(--dusk); border:1px solid var(--line); border-radius:var(--radius-lg);
-    width:100%; max-width:460px; max-height:88vh; overflow-y:auto; padding:30px;
-    transform:translateY(16px) scale(.97); transition:transform .4s var(--ease-spring);
+    background:var(--dusk);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    width:100%;
+    max-width:480px;
+    max-height:88vh;
+    overflow-y:auto;
+    padding:34px;
+    transform:translateY(18px) scale(.97);
+    transition:transform .45s var(--ease);
   }
   .overlay.open .modal{ transform:translateY(0) scale(1); }
-  .modal-select{ max-width:740px; }
-  .modal h3{ font-size:22px; margin-bottom:5px; }
-  .modal-hint{ color:var(--mist); font-size:13.5px; margin:0 0 20px; line-height:1.5; }
+  .modal-select{ max-width:760px; }
+  .modal h3{ font-size:24px; margin-bottom:6px; }
+  .modal-hint{ color:var(--mist); font-size:14px; margin:0 0 22px; }
 
-  .field{ margin-bottom:16px; }
+  .field{ margin-bottom:18px; }
   .field label{
-    display:block; font-size:11.5px; font-weight:700; letter-spacing:.08em;
-    text-transform:uppercase; color:var(--mist); margin-bottom:8px;
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--mist);
+    margin-bottom:8px;
   }
 
-  .toggle-group{ display:flex; gap:9px; }
+  .toggle-group{ display:flex; gap:10px; }
   .toggle-btn{
-    flex:1; background:var(--ink); border:1.5px solid var(--line); color:var(--mist);
-    padding:10px; border-radius:var(--radius-sm); font-weight:700; font-size:13.5px;
-    transition:background .25s, border-color .25s, color .25s, transform .2s;
+    flex:1;
+    background:var(--ink);
+    border:1.5px solid var(--line);
+    color:var(--mist);
+    padding:10px;
+    border-radius:var(--radius-sm);
+    font-weight:700;
+    font-size:14px;
+    transition:background .3s, border-color .3s, color .3s;
   }
-  .toggle-btn:active{ transform:scale(.97); }
-  .toggle-btn.active{ border-color:var(--line-strong); color:var(--paper); }
+  .toggle-btn.active{ border-color:rgba(241,238,252,.4); color:var(--paper); }
   .toggle-btn.is-yes.active{ background:var(--aurora); border-color:var(--aurora); color:#0f2b23; }
-  .link-picker{ animation:rise .3s var(--ease) both; }
+  .link-picker{ animation:rise .35s var(--ease) both; }
 
-  .season-nav{ display:flex; gap:9px; margin-bottom:18px; flex-wrap:wrap; }
+  .season-nav{ display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
   .season-nav:empty{ display:none; margin:0; }
   .season-nav-btn{
-    background:var(--card); border:1px solid var(--line); color:var(--paper);
-    padding:8px 14px; border-radius:999px; font-size:12.5px; font-weight:700;
-    display:inline-flex; align-items:center; gap:6px; transition:border-color .25s, transform .25s;
+    background:var(--card);
+    border:1px solid var(--line);
+    color:var(--paper);
+    padding:9px 15px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:border-color .3s, transform .3s;
   }
-  .season-nav-btn:hover{ border-color:rgba(255,143,177,.35); transform:translateY(-1px); }
-
-  /* ---- padronização total dos campos de entrada ---- */
+  .season-nav-btn:hover{ border-color:rgba(255,143,177,.4); transform:translateY(-1px); }
   .field input[type="text"],
   .field input[type="date"],
   .field input[type="number"]{
-    width:100%; height:46px; box-sizing:border-box;
-    background:var(--ink); border:1px solid var(--line); color:var(--paper);
-    padding:0 14px; border-radius:var(--radius-sm); font-size:14.5px; font-family:inherit;
-    transition:border-color .25s, background .25s;
-    -moz-appearance:textfield;
+    width:100%;
+    background:var(--ink);
+    border:1px solid var(--line);
+    color:var(--paper);
+    padding:12px 14px;
+    border-radius:var(--radius-sm);
+    font-size:15px;
+    font-family:inherit;
   }
-  .field input[type="text"]:focus,
-  .field input[type="date"]:focus,
-  .field input[type="number"]:focus{ outline:none; border-color:rgba(255,143,177,.4); background:var(--card); }
-  .field input::placeholder{ color:var(--mist-dim); }
+  .field input::placeholder{ color:#605d78; }
   .field input[type="date"]{ color-scheme:dark; }
+  .field input[type="number"]{ -moz-appearance:textfield; }
   .field input[type="number"]::-webkit-outer-spin-button,
-  .field input[type="number"]::-webkit-inner-spin-button{
-    -webkit-appearance:inner-spin-button; opacity:.6; margin-left:6px;
-  }
+  .field input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
 
   .rating-row{ display:flex; align-items:center; gap:14px; }
-  .rating-row input[type="range"]{ flex:1; accent-color:var(--bloom); height:20px; }
-  .rating-value{ font-family:'Fraunces',serif; font-weight:700; font-size:16px; color:var(--aurora); min-width:48px; text-align:right; }
+  .rating-row input[type="range"]{ flex:1; accent-color:var(--bloom); }
+  .rating-value{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:17px;
+    color:var(--aurora);
+    min-width:52px;
+    text-align:right;
+  }
 
   .dropzone{
-    display:flex; align-items:center; gap:15px; border:1.5px dashed var(--line);
-    border-radius:var(--radius-md); padding:13px; cursor:pointer;
-    transition:border-color .25s, background .25s;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    border:1.5px dashed var(--line);
+    border-radius:var(--radius-md);
+    padding:14px;
+    cursor:pointer;
+    transition:border-color .3s, background .3s;
   }
-  .dropzone:hover{ border-color:rgba(255,143,177,.4); background:rgba(255,143,177,.04); }
+  .dropzone:hover{ border-color:rgba(255,143,177,.4); background:rgba(255,143,177,.05); }
   .dropzone-preview{
-    width:58px; height:58px; border-radius:11px; background:var(--ink); overflow:hidden;
-    flex:none; display:flex; align-items:center; justify-content:center;
+    width:64px; height:64px;
+    border-radius:12px;
+    background:var(--ink);
+    overflow:hidden;
+    flex:none;
+    display:flex;align-items:center;justify-content:center;
   }
   .dropzone-preview img{ width:100%; height:100%; object-fit:cover; }
-  .dropzone-preview svg{ width:22px; height:22px; color:var(--mist); }
-  .dropzone-text{ font-size:13px; color:var(--mist); line-height:1.5; }
+  .dropzone-preview svg{ width:24px; height:24px; color:var(--mist); }
+  .dropzone-text{ font-size:13.5px; color:var(--mist); line-height:1.5; }
   .dropzone-text strong{ color:var(--paper); font-weight:700; }
   .dropzone input[type="file"]{ display:none; }
 
-  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:24px; flex-wrap:wrap; }
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:26px;
+    flex-wrap:wrap;
+  }
   .modal-actions.split{ justify-content:space-between; }
 
-  .select-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:13px; max-height:56vh; overflow-y:auto; padding:2px; }
-  @media (max-width:560px){ .select-grid{ grid-template-columns:repeat(2,1fr); } }
-  .select-grid.compact{ grid-template-columns:repeat(2,1fr); max-height:250px; }
-  .select-card{
-    position:relative; background:var(--card); border:1px solid var(--line); border-radius:13px;
-    overflow:hidden; text-align:left; color:inherit; cursor:pointer;
-    transition:transform .22s var(--ease), border-color .22s;
+  .select-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    max-height:56vh;
+    overflow-y:auto;
+    padding:2px;
   }
-  .select-card:hover{ transform:translateY(-3px); border-color:rgba(255,143,177,.35); }
+  @media (max-width:560px){ .select-grid{ grid-template-columns:repeat(2,1fr); } }
+  .select-grid.compact{ grid-template-columns:repeat(2,1fr); max-height:260px; }
+  .select-card{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    text-align:left;
+    color:inherit;
+    cursor:pointer;
+    transition:transform .25s var(--ease), border-color .25s;
+  }
+  .select-card:hover{ transform:translateY(-3px); border-color:rgba(255,143,177,.4); }
   .select-card.is-selected{ border-color:var(--aurora); box-shadow:0 0 0 2px var(--aurora) inset; }
   .select-card.is-selected .sc-name{ color:var(--aurora); }
   .select-card .sc-check{
-    position:absolute; top:6px; right:6px; width:19px; height:19px; border-radius:50%;
-    background:var(--aurora); color:#0f2b23; display:flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:800; opacity:0; transform:scale(.4);
-    transition:opacity .22s, transform .22s;
+    position:absolute;
+    top:6px; right:6px;
+    width:20px; height:20px;
+    border-radius:50%;
+    background:var(--aurora);
+    color:#0f2b23;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px;
+    font-weight:800;
+    opacity:0;
+    transform:scale(.4);
+    transition:opacity .25s, transform .25s;
   }
   .select-card.is-selected .sc-check{ opacity:1; transform:scale(1); }
   .select-card .sc-cover{ width:100%; aspect-ratio:2/3; background:var(--ink); }
   .select-card .sc-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
   .select-card .sc-name{
-    font-size:12px; font-weight:600; padding:8px; display:-webkit-box;
-    -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.3;
+    font-size:12.5px;
+    font-weight:600;
+    padding:8px;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    line-height:1.3;
   }
 
-  .overlay-fullscreen{ background:rgba(7,6,11,.88); }
-  .overlay-fullscreen .modal{ max-width:500px; }
-
-  ::-webkit-scrollbar{ width:8px; }
-  ::-webkit-scrollbar-thumb{ background:var(--line-strong); border-radius:99px; }
-
-  /* ============ VIEW MODE (visualização) ============ */
-  #view-overlay{
-    position:fixed; inset:0; z-index:30; background:var(--ink);
-    opacity:0; visibility:hidden; pointer-events:none;
-    transition:opacity .45s var(--ease), visibility 0s linear .45s;
-    overflow-y:auto;
+  /* fullscreen "modo calmo" de edição */
+  .overlay-fullscreen{ background:rgba(8,7,14,.86); }
+  .overlay-fullscreen .modal{
+    max-width:520px;
   }
-  #view-overlay.open{ opacity:1; visibility:visible; pointer-events:auto; transition:opacity .45s var(--ease), visibility 0s; }
 
-  .view-topbar{
-    position:sticky; top:0; z-index:2; display:flex; justify-content:flex-start;
-    padding:20px 24px; background:linear-gradient(to bottom, var(--ink) 40%, transparent);
+  /* ---- visualização travada (clique na capa) ---- */
+  .overlay-view{ background:rgba(6,5,10,.82); align-items:flex-start; padding-top:8vh; }
+  .view-panel{
+    width:100%;
+    max-width:340px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    transform:scale(.9);
+    opacity:0;
+    transition:transform .5s var(--ease), opacity .4s var(--ease);
   }
-  .view-stage{
-    display:flex; flex-direction:column; align-items:center;
-    padding:10px 24px 60px; min-height:calc(100vh - 76px);
-  }
+  .overlay-view.open .view-panel{ transform:scale(1); opacity:1; }
   .view-cover{
-    width:min(78vw,300px); aspect-ratio:2/3; border-radius:20px; overflow:hidden;
-    background:linear-gradient(160deg,#221f30,#15131e);
-    box-shadow:var(--shadow-pop);
-    transform:scale(.82) translateY(18px); opacity:0;
-    transition:transform .55s var(--ease-spring), opacity .5s var(--ease);
+    width:100%;
+    aspect-ratio:2/3;
+    border-radius:var(--radius-md);
+    overflow:hidden;
+    background:linear-gradient(160deg,#26233a,#181624);
+    box-shadow:var(--shadow-soft);
+  }
+  .view-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .view-info{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    text-align:center;
+    margin-top:18px;
+  }
+  .view-name{ font-size:20px; color:var(--paper); }
+  .view-rating{
+    background:rgba(241,238,252,.96);
+    color:#0d0c14;
+    font-weight:800;
+    font-size:12.5px;
+    padding:5px 10px;
+    border-radius:999px;
     flex:none;
   }
-  #view-overlay.open .view-cover{ transform:scale(1) translateY(0); opacity:1; }
-  .view-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .view-cover .no-cover{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--mist); opacity:.4; }
-  .view-cover .no-cover svg{ width:46px; height:46px; }
-
-  .view-title{
-    font-size:clamp(1.5rem,4vw,2rem); text-align:center; margin-top:22px; padding:0 12px;
-    opacity:0; transform:translateY(8px);
-    transition:opacity .5s var(--ease) .1s, transform .5s var(--ease) .1s;
+  .view-arrow{
+    background:none; border:none; color:var(--mist);
+    margin-top:16px; padding:6px;
+    animation:bounce 1.8s ease-in-out infinite;
+    transition:color .3s;
   }
-  #view-overlay.open .view-title{ opacity:1; transform:translateY(0); }
-
-  .view-rating-chip{
-    margin-top:12px; display:inline-flex; align-items:center; gap:7px;
-    background:var(--card); border:1px solid var(--line-strong);
-    padding:8px 16px; border-radius:999px; font-weight:800; font-size:14px; color:var(--aurora);
-    opacity:0; transform:translateY(8px);
-    transition:opacity .5s var(--ease) .16s, transform .5s var(--ease) .16s;
+  .view-arrow:hover{ color:var(--paper); }
+  @keyframes bounce{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(6px); }
   }
-  #view-overlay.open .view-rating-chip{ opacity:1; transform:translateY(0); }
-
-  .view-expand-btn{
-    margin-top:30px; background:none; border:none; color:var(--mist);
-    display:flex; flex-direction:column; align-items:center; gap:6px;
-    font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-    transition:color .25s;
-    opacity:0; transform:translateY(8px);
-    transition:opacity .5s var(--ease) .22s, transform .5s var(--ease) .22s, color .25s;
-  }
-  #view-overlay.open .view-expand-btn{ opacity:1; transform:translateY(0); }
-  .view-expand-btn:hover{ color:var(--paper); }
-  .view-expand-btn svg{ transition:transform .4s var(--ease); }
-  .view-expand-btn.is-open svg{ transform:rotate(180deg); }
-
   .view-details{
-    width:100%; max-width:480px; margin-top:8px;
-    display:grid; grid-template-rows:0fr; overflow:hidden;
-    transition:grid-template-rows .5s var(--ease);
+    width:100%;
+    max-height:0;
+    overflow:hidden;
+    opacity:0;
+    transition:max-height .5s var(--ease), opacity .4s var(--ease), margin-top .5s var(--ease);
   }
-  .view-details.is-open{ grid-template-rows:1fr; }
-  .view-details-inner{ overflow:hidden; }
+  .view-details.open{ max-height:300px; opacity:1; margin-top:18px; }
+  .view-details .vd-row{
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    padding:12px 0;
+    border-top:1px solid var(--line);
+    font-size:14px;
+  }
+  .view-details .vd-label{ color:var(--mist); }
+  .view-details .vd-value{ color:var(--paper); font-weight:600; text-align:right; }
+  .view-close{
+    position:fixed;
+    top:22px; right:24px;
+    background:var(--card);
+    border:1px solid var(--line);
+    color:var(--paper);
+    width:38px; height:38px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .3s, border-color .3s;
+  }
+  .view-close:hover{ transform:scale(1.06); border-color:rgba(255,143,177,.4); }
 
-  .detail-card{
-    background:var(--card); border:1px solid var(--line); border-radius:var(--radius-md);
-    padding:6px 20px; margin-top:18px;
+  ::-webkit-scrollbar{ width:9px; }
+  ::-webkit-scrollbar-thumb{ background:var(--line); border-radius:99px; }
+
+  .top-nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 32px 0; gap:12px; flex-wrap:wrap;
   }
-  .detail-row{ display:flex; justify-content:space-between; gap:16px; padding:14px 0; border-bottom:1px solid var(--line); }
-  .detail-row:last-child{ border-bottom:none; }
-  .detail-label{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--mist); flex:none; }
-  .detail-value{ font-size:14.5px; color:var(--paper); text-align:right; font-weight:600; }
-  .detail-value.empty{ color:var(--mist-dim); font-weight:500; font-style:italic; }
-  .detail-value.link{ color:var(--bloom); cursor:pointer; }
-  .detail-value.link:hover{ text-decoration:underline; }
+  .backup-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .btn-backup{
+    display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--line); border-radius:999px;
+    padding:8px 14px; font-size:13px;
+  }
+  .btn-backup:hover{ background:var(--dusk); border-color:rgba(241,238,252,.2); }
 </style>
 </head>
 <body>
@@ -433,32 +656,50 @@
   <!-- ===================== TELA 1 — LANDING ===================== -->
   <section id="screen-landing" class="screen active">
     <div class="landing-wrap">
-      <span class="mark">
-        <svg viewBox="0 0 32 32" fill="none"><path d="M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z" fill="#ff8fb1"/></svg>
-        yozora
-      </span>
+      <div class="hero-moon" aria-hidden="true">
+        <span class="hero-moon-glow"></span>
+        <svg class="hero-moon-svg" viewBox="0 0 120 120" fill="none">
+          <defs>
+            <linearGradient id="heroMoonGrad" x1="24" y1="10" x2="104" y2="112" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="var(--bloom)"/>
+              <stop offset="1" stop-color="var(--violet)"/>
+            </linearGradient>
+          </defs>
+          <path d="M78 12a46 46 0 1 0 23 85.5A52 52 0 0 1 78 12Z" fill="url(#heroMoonGrad)"/>
+          <circle cx="58" cy="52" r="3" fill="rgba(255,255,255,.32)"/>
+          <circle cx="74" cy="74" r="4.5" fill="rgba(255,255,255,.22)"/>
+          <circle cx="46" cy="78" r="2.4" fill="rgba(255,255,255,.28)"/>
+        </svg>
+        <svg class="hero-star hero-star-1" viewBox="0 0 24 24" fill="var(--aurora)"><path d="m12 2 1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8Z"/></svg>
+        <svg class="hero-star hero-star-2" viewBox="0 0 24 24" fill="var(--paper)"><path d="m12 2 1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8Z"/></svg>
+      </div>
+      <span class="mark">yozora</span>
       <h1>seu <em>diário</em><br>de animes</h1>
       <p class="landing-sub">guarde as capas, onde assistiu, a data e a nota de cada anime — tudo salvo só no seu navegador.</p>
       <p class="landing-count" id="landing-count"></p>
-      <button class="btn btn-primary" id="btn-go-list">
+      <button class="btn btn-primary btn-hero" id="btn-go-list">
         Ver lista de animes
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
     </div>
   </section>
 
   <!-- ===================== TELA 2 — LISTA ===================== -->
   <section id="screen-list" class="screen">
-    <div class="top-bar">
-      <button class="btn-ghost" id="btn-back">← voltar</button>
-      <div class="top-bar-right">
-        <button class="btn-icon" id="btn-export" title="Exportar backup" aria-label="Exportar backup">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+    <div class="top-nav">
+      <button class="btn-ghost" id="btn-back">
+        ← voltar
+      </button>
+      <div class="backup-actions">
+        <button class="btn-ghost btn-backup" id="btn-export" title="Salvar backup da lista em um arquivo">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+          Exportar
         </button>
-        <button class="btn-icon" id="btn-import" title="Importar backup" aria-label="Importar backup">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 8l5-5 5 5"/><path d="M12 3v12"/></svg>
+        <button class="btn-ghost btn-backup" id="btn-import" title="Restaurar lista a partir de um arquivo">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M4 19h16"/></svg>
+          Importar
         </button>
-        <input type="file" id="import-file-input" class="file-input-hidden" accept="application/json,.json">
+        <input type="file" id="input-import-file" accept="application/json" hidden>
       </div>
     </div>
     <div class="list-wrap">
@@ -555,6 +796,24 @@
   </div>
 </div>
 
+<!-- ===================== OVERLAY: VISUALIZAR (travado, so leitura) ===================== -->
+<div class="overlay overlay-view" id="overlay-view">
+  <button type="button" class="view-close" id="view-close" aria-label="Fechar">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+  <div class="view-panel">
+    <div class="view-cover" id="view-cover"></div>
+    <div class="view-info">
+      <h3 class="view-name" id="view-name"></h3>
+      <span class="view-rating" id="view-rating"></span>
+    </div>
+    <button type="button" class="view-arrow" id="view-arrow" aria-label="Ver detalhes">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="view-details" id="view-details"></div>
+  </div>
+</div>
+
 <!-- ===================== OVERLAY: ESCOLHER QUAL EDITAR ===================== -->
 <div class="overlay" id="overlay-select">
   <div class="modal modal-select">
@@ -634,29 +893,6 @@
   </div>
 </div>
 
-<!-- ===================== OVERLAY: VISUALIZAÇÃO (somente leitura) ===================== -->
-<div id="view-overlay">
-  <div class="view-topbar">
-    <button class="btn-ghost" id="btn-view-back">← voltar</button>
-  </div>
-  <div class="view-stage">
-    <div class="view-cover" id="view-cover"></div>
-    <h2 class="view-title" id="view-title"></h2>
-    <span class="view-rating-chip" id="view-rating-chip"></span>
-    <button type="button" class="view-expand-btn" id="view-expand-btn">
-      detalhes
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-    </button>
-    <div class="view-details" id="view-details">
-      <div class="view-details-inner">
-        <div class="detail-card" id="view-detail-card"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="toast"></div>
-
 <script>
 (function(){
   "use strict";
@@ -686,7 +922,10 @@
     return s + "/10";
   }
   function normalize(str){
-    return String(str || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return String(str || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
   }
   function getPrevSeason(a){
     if(!a || !a.linkedPrevId) return null;
@@ -697,22 +936,12 @@
     return animes.find(function(x){ return x.linkedPrevId === a.id; }) || null;
   }
 
-  /* ---------- toast ---------- */
-  var toastTimer = null;
-  function showToast(msg, isError){
-    var el = document.getElementById("toast");
-    el.textContent = msg;
-    el.classList.toggle("error", !!isError);
-    el.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 3200);
-  }
-
   /* ---------- storage ---------- */
   function loadAnimes(){
     try{
       var raw = localStorage.getItem(STORAGE_KEY);
       var list = raw ? JSON.parse(raw) : [];
+      // migração: entradas salvas antes da temporada/datas separadas
       list.forEach(function(a){
         if(a.season == null) a.season = 1;
         if(a.dateStart == null) a.dateStart = a.date || "";
@@ -729,7 +958,7 @@
     try{
       localStorage.setItem(STORAGE_KEY, JSON.stringify(animes));
     }catch(e){
-      showToast("Não foi possível salvar. Armazenamento local cheio.", true);
+      alert("Não foi possível salvar. O armazenamento local pode estar cheio (imagens muito grandes/pesadas).");
     }
   }
 
@@ -741,48 +970,30 @@
     var colors = ["#ff8fb1","#8de8d0","#b79bff"];
     var frag = document.createDocumentFragment();
 
-    for(var i=0;i<4;i++){
+    for(var i=0;i<6;i++){
       var l = document.createElement("div");
       l.className = "lantern";
-      var size = 220 + Math.random()*220;
+      var size = 180 + Math.random()*220;
       l.style.width = size+"px";
       l.style.height = size+"px";
       l.style.left = (Math.random()*100)+"%";
       l.style.top = (Math.random()*100)+"%";
       l.style.background = colors[i % colors.length];
-      l.style.setProperty("--dx",(Math.random()*100-50)+"px");
-      l.style.setProperty("--dy",(Math.random()*100-50)+"px");
-      l.style.animationDuration = (20+Math.random()*14)+"s";
+      l.style.setProperty("--dx",(Math.random()*120-60)+"px");
+      l.style.setProperty("--dy",(Math.random()*120-60)+"px");
+      l.style.animationDuration = (16+Math.random()*14)+"s";
       l.style.animationDelay = (-Math.random()*10)+"s";
       frag.appendChild(l);
     }
-
-    for(var j=0;j<70;j++){
+    for(var j=0;j<44;j++){
       var s = document.createElement("div");
       s.className = "star";
-      var starSize = 1.5 + Math.random()*2;
-      s.style.width = starSize+"px";
-      s.style.height = starSize+"px";
       s.style.left = (Math.random()*100)+"%";
       s.style.top = (Math.random()*100)+"%";
       s.style.animationDuration = (2+Math.random()*3.5)+"s";
       s.style.animationDelay = (-Math.random()*5)+"s";
       frag.appendChild(s);
     }
-
-    for(var k=0;k<26;k++){
-      var d = document.createElement("div");
-      d.className = "drop";
-      var dropSize = 3 + Math.random()*4;
-      d.style.width = dropSize+"px";
-      d.style.height = dropSize+"px";
-      d.style.left = (Math.random()*100)+"%";
-      d.style.setProperty("--drift", (Math.random()*60-30)+"px");
-      d.style.animationDuration = (7+Math.random()*10)+"s";
-      d.style.animationDelay = (-Math.random()*16)+"s";
-      frag.appendChild(d);
-    }
-
     host.appendChild(frag);
   }
 
@@ -801,9 +1012,47 @@
     el.textContent = animes.length + (animes.length === 1 ? " anime guardado até agora" : " animes guardados até agora");
   }
 
+  /* ---------- visualização travada (clique na capa) ---------- */
+  function openView(id){
+    var anime = animes.find(function(a){ return a.id === id; });
+    if(!anime) return;
+
+    document.getElementById("view-cover").innerHTML = coverHtml(anime.cover);
+    document.getElementById("view-name").textContent = anime.name || "";
+    document.getElementById("view-rating").textContent = formatRating(anime.rating);
+
+    var rows = [];
+    rows.push(["Temporada", anime.season || 1]);
+    if(anime.place) rows.push(["Onde assistiu", anime.place]);
+    if(anime.dateStart) rows.push(["Data de início", formatDateBR(anime.dateStart)]);
+    if(anime.dateEnd) rows.push(["Finalização da temporada", formatDateBR(anime.dateEnd)]);
+
+    var detailsHtml = rows.map(function(r){
+      return '<div class="vd-row"><span class="vd-label">'+ escapeHtml(r[0]) +'</span><span class="vd-value">'+ escapeHtml(r[1]) +'</span></div>';
+    }).join("");
+    var details = document.getElementById("view-details");
+    details.innerHTML = detailsHtml;
+    details.classList.remove("open");
+
+    openOverlay("overlay-view");
+  }
+
+  document.getElementById("view-close").addEventListener("click", function(){
+    closeOverlay("overlay-view");
+    document.getElementById("view-details").classList.remove("open");
+  });
+
+  document.getElementById("view-arrow").addEventListener("click", function(){
+    document.getElementById("view-details").classList.toggle("open");
+  });
+
   /* ---------- overlays ---------- */
-  function openOverlay(id){ document.getElementById(id).classList.add("open"); }
-  function closeOverlay(id){ document.getElementById(id).classList.remove("open"); }
+  function openOverlay(id){
+    document.getElementById(id).classList.add("open");
+  }
+  function closeOverlay(id){
+    document.getElementById(id).classList.remove("open");
+  }
   document.addEventListener("click", function(e){
     var closeBtn = e.target.closest("[data-close]");
     if(closeBtn){ closeOverlay(closeBtn.getAttribute("data-close")); }
@@ -814,13 +1063,14 @@
   document.addEventListener("keydown", function(e){
     if(e.key === "Escape"){
       document.querySelectorAll(".overlay.open").forEach(function(o){ o.classList.remove("open"); });
-      closeViewOverlay();
     }
   });
 
   /* ---------- card templates ---------- */
   function coverHtml(cover){
-    if(cover){ return '<img src="'+cover+'" alt="">'; }
+    if(cover){
+      return '<img src="'+cover+'" alt="">';
+    }
     return '<span class="no-cover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span>';
   }
 
@@ -876,7 +1126,6 @@
         '<span class="card-body">' +
           '<span class="card-title">'+ escapeHtml(a.name) +'</span>' +
         '</span>';
-      // toque na capa/cartão abre VISUALIZAÇÃO, nunca edição direta
       card.addEventListener("click", function(){ openView(a.id); });
       frag.appendChild(card);
     });
@@ -940,7 +1189,7 @@
         preview.innerHTML = '<img src="'+dataUrl+'" alt="">';
         onResult(dataUrl);
       }).catch(function(){
-        showToast("Não foi possível carregar essa imagem.", true);
+        alert("Não foi possível carregar essa imagem.");
       });
     });
   }
@@ -1111,13 +1360,12 @@
     document.getElementById("search-input").value = "";
     document.getElementById("search-clear").hidden = true;
     renderGrid();
-    showToast("Anime adicionado.");
   });
 
-  /* ---------- edit flow (única forma de editar) ---------- */
+  /* ---------- edit flow ---------- */
   document.getElementById("btn-edit").addEventListener("click", function(){
     if(!animes.length){
-      showToast("Você ainda não adicionou nenhum anime.", true);
+      alert("Você ainda não adicionou nenhum anime.");
       return;
     }
     renderSelectGrid();
@@ -1184,7 +1432,6 @@
     saveAnimes();
     closeOverlay("overlay-edit");
     renderGrid();
-    showToast("Alterações salvas.");
   });
 
   document.getElementById("btn-delete").addEventListener("click", function(){
@@ -1193,79 +1440,12 @@
     if(!anime) return;
     if(confirm('Excluir "'+anime.name+'" da sua lista? Essa ação não pode ser desfeita.')){
       animes = animes.filter(function(a){ return a.id !== id; });
+      // desfaz vínculos de outras temporadas que apontavam pra essa
       animes.forEach(function(a){ if(a.linkedPrevId === id) a.linkedPrevId = null; });
       saveAnimes();
       closeOverlay("overlay-edit");
       renderGrid();
-      showToast("Anime excluído.");
     }
-  });
-
-  /* ---------- VIEW MODE (somente leitura) ---------- */
-  var viewDetailsOpen = false;
-
-  function statusLabel(anime){
-    if(anime.dateEnd) return "Concluído";
-    if(anime.dateStart) return "Assistindo";
-    return "Sem status";
-  }
-
-  function detailRow(label, value, isEmpty){
-    return '<div class="detail-row">' +
-      '<span class="detail-label">'+ escapeHtml(label) +'</span>' +
-      '<span class="detail-value'+ (isEmpty ? ' empty' : '') +'">'+ (isEmpty ? value : escapeHtml(value)) +'</span>' +
-    '</div>';
-  }
-
-  function openView(id){
-    var anime = animes.find(function(a){ return a.id === id; });
-    if(!anime) return;
-
-    document.getElementById("view-cover").innerHTML = anime.cover
-      ? '<img src="'+anime.cover+'" alt="">'
-      : '<span class="no-cover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span>';
-    document.getElementById("view-title").textContent = anime.name || "";
-    document.getElementById("view-rating-chip").textContent = "★ " + formatRating(anime.rating);
-
-    var rows = "";
-    rows += detailRow("Status", statusLabel(anime));
-    rows += detailRow("Temporada", "Temporada " + (anime.season || 1));
-    rows += detailRow("Onde assistiu", anime.place || "não informado", !anime.place);
-    rows += detailRow("Início", anime.dateStart ? formatDateBR(anime.dateStart) : "não informado", !anime.dateStart);
-    rows += detailRow("Fim da temporada", anime.dateEnd ? formatDateBR(anime.dateEnd) : "não informado", !anime.dateEnd);
-    rows += detailRow("Nota", formatRating(anime.rating));
-
-    var prev = getPrevSeason(anime);
-    var next = getNextSeason(anime);
-    if(prev) rows += detailRow("Temporada anterior", prev.name);
-    if(next) rows += detailRow("Próxima temporada", next.name);
-
-    document.getElementById("view-detail-card").innerHTML = rows;
-
-    viewDetailsOpen = false;
-    document.getElementById("view-details").classList.remove("is-open");
-    document.getElementById("view-expand-btn").classList.remove("is-open");
-    document.getElementById("view-expand-btn").firstChild.textContent = "detalhes ";
-
-    var ov = document.getElementById("view-overlay");
-    ov.classList.add("open");
-    ov.scrollTop = 0;
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeViewOverlay(){
-    var ov = document.getElementById("view-overlay");
-    if(!ov.classList.contains("open")) return;
-    ov.classList.remove("open");
-    document.body.style.overflow = "";
-  }
-
-  document.getElementById("btn-view-back").addEventListener("click", closeViewOverlay);
-
-  document.getElementById("view-expand-btn").addEventListener("click", function(){
-    viewDetailsOpen = !viewDetailsOpen;
-    document.getElementById("view-details").classList.toggle("is-open", viewDetailsOpen);
-    this.classList.toggle("is-open", viewDetailsOpen);
   });
 
   /* ---------- search ---------- */
@@ -1284,90 +1464,6 @@
     searchClear.hidden = true;
     renderGrid();
     searchInput.focus();
-  });
-
-  /* ---------- export / import (backup) ---------- */
-  function downloadJson(obj, filename){
-    var blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-  }
-
-  function pad2(n){ return (n<10 ? "0" : "") + n; }
-
-  document.getElementById("btn-export").addEventListener("click", function(){
-    if(!animes.length){
-      showToast("Sua lista está vazia — nada para exportar.", true);
-      return;
-    }
-    var payload = {
-      app: "yozora",
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      animes: animes
-    };
-    var d = new Date();
-    var filename = "yozora-backup-" + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()) + ".json";
-    downloadJson(payload, filename);
-    showToast("Backup exportado.");
-  });
-
-  document.getElementById("btn-import").addEventListener("click", function(){
-    document.getElementById("import-file-input").click();
-  });
-
-  document.getElementById("import-file-input").addEventListener("change", function(){
-    var file = this.files && this.files[0];
-    this.value = "";
-    if(!file) return;
-
-    var reader = new FileReader();
-    reader.onerror = function(){ showToast("Não foi possível ler o arquivo.", true); };
-    reader.onload = function(){
-      var data;
-      try{
-        data = JSON.parse(reader.result);
-      }catch(e){
-        showToast("Arquivo inválido. Selecione um backup do yozora.", true);
-        return;
-      }
-      var incoming = Array.isArray(data) ? data : (Array.isArray(data.animes) ? data.animes : null);
-      if(!incoming){
-        showToast("Esse arquivo não parece ser um backup do yozora.", true);
-        return;
-      }
-      var proceed = true;
-      if(animes.length){
-        proceed = confirm("Importar esse backup vai substituir sua lista atual (" + animes.length + " " + (animes.length === 1 ? "anime" : "animes") + ") por " + incoming.length + " " + (incoming.length === 1 ? "anime" : "animes") + ". Deseja continuar?");
-      }
-      if(!proceed) return;
-
-      incoming.forEach(function(a){
-        if(!a.id) a.id = uid();
-        if(a.season == null) a.season = 1;
-        if(a.dateStart == null) a.dateStart = a.date || "";
-        if(a.dateEnd == null) a.dateEnd = "";
-        if(a.linkedPrevId === undefined) a.linkedPrevId = null;
-        if(a.rating == null) a.rating = 0;
-        if(a.createdAt == null) a.createdAt = Date.now();
-      });
-
-      animes = incoming;
-      saveAnimes();
-      searchQuery = "";
-      searchInput.value = "";
-      searchClear.hidden = true;
-      renderGrid();
-      renderLandingCount();
-      showToast("Backup importado: " + animes.length + " " + (animes.length === 1 ? "anime" : "animes") + ".");
-    };
-    reader.readAsText(file);
   });
 
   /* ---------- navigation ---------- */
