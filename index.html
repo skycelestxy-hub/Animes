@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#100f1a">
 <meta name="description" content="yozora — seu diário pessoal de animes assistidos">
 <title>yozora — diário de animes</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff8fb1' d='M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z'/%3E%3Cpath fill='%238de8d0' d='m26 6 .9 2.1L29 9l-2.1.9L26 12l-.9-2.1L23 9l2.1-.9Z'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='6' y1='2' x2='28' y2='30' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23ffb0c9'/%3E%3Cstop offset='1' stop-color='%23b79bff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z'/%3E%3Cpath fill='%238de8d0' d='M8 19 9.6 23.4 14 25l-4.4 1.6L8 31l-1.6-4.4L2 25l4.4-1.6Z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -313,15 +313,15 @@
   .card-rating{
     position:absolute;
     top:10px; right:10px;
-    background:var(--aurora);
-    color:#0f2b23;
+    background:rgba(241,238,252,.96);
+    color:#0d0c14;
     font-weight:800;
     font-size:12.5px;
     padding:5px 10px;
     border-radius:999px;
-    box-shadow:0 6px 14px -4px rgba(0,0,0,.4);
+    box-shadow:0 6px 14px -4px rgba(0,0,0,.5);
   }
-  .card-body{ padding:16px 16px 18px; }
+  .card-body{ padding:14px 14px 16px; }
   .card-title{
     display:-webkit-box;
     font-size:17px;
@@ -329,23 +329,10 @@
     font-family:'Fraunces',serif;
     color:var(--paper);
     line-height:1.25;
-    margin-bottom:8px;
+    margin-bottom:0;
     -webkit-line-clamp:2;
     -webkit-box-orient:vertical;
     overflow:hidden;
-  }
-  .card-meta{
-    display:flex;
-    flex-wrap:wrap;
-    gap:6px 10px;
-    font-size:12.5px;
-    color:var(--mist);
-  }
-  .card-meta .tag{
-    background:var(--dusk);
-    border:1px solid var(--line);
-    padding:3px 9px;
-    border-radius:999px;
   }
 
   .empty-state{
@@ -405,6 +392,39 @@
     color:var(--mist);
     margin-bottom:8px;
   }
+
+  .toggle-group{ display:flex; gap:10px; }
+  .toggle-btn{
+    flex:1;
+    background:var(--ink);
+    border:1.5px solid var(--line);
+    color:var(--mist);
+    padding:10px;
+    border-radius:var(--radius-sm);
+    font-weight:700;
+    font-size:14px;
+    transition:background .3s, border-color .3s, color .3s;
+  }
+  .toggle-btn.active{ border-color:rgba(241,238,252,.4); color:var(--paper); }
+  .toggle-btn.is-yes.active{ background:var(--aurora); border-color:var(--aurora); color:#0f2b23; }
+  .link-picker{ animation:rise .35s var(--ease) both; }
+
+  .season-nav{ display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+  .season-nav:empty{ display:none; margin:0; }
+  .season-nav-btn{
+    background:var(--card);
+    border:1px solid var(--line);
+    color:var(--paper);
+    padding:9px 15px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:border-color .3s, transform .3s;
+  }
+  .season-nav-btn:hover{ border-color:rgba(255,143,177,.4); transform:translateY(-1px); }
   .field input[type="text"],
   .field input[type="date"]{
     width:100%;
@@ -473,7 +493,9 @@
     padding:2px;
   }
   @media (max-width:560px){ .select-grid{ grid-template-columns:repeat(2,1fr); } }
+  .select-grid.compact{ grid-template-columns:repeat(2,1fr); max-height:260px; }
   .select-card{
+    position:relative;
     background:var(--card);
     border:1px solid var(--line);
     border-radius:14px;
@@ -484,10 +506,28 @@
     transition:transform .25s var(--ease), border-color .25s;
   }
   .select-card:hover{ transform:translateY(-3px); border-color:rgba(255,143,177,.4); }
+  .select-card.is-selected{ border-color:var(--aurora); box-shadow:0 0 0 2px var(--aurora) inset; }
+  .select-card.is-selected .sc-name{ color:var(--aurora); }
+  .select-card .sc-check{
+    position:absolute;
+    top:6px; right:6px;
+    width:20px; height:20px;
+    border-radius:50%;
+    background:var(--aurora);
+    color:#0f2b23;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px;
+    font-weight:800;
+    opacity:0;
+    transform:scale(.4);
+    transition:opacity .25s, transform .25s;
+  }
+  .select-card.is-selected .sc-check{ opacity:1; transform:scale(1); }
   .select-card .sc-cover{ width:100%; aspect-ratio:2/3; background:var(--ink); }
   .select-card .sc-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
   .select-card .sc-name{
     font-size:12.5px;
+    font-weight:600;
     padding:8px;
     display:-webkit-box;
     -webkit-line-clamp:2;
@@ -519,14 +559,28 @@
   <!-- ===================== TELA 1 — LANDING ===================== -->
   <section id="screen-landing" class="screen active">
     <div class="landing-wrap">
-      <span class="mark">
-        <svg viewBox="0 0 32 32" fill="none"><path d="M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z" fill="#ff8fb1"/></svg>
-        yozora
-      </span>
+      <div class="hero-moon" aria-hidden="true">
+        <span class="hero-moon-glow"></span>
+        <svg class="hero-moon-svg" viewBox="0 0 120 120" fill="none">
+          <defs>
+            <linearGradient id="heroMoonGrad" x1="24" y1="10" x2="104" y2="112" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="var(--bloom)"/>
+              <stop offset="1" stop-color="var(--violet)"/>
+            </linearGradient>
+          </defs>
+          <path d="M78 12a46 46 0 1 0 23 85.5A52 52 0 0 1 78 12Z" fill="url(#heroMoonGrad)"/>
+          <circle cx="58" cy="52" r="3" fill="rgba(255,255,255,.32)"/>
+          <circle cx="74" cy="74" r="4.5" fill="rgba(255,255,255,.22)"/>
+          <circle cx="46" cy="78" r="2.4" fill="rgba(255,255,255,.28)"/>
+        </svg>
+        <svg class="hero-star hero-star-1" viewBox="0 0 24 24" fill="var(--aurora)"><path d="m12 2 1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8Z"/></svg>
+        <svg class="hero-star hero-star-2" viewBox="0 0 24 24" fill="var(--paper)"><path d="m12 2 1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8Z"/></svg>
+      </div>
+      <span class="mark">yozora</span>
       <h1>seu <em>diário</em><br>de animes</h1>
       <p class="landing-sub">guarde as capas, onde assistiu, a data e a nota de cada anime — tudo salvo só no seu navegador.</p>
       <p class="landing-count" id="landing-count"></p>
-      <button class="btn btn-primary" id="btn-go-list">
+      <button class="btn btn-primary btn-hero" id="btn-go-list">
         Ver lista de animes
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
@@ -593,12 +647,31 @@
         <input type="text" id="input-name-add" placeholder="ex: Frieren" required>
       </div>
       <div class="field">
+        <label for="input-season-add">Temporada</label>
+        <input type="number" id="input-season-add" min="1" step="1" value="1">
+      </div>
+      <div class="field" id="link-block-add" hidden>
+        <label>Juntar com a temporada</label>
+        <div class="toggle-group">
+          <button type="button" class="toggle-btn active" id="link-nao-add" aria-pressed="true">Não</button>
+          <button type="button" class="toggle-btn is-yes" id="link-sim-add" aria-pressed="false">Sim</button>
+        </div>
+        <div class="link-picker" id="link-picker-add" hidden>
+          <p class="modal-hint" style="margin:14px 0 10px;">qual foi a temporada antiga?</p>
+          <div class="select-grid compact" id="link-grid-add"></div>
+        </div>
+      </div>
+      <div class="field">
         <label for="input-place-add">Onde assistiu</label>
         <input type="text" id="input-place-add" placeholder="ex: Crunchyroll, Netflix...">
       </div>
       <div class="field">
-        <label for="input-date-add">Data</label>
-        <input type="date" id="input-date-add">
+        <label for="input-datestart-add">Data de início</label>
+        <input type="date" id="input-datestart-add">
+      </div>
+      <div class="field">
+        <label for="input-dateend-add">Data de finalização da temporada</label>
+        <input type="date" id="input-dateend-add">
       </div>
       <div class="field">
         <label>Nota</label>
@@ -632,6 +705,7 @@
   <div class="modal">
     <h3>Editar com calma</h3>
     <p class="modal-hint">ajuste os detalhes e confirme quando estiver pronto.</p>
+    <div class="season-nav" id="season-nav-edit"></div>
     <form id="form-edit" novalidate>
       <input type="hidden" id="edit-id">
       <div class="field">
@@ -649,12 +723,31 @@
         <input type="text" id="input-name-edit" required>
       </div>
       <div class="field">
+        <label for="input-season-edit">Temporada</label>
+        <input type="number" id="input-season-edit" min="1" step="1" value="1">
+      </div>
+      <div class="field" id="link-block-edit" hidden>
+        <label>Juntar com a temporada</label>
+        <div class="toggle-group">
+          <button type="button" class="toggle-btn active" id="link-nao-edit" aria-pressed="true">Não</button>
+          <button type="button" class="toggle-btn is-yes" id="link-sim-edit" aria-pressed="false">Sim</button>
+        </div>
+        <div class="link-picker" id="link-picker-edit" hidden>
+          <p class="modal-hint" style="margin:14px 0 10px;">qual foi a temporada antiga?</p>
+          <div class="select-grid compact" id="link-grid-edit"></div>
+        </div>
+      </div>
+      <div class="field">
         <label for="input-place-edit">Onde assistiu</label>
         <input type="text" id="input-place-edit">
       </div>
       <div class="field">
-        <label for="input-date-edit">Data</label>
-        <input type="date" id="input-date-edit">
+        <label for="input-datestart-edit">Data de início</label>
+        <input type="date" id="input-datestart-edit">
+      </div>
+      <div class="field">
+        <label for="input-dateend-edit">Data de finalização da temporada</label>
+        <input type="date" id="input-dateend-edit">
       </div>
       <div class="field">
         <label>Nota</label>
@@ -708,12 +801,28 @@
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
   }
+  function getPrevSeason(a){
+    if(!a || !a.linkedPrevId) return null;
+    return animes.find(function(x){ return x.id === a.linkedPrevId; }) || null;
+  }
+  function getNextSeason(a){
+    if(!a) return null;
+    return animes.find(function(x){ return x.linkedPrevId === a.id; }) || null;
+  }
 
   /* ---------- storage ---------- */
   function loadAnimes(){
     try{
       var raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      var list = raw ? JSON.parse(raw) : [];
+      // migração: entradas salvas antes da temporada/datas separadas
+      list.forEach(function(a){
+        if(a.season == null) a.season = 1;
+        if(a.dateStart == null) a.dateStart = a.date || "";
+        if(a.dateEnd == null) a.dateEnd = "";
+        if(a.linkedPrevId === undefined) a.linkedPrevId = null;
+      });
+      return list;
     }catch(e){
       console.warn("Não foi possível ler o storage:", e);
       return [];
@@ -856,15 +965,17 @@
         '<span class="card-cover">'+ coverHtml(a.cover) +'<span class="card-rating">'+ formatRating(a.rating) +'</span></span>' +
         '<span class="card-body">' +
           '<span class="card-title">'+ escapeHtml(a.name) +'</span>' +
-          '<span class="card-meta">' +
-            (a.place ? '<span class="tag">'+ escapeHtml(a.place) +'</span>' : '') +
-            (a.date ? '<span class="tag">'+ formatDateBR(a.date) +'</span>' : '') +
-          '</span>' +
         '</span>';
       card.addEventListener("click", function(){ openEdit(a.id); });
       frag.appendChild(card);
     });
     grid.appendChild(frag);
+  }
+
+  function selectCardInnerHtml(a){
+    return '<span class="sc-cover">'+ coverHtml(a.cover) +'</span>' +
+           '<span class="sc-name">'+ escapeHtml(a.name) +'</span>' +
+           '<span class="sc-check">✓</span>';
   }
 
   function renderSelectGrid(){
@@ -875,9 +986,7 @@
       var card = document.createElement("button");
       card.type = "button";
       card.className = "select-card";
-      card.innerHTML =
-        '<span class="sc-cover">'+ coverHtml(a.cover) +'</span>' +
-        '<span class="sc-name">'+ escapeHtml(a.name) +'</span>';
+      card.innerHTML = selectCardInnerHtml(a);
       card.addEventListener("click", function(){
         closeOverlay("overlay-select");
         openEdit(a.id);
@@ -942,11 +1051,121 @@
   wireRating("input-rating-add","rating-value-add");
   wireRating("input-rating-edit","rating-value-edit");
 
+  /* ---------- temporada / juntar com a temporada ---------- */
+  var pendingLinkAdd = null;
+  var pendingLinkEdit = null;
+
+  function setLinkChoice(suffix, choice){
+    var btnNao = document.getElementById("link-nao-"+suffix);
+    var btnSim = document.getElementById("link-sim-"+suffix);
+    btnNao.classList.toggle("active", choice === "nao");
+    btnNao.setAttribute("aria-pressed", choice === "nao" ? "true" : "false");
+    btnSim.classList.toggle("active", choice === "sim");
+    btnSim.setAttribute("aria-pressed", choice === "sim" ? "true" : "false");
+  }
+
+  function clearPendingLink(suffix){
+    if(suffix === "add") pendingLinkAdd = null; else pendingLinkEdit = null;
+  }
+
+  function renderLinkGrid(suffix){
+    var grid = document.getElementById("link-grid-"+suffix);
+    var excludeId = suffix === "edit" ? document.getElementById("edit-id").value : null;
+    var selectedId = suffix === "add" ? pendingLinkAdd : pendingLinkEdit;
+    var pool = animes.filter(function(a){ return a.id !== excludeId; });
+
+    grid.innerHTML = "";
+    if(!pool.length){
+      grid.innerHTML = '<p class="modal-hint" style="grid-column:1/-1;">nenhum outro anime na lista ainda.</p>';
+      return;
+    }
+    var frag = document.createDocumentFragment();
+    pool.slice().reverse().forEach(function(a){
+      var card = document.createElement("button");
+      card.type = "button";
+      card.className = "select-card" + (a.id === selectedId ? " is-selected" : "");
+      card.innerHTML = selectCardInnerHtml(a);
+      card.addEventListener("click", function(){
+        if(suffix === "add") pendingLinkAdd = a.id; else pendingLinkEdit = a.id;
+        renderLinkGrid(suffix);
+      });
+      frag.appendChild(card);
+    });
+    grid.appendChild(frag);
+  }
+
+  function wireSeasonField(suffix){
+    var seasonInput = document.getElementById("input-season-"+suffix);
+    var linkBlock = document.getElementById("link-block-"+suffix);
+    var picker = document.getElementById("link-picker-"+suffix);
+    seasonInput.addEventListener("input", function(){
+      var n = parseInt(seasonInput.value, 10) || 1;
+      if(n > 1){
+        linkBlock.hidden = false;
+      }else{
+        linkBlock.hidden = true;
+        picker.hidden = true;
+        setLinkChoice(suffix, "nao");
+        clearPendingLink(suffix);
+      }
+    });
+  }
+
+  function wireLinkToggle(suffix){
+    var btnNao = document.getElementById("link-nao-"+suffix);
+    var btnSim = document.getElementById("link-sim-"+suffix);
+    var picker = document.getElementById("link-picker-"+suffix);
+    btnNao.addEventListener("click", function(){
+      setLinkChoice(suffix, "nao");
+      picker.hidden = true;
+      clearPendingLink(suffix);
+    });
+    btnSim.addEventListener("click", function(){
+      setLinkChoice(suffix, "sim");
+      picker.hidden = false;
+      renderLinkGrid(suffix);
+    });
+  }
+
+  wireSeasonField("add");
+  wireSeasonField("edit");
+  wireLinkToggle("add");
+  wireLinkToggle("edit");
+
+  function renderSeasonNav(anime){
+    var nav = document.getElementById("season-nav-edit");
+    nav.innerHTML = "";
+    var prev = getPrevSeason(anime);
+    var next = getNextSeason(anime);
+
+    if(prev){
+      var b1 = document.createElement("button");
+      b1.type = "button";
+      b1.className = "season-nav-btn";
+      b1.innerHTML = "← temporada antiga";
+      b1.addEventListener("click", function(){ openEdit(prev.id); });
+      nav.appendChild(b1);
+    }
+    if(next){
+      var b2 = document.createElement("button");
+      b2.type = "button";
+      b2.className = "season-nav-btn";
+      b2.innerHTML = "próxima temporada →";
+      b2.addEventListener("click", function(){ openEdit(next.id); });
+      nav.appendChild(b2);
+    }
+  }
+
   /* ---------- add flow ---------- */
   function resetAddForm(){
     document.getElementById("form-add").reset();
     document.getElementById("input-rating-add").value = 8;
     document.getElementById("rating-value-add").textContent = "8/10";
+    document.getElementById("input-season-add").value = 1;
+    document.getElementById("link-block-add").hidden = true;
+    document.getElementById("link-picker-add").hidden = true;
+    setLinkChoice("add", "nao");
+    pendingLinkAdd = null;
     pendingAddCover = null;
     document.getElementById("preview-add").innerHTML =
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
@@ -962,13 +1181,17 @@
     e.preventDefault();
     var name = document.getElementById("input-name-add").value.trim();
     if(!name){ document.getElementById("input-name-add").focus(); return; }
+    var seasonNum = parseInt(document.getElementById("input-season-add").value, 10) || 1;
     animes.push({
       id: uid(),
       name: name,
+      season: seasonNum,
       place: document.getElementById("input-place-add").value.trim(),
-      date: document.getElementById("input-date-add").value,
+      dateStart: document.getElementById("input-datestart-add").value,
+      dateEnd: document.getElementById("input-dateend-add").value,
       rating: Number(document.getElementById("input-rating-add").value),
       cover: pendingAddCover,
+      linkedPrevId: seasonNum > 1 ? pendingLinkAdd : null,
       createdAt: Date.now()
     });
     saveAnimes();
@@ -993,15 +1216,40 @@
     var anime = animes.find(function(a){ return a.id === id; });
     if(!anime) return;
     pendingEditCover = anime.cover || null;
+    pendingLinkEdit = anime.linkedPrevId || null;
+
     document.getElementById("edit-id").value = anime.id;
     document.getElementById("input-name-edit").value = anime.name || "";
+    document.getElementById("input-season-edit").value = anime.season || 1;
     document.getElementById("input-place-edit").value = anime.place || "";
-    document.getElementById("input-date-edit").value = anime.date || "";
+    document.getElementById("input-datestart-edit").value = anime.dateStart || "";
+    document.getElementById("input-dateend-edit").value = anime.dateEnd || "";
     document.getElementById("input-rating-edit").value = anime.rating || 0;
     document.getElementById("rating-value-edit").textContent = formatRating(anime.rating || 0);
     document.getElementById("preview-edit").innerHTML = anime.cover
       ? '<img src="'+anime.cover+'" alt="">'
       : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
+
+    var seasonNum = anime.season || 1;
+    var linkBlock = document.getElementById("link-block-edit");
+    var picker = document.getElementById("link-picker-edit");
+    if(seasonNum > 1){
+      linkBlock.hidden = false;
+      if(anime.linkedPrevId){
+        setLinkChoice("edit", "sim");
+        picker.hidden = false;
+        renderLinkGrid("edit");
+      }else{
+        setLinkChoice("edit", "nao");
+        picker.hidden = true;
+      }
+    }else{
+      linkBlock.hidden = true;
+      setLinkChoice("edit", "nao");
+      picker.hidden = true;
+    }
+
+    renderSeasonNav(anime);
     openOverlay("overlay-edit");
   }
 
@@ -1012,11 +1260,15 @@
     if(!anime) return;
     var name = document.getElementById("input-name-edit").value.trim();
     if(!name){ document.getElementById("input-name-edit").focus(); return; }
+    var seasonNum = parseInt(document.getElementById("input-season-edit").value, 10) || 1;
     anime.name = name;
+    anime.season = seasonNum;
     anime.place = document.getElementById("input-place-edit").value.trim();
-    anime.date = document.getElementById("input-date-edit").value;
+    anime.dateStart = document.getElementById("input-datestart-edit").value;
+    anime.dateEnd = document.getElementById("input-dateend-edit").value;
     anime.rating = Number(document.getElementById("input-rating-edit").value);
     anime.cover = pendingEditCover;
+    anime.linkedPrevId = seasonNum > 1 ? pendingLinkEdit : null;
     saveAnimes();
     closeOverlay("overlay-edit");
     renderGrid();
@@ -1028,6 +1280,8 @@
     if(!anime) return;
     if(confirm('Excluir "'+anime.name+'" da sua lista? Essa ação não pode ser desfeita.')){
       animes = animes.filter(function(a){ return a.id !== id; });
+      // desfaz vínculos de outras temporadas que apontavam pra essa
+      animes.forEach(function(a){ if(a.linkedPrevId === id) a.linkedPrevId = null; });
       saveAnimes();
       closeOverlay("overlay-edit");
       renderGrid();
