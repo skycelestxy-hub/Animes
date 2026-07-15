@@ -137,6 +137,7 @@
   }
   .btn-danger:hover{ background:rgba(255,138,138,.1); }
   .btn[disabled]{ opacity:.4; pointer-events:none; }
+  .btn-organize.is-active{ background:var(--aurora); border-color:var(--aurora); color:#0f2b23; }
 
   /* ---- top bar ---- */
   .top-bar{
@@ -174,6 +175,15 @@
   .search-clear{ flex:none; border:none; background:none; color:var(--mist); font-size:19px; line-height:1; padding:0 2px; transition:color .2s; }
   .search-clear:hover{ color:var(--paper); }
 
+  .reorder-hint{
+    display:flex; align-items:center; gap:9px; margin:0 0 20px;
+    background:rgba(141,232,208,.08); border:1px solid rgba(141,232,208,.25);
+    color:var(--aurora); font-size:13px; font-weight:600; line-height:1.5;
+    padding:12px 16px; border-radius:var(--radius-sm);
+    animation:rise .35s var(--ease) both;
+  }
+  .reorder-hint svg{ flex:none; }
+
   .anime-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
   @media (max-width:920px){ .anime-grid{ grid-template-columns:repeat(3,1fr); } }
   @media (max-width:680px){ .anime-grid{ grid-template-columns:repeat(2,1fr); gap:14px; } }
@@ -189,6 +199,11 @@
   .card.is-clickable{ cursor:pointer; }
   .card.is-clickable:hover{ transform:translateY(-4px); box-shadow:var(--shadow-soft); border-color:rgba(255,143,177,.3); }
   .card.is-clickable:active{ transform:translateY(-1px) scale(.98); }
+
+  .card.is-reordering{ cursor:default; }
+  .card.is-reordering:hover{ transform:none; box-shadow:none; border-color:var(--line); }
+  .card.is-dragging{ opacity:.45; border-color:var(--aurora); }
+  .card.is-drop-target{ border-color:var(--aurora); box-shadow:0 0 0 2px var(--aurora) inset; }
 
   .card-cover{
     position:relative; display:block; width:100%; aspect-ratio:2/3; flex:none;
@@ -210,6 +225,29 @@
     color:var(--paper) !important; line-height:1.28; -webkit-line-clamp:2; -webkit-box-orient:vertical;
     overflow:hidden; opacity:1; visibility:visible;
   }
+
+  .reorder-bar{
+    position:absolute; left:0; right:0; bottom:0; z-index:2;
+    display:flex; align-items:stretch; justify-content:space-between;
+    background:linear-gradient(to top, rgba(9,8,13,.92), rgba(9,8,13,0));
+    padding:18px 6px 6px;
+  }
+  .reorder-btn{
+    flex:1; max-width:46%; display:flex; align-items:center; justify-content:center;
+    background:rgba(25,23,34,.92); border:1px solid var(--line-strong); color:var(--paper);
+    border-radius:10px; padding:8px 0; margin:0 3px;
+    transition:background .2s, transform .2s, opacity .2s;
+  }
+  .reorder-btn:hover{ background:var(--card-hover); transform:translateY(-1px); }
+  .reorder-btn:active{ transform:scale(.94); }
+  .reorder-btn[disabled]{ opacity:.3; pointer-events:none; }
+  .reorder-handle{
+    position:absolute; top:9px; right:9px; z-index:2;
+    background:rgba(10,9,15,.82); backdrop-filter:blur(6px); color:var(--paper);
+    width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    cursor:grab;
+  }
+  .reorder-handle:active{ cursor:grabbing; }
 
   .empty-state{ grid-column:1/-1; text-align:center; padding:64px 20px; color:var(--mist); }
   .empty-state svg{ width:40px; height:40px; margin-bottom:14px; opacity:.6; }
@@ -480,6 +518,10 @@
           <h2>Meus animes</h2>
         </div>
         <div class="list-actions">
+          <button class="btn btn-secondary btn-organize" id="btn-organize">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18L4 14l4-4"/><path d="M4 14h16"/><path d="M16 6l4 4-4 4"/><path d="M20 10H4"/></svg>
+            <span id="btn-organize-label">Organizar</span>
+          </button>
           <button class="btn btn-secondary" id="btn-edit">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             Editar
@@ -491,13 +533,18 @@
         </div>
       </div>
 
-      <div class="search-row">
+      <div class="search-row" id="search-row">
         <div class="search-box">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="text" id="search-input" placeholder="Buscar anime pelo nome..." autocomplete="off">
           <button type="button" class="search-clear" id="search-clear" hidden aria-label="Limpar busca">×</button>
         </div>
       </div>
+
+      <p class="reorder-hint" id="reorder-hint" hidden>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18L4 14l4-4"/><path d="M4 14h16"/><path d="M16 6l4 4-4 4"/><path d="M20 10H4"/></svg>
+        Use as setinhas nos cards (ou arraste no computador) para colocar os animes na ordem que quiser. Toque em "Concluir" quando terminar.
+      </p>
 
       <div class="anime-grid" id="anime-grid"></div>
     </div>
@@ -780,6 +827,67 @@
 
   var animes = [];
 
+  /* ---------- reorder mode ---------- */
+  var reorderMode = false;
+  var dragSourceId = null;
+
+  function setReorderMode(on){
+    reorderMode = on;
+    var btn = document.getElementById("btn-organize");
+    var label = document.getElementById("btn-organize-label");
+    var hint = document.getElementById("reorder-hint");
+    var searchRow = document.getElementById("search-row");
+
+    btn.classList.toggle("is-active", reorderMode);
+    label.textContent = reorderMode ? "Concluir" : "Organizar";
+    hint.hidden = !reorderMode;
+    searchRow.hidden = reorderMode;
+
+    if(reorderMode){
+      searchQuery = "";
+      document.getElementById("search-input").value = "";
+      document.getElementById("search-clear").hidden = true;
+    }
+    renderGrid();
+  }
+
+  /* devolve a posição real (no array "animes") a partir da posição mostrada na tela */
+  function displayIndexToRealIndex(displayIdx){
+    return animes.length - 1 - displayIdx;
+  }
+
+  function moveAnimeByDisplayIndex(displayIdx, direction){
+    var newDisplayIdx = displayIdx + direction;
+    if(newDisplayIdx < 0 || newDisplayIdx >= animes.length) return;
+
+    var realA = displayIndexToRealIndex(displayIdx);
+    var realB = displayIndexToRealIndex(newDisplayIdx);
+
+    var tmp = animes[realA];
+    animes[realA] = animes[realB];
+    animes[realB] = tmp;
+
+    saveAnimes();
+    renderGrid();
+  }
+
+  function moveAnimeToDisplayIndex(fromDisplayIdx, toDisplayIdx){
+    if(fromDisplayIdx === toDisplayIdx) return;
+    var realFrom = displayIndexToRealIndex(fromDisplayIdx);
+    var item = animes[realFrom];
+    animes.splice(realFrom, 1);
+
+    // recalcula o índice real de destino depois da remoção
+    var adjustedToDisplayIdx = toDisplayIdx > fromDisplayIdx ? toDisplayIdx : toDisplayIdx;
+    var realTo = (animes.length) - adjustedToDisplayIdx;
+    if(realTo < 0) realTo = 0;
+    if(realTo > animes.length) realTo = animes.length;
+
+    animes.splice(realTo, 0, item);
+    saveAnimes();
+    renderGrid();
+  }
+
   /* ---------- ambient background ---------- */
   function buildAmbient(){
     var host = document.getElementById("ambient");
@@ -836,6 +944,7 @@
     document.querySelectorAll(".screen").forEach(function(sc){
       sc.classList.toggle("active", sc.id === "screen-"+name);
     });
+    if(name === "landing" && reorderMode){ setReorderMode(false); }
     if(name === "list") renderGrid();
     if(name === "landing") renderLandingCount();
   }
@@ -893,7 +1002,7 @@
       return;
     }
 
-    var filtered = getFilteredAnimes();
+    var filtered = reorderMode ? animes : getFilteredAnimes();
 
     if(!filtered.length){
       eyebrow.textContent = "nenhum resultado";
@@ -906,24 +1015,97 @@
       return;
     }
 
-    eyebrow.textContent = filtered.length + (searchQuery
-      ? (filtered.length === 1 ? " resultado" : " resultados")
-      : (filtered.length === 1 ? " assistido" : " assistidos"));
+    eyebrow.textContent = reorderMode
+      ? (filtered.length + " no total — arraste para reordenar")
+      : (filtered.length + (searchQuery
+          ? (filtered.length === 1 ? " resultado" : " resultados")
+          : (filtered.length === 1 ? " assistido" : " assistidos")));
 
+    var displayList = filtered.slice().reverse();
     var frag = document.createDocumentFragment();
-    filtered.slice().reverse().forEach(function(a, idx){
+
+    displayList.forEach(function(a, idx){
       var card = document.createElement("button");
       card.type = "button";
-      card.className = "card is-clickable";
+      card.className = "card " + (reorderMode ? "is-reordering" : "is-clickable");
       card.style.setProperty("--i", idx);
       card.setAttribute("data-id", a.id);
+
+      var reorderBarHtml = "";
+      var handleHtml = "";
+      if(reorderMode){
+        var isFirst = idx === 0;
+        var isLast = idx === displayList.length - 1;
+        reorderBarHtml =
+          '<span class="reorder-bar">' +
+            '<button type="button" class="reorder-btn reorder-prev" '+(isFirst?'disabled':'')+' title="Mover para trás" aria-label="Mover para trás">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>' +
+            '</button>' +
+            '<button type="button" class="reorder-btn reorder-next" '+(isLast?'disabled':'')+' title="Mover para frente" aria-label="Mover para frente">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>' +
+            '</button>' +
+          '</span>';
+        handleHtml =
+          '<span class="reorder-handle" title="Arrastar para reordenar">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg>' +
+          '</span>';
+      }
+
       card.innerHTML =
-        '<span class="card-cover">'+ coverHtml(a.cover) +'<span class="card-rating">'+ formatRating(a.rating) +'</span></span>' +
+        '<span class="card-cover">'+ coverHtml(a.cover) + (reorderMode ? '' : '<span class="card-rating">'+ formatRating(a.rating) +'</span>') + handleHtml + reorderBarHtml +'</span>' +
         '<span class="card-body">' +
           '<span class="card-title">'+ escapeHtml(a.name) +'</span>' +
         '</span>';
-      // toque na capa/cartão abre VISUALIZAÇÃO, nunca edição direta
-      card.addEventListener("click", function(){ openView(a.id); });
+
+      if(reorderMode){
+        card.draggable = true;
+
+        var prevBtn = card.querySelector(".reorder-prev");
+        var nextBtn = card.querySelector(".reorder-next");
+        prevBtn.addEventListener("click", function(ev){
+          ev.stopPropagation();
+          moveAnimeByDisplayIndex(idx, -1);
+        });
+        nextBtn.addEventListener("click", function(ev){
+          ev.stopPropagation();
+          moveAnimeByDisplayIndex(idx, 1);
+        });
+
+        card.addEventListener("dragstart", function(ev){
+          dragSourceId = a.id;
+          card.classList.add("is-dragging");
+          ev.dataTransfer.effectAllowed = "move";
+          try{ ev.dataTransfer.setData("text/plain", a.id); }catch(err){}
+        });
+        card.addEventListener("dragend", function(){
+          card.classList.remove("is-dragging");
+          document.querySelectorAll(".card.is-drop-target").forEach(function(c){ c.classList.remove("is-drop-target"); });
+          dragSourceId = null;
+        });
+        card.addEventListener("dragover", function(ev){
+          ev.preventDefault();
+          ev.dataTransfer.dropEffect = "move";
+          if(dragSourceId && dragSourceId !== a.id) card.classList.add("is-drop-target");
+        });
+        card.addEventListener("dragleave", function(){
+          card.classList.remove("is-drop-target");
+        });
+        card.addEventListener("drop", function(ev){
+          ev.preventDefault();
+          card.classList.remove("is-drop-target");
+          if(!dragSourceId || dragSourceId === a.id) return;
+          var fromIdx = displayList.findIndex(function(x){ return x.id === dragSourceId; });
+          var toIdx = displayList.findIndex(function(x){ return x.id === a.id; });
+          if(fromIdx === -1 || toIdx === -1) return;
+          moveAnimeToDisplayIndex(fromIdx, toIdx);
+        });
+
+        card.addEventListener("click", function(ev){ ev.preventDefault(); });
+      }else{
+        // toque na capa/cartão abre VISUALIZAÇÃO, nunca edição direta
+        card.addEventListener("click", function(){ openView(a.id); });
+      }
+
       frag.appendChild(card);
     });
     grid.appendChild(frag);
@@ -1168,6 +1350,14 @@
     }
     renderSelectGrid();
     openOverlay("overlay-select");
+  });
+
+  document.getElementById("btn-organize").addEventListener("click", function(){
+    if(!reorderMode && !animes.length){
+      showToast("Você ainda não adicionou nenhum anime.", true);
+      return;
+    }
+    setReorderMode(!reorderMode);
   });
 
   function openEdit(id){
