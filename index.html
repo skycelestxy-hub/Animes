@@ -200,10 +200,15 @@
   .card.is-clickable:hover{ transform:translateY(-4px); box-shadow:var(--shadow-soft); border-color:rgba(255,143,177,.3); }
   .card.is-clickable:active{ transform:translateY(-1px) scale(.98); }
 
-  .card.is-reordering{ cursor:default; }
+  .card.is-reordering{ cursor:default; touch-action:none; }
   .card.is-reordering:hover{ transform:none; box-shadow:none; border-color:var(--line); }
-  .card.is-dragging{ opacity:.45; border-color:var(--aurora); }
+  .card.is-dragging{ opacity:.4; border-color:var(--aurora); z-index:5; }
   .card.is-drop-target{ border-color:var(--aurora); box-shadow:0 0 0 2px var(--aurora) inset; }
+  .card.is-touch-floating{
+    position:fixed; z-index:50; pointer-events:none; opacity:.94;
+    box-shadow:var(--shadow-pop); border-color:var(--aurora);
+    transition:none !important;
+  }
 
   .card-cover{
     position:relative; display:block; width:100%; aspect-ratio:2/3; flex:none;
@@ -226,28 +231,18 @@
     overflow:hidden; opacity:1; visibility:visible;
   }
 
-  .reorder-bar{
-    position:absolute; left:0; right:0; bottom:0; z-index:2;
-    display:flex; align-items:stretch; justify-content:space-between;
-    background:linear-gradient(to top, rgba(9,8,13,.92), rgba(9,8,13,0));
-    padding:18px 6px 6px;
-  }
-  .reorder-btn{
-    flex:1; max-width:46%; display:flex; align-items:center; justify-content:center;
-    background:rgba(25,23,34,.92); border:1px solid var(--line-strong); color:var(--paper);
-    border-radius:10px; padding:8px 0; margin:0 3px;
-    transition:background .2s, transform .2s, opacity .2s;
-  }
-  .reorder-btn:hover{ background:var(--card-hover); transform:translateY(-1px); }
-  .reorder-btn:active{ transform:scale(.94); }
-  .reorder-btn[disabled]{ opacity:.3; pointer-events:none; }
   .reorder-handle{
-    position:absolute; top:9px; right:9px; z-index:2;
-    background:rgba(10,9,15,.82); backdrop-filter:blur(6px); color:var(--paper);
-    width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center;
-    cursor:grab;
+    position:absolute; inset:0; z-index:2;
+    display:flex; align-items:flex-end; justify-content:center; padding-bottom:12px;
+    background:linear-gradient(to top, rgba(9,8,13,.55), rgba(9,8,13,0) 45%);
+    cursor:grab; touch-action:none;
   }
   .reorder-handle:active{ cursor:grabbing; }
+  .reorder-handle .rh-pill{
+    background:rgba(10,9,15,.86); backdrop-filter:blur(6px); color:var(--paper);
+    width:44px; height:26px; border-radius:999px; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 14px -4px rgba(0,0,0,.5);
+  }
 
   .empty-state{ grid-column:1/-1; text-align:center; padding:64px 20px; color:var(--mist); }
   .empty-state svg{ width:40px; height:40px; margin-bottom:14px; opacity:.6; }
@@ -379,6 +374,61 @@
 
   .overlay-fullscreen{ background:rgba(7,6,11,.88); }
   .overlay-fullscreen .modal{ max-width:500px; }
+
+  /* ---- gênero picker ---- */
+  .genre-picker-btn{
+    width:100%; text-align:left; display:flex; align-items:center; justify-content:space-between;
+    background:var(--ink); border:1px solid var(--line); color:var(--paper);
+    padding:0 14px; height:46px; border-radius:var(--radius-sm); font-size:14.5px; font-family:inherit;
+    transition:border-color .25s, background .25s;
+  }
+  .genre-picker-btn:hover{ border-color:rgba(255,143,177,.4); background:var(--card); }
+  .genre-picker-btn .gpb-value{ color:var(--mist-dim); font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .genre-picker-btn .gpb-value.has-value{ color:var(--paper); font-style:normal; }
+  .genre-picker-btn svg{ flex:none; color:var(--mist); margin-left:10px; }
+
+  .genre-chips{ display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
+  .genre-chip{
+    background:rgba(183,155,255,.14); border:1px solid rgba(183,155,255,.3); color:var(--violet);
+    font-size:12px; font-weight:700; padding:5px 11px; border-radius:999px;
+  }
+
+  .genre-modal .modal-hint{ margin-bottom:16px; }
+  .genre-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:10px;
+    max-height:52vh; overflow-y:auto; padding:2px; margin-bottom:8px;
+  }
+  .genre-option{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    background:var(--card); border:1.5px solid var(--line); color:var(--paper);
+    padding:12px 14px; border-radius:var(--radius-sm); font-size:13.5px; font-weight:600;
+    transition:border-color .2s, background .2s, transform .2s;
+  }
+  .genre-option:active{ transform:scale(.97); }
+  .genre-option.is-selected{ border-color:var(--violet); background:rgba(183,155,255,.12); color:var(--violet); }
+  .genre-option .go-check{
+    flex:none; width:18px; height:18px; border-radius:50%; border:1.5px solid var(--line-strong);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:transparent;
+    transition:background .2s, border-color .2s, color .2s;
+  }
+  .genre-option.is-selected .go-check{ background:var(--violet); border-color:var(--violet); color:#1c1330; }
+  .genre-selected-count{ font-size:12.5px; color:var(--aurora); font-weight:700; margin-bottom:14px; }
+
+  /* ---- dublado/legendado ---- */
+  .lang-toggle{ display:flex; gap:9px; }
+  .lang-btn{
+    flex:1; background:var(--ink); border:1.5px solid var(--line); color:var(--mist);
+    padding:10px; border-radius:var(--radius-sm); font-weight:700; font-size:13.5px;
+    transition:background .25s, border-color .25s, color .25s, transform .2s;
+  }
+  .lang-btn:active{ transform:scale(.97); }
+  .lang-btn.active{ background:var(--violet); border-color:var(--violet); color:#1c1330; }
+  .lang-tag{
+    display:inline-flex; align-items:center; gap:5px;
+    background:rgba(10,9,15,.82); backdrop-filter:blur(6px);
+    color:var(--paper); font-weight:800; font-size:11px;
+    padding:5px 8px; border-radius:8px; position:absolute; top:9px; right:9px;
+  }
 
   ::-webkit-scrollbar{ width:8px; }
   ::-webkit-scrollbar-thumb{ background:var(--line-strong); border-radius:99px; }
@@ -543,7 +593,7 @@
 
       <p class="reorder-hint" id="reorder-hint" hidden>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18L4 14l4-4"/><path d="M4 14h16"/><path d="M16 6l4 4-4 4"/><path d="M20 10H4"/></svg>
-        Use as setinhas nos cards (ou arraste no computador) para colocar os animes na ordem que quiser. Toque em "Concluir" quando terminar.
+        Segure a alcinha ⋮⋮ no card e arraste (deslize o dedo) até o lugar que quiser. Toque em "Concluir" quando terminar.
       </p>
 
       <div class="anime-grid" id="anime-grid"></div>
@@ -586,6 +636,20 @@
           <p class="modal-hint" style="margin:14px 0 10px;">qual foi a temporada antiga?</p>
           <div class="select-grid compact" id="link-grid-add"></div>
         </div>
+      </div>
+      <div class="field">
+        <label>Dublado ou legendado</label>
+        <div class="lang-toggle">
+          <button type="button" class="lang-btn" id="lang-dub-add" data-lang="Dublado">Dublado</button>
+          <button type="button" class="lang-btn active" id="lang-leg-add" data-lang="Legendado">Legendado</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Gênero</label>
+        <button type="button" class="genre-picker-btn" id="btn-genre-add">
+          <span class="gpb-value" id="genre-value-add">Escolher gêneros</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
       </div>
       <div class="field">
         <label for="input-place-add">Onde assistiu</label>
@@ -664,6 +728,20 @@
         </div>
       </div>
       <div class="field">
+        <label>Dublado ou legendado</label>
+        <div class="lang-toggle">
+          <button type="button" class="lang-btn" id="lang-dub-edit" data-lang="Dublado">Dublado</button>
+          <button type="button" class="lang-btn active" id="lang-leg-edit" data-lang="Legendado">Legendado</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Gênero</label>
+        <button type="button" class="genre-picker-btn" id="btn-genre-edit">
+          <span class="gpb-value" id="genre-value-edit">Escolher gêneros</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+      <div class="field">
         <label for="input-place-edit">Onde assistiu</label>
         <input type="text" id="input-place-edit">
       </div>
@@ -690,6 +768,20 @@
         </div>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- ===================== OVERLAY: ESCOLHER GÊNEROS ===================== -->
+<div class="overlay" id="overlay-genre">
+  <div class="modal genre-modal">
+    <h3>Gêneros</h3>
+    <p class="modal-hint">toque para marcar quantos quiser, depois confirme.</p>
+    <p class="genre-selected-count" id="genre-selected-count">nenhum selecionado</p>
+    <div class="genre-grid" id="genre-grid"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" id="btn-genre-cancel">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-genre-confirm">Confirmar</button>
+    </div>
   </div>
 </div>
 
@@ -811,6 +903,8 @@
         if(a.dateStart == null) a.dateStart = a.date || "";
         if(a.dateEnd == null) a.dateEnd = "";
         if(a.linkedPrevId === undefined) a.linkedPrevId = null;
+        if(a.language == null) a.language = "Legendado";
+        if(!Array.isArray(a.genres)) a.genres = [];
       });
       return list;
     });
@@ -826,6 +920,118 @@
   }
 
   var animes = [];
+
+  /* ---------- gêneros ---------- */
+  var GENRE_LIST = [
+    "Ação","Aventura","Comédia","Drama","Fantasia","Ficção Científica",
+    "Romance","Slice of Life","Terror","Suspense","Mistério","Sobrenatural",
+    "Isekai","Mecha","Esporte","Musical","Histórico","Militar",
+    "Psicológico","Artes Marciais","Escolar","Josei","Seinen","Shoujo",
+    "Shounen","Harém","Ecchi","Yaoi","Yuri","Games","Paródia","Vida Adulta"
+  ];
+
+  var pendingGenreTarget = null; // "add" | "edit"
+  var pendingGenreSelection = [];
+
+  function genreValueLabel(list){
+    if(!list || !list.length) return "";
+    return list.join(", ");
+  }
+
+  function updateGenreButtonLabel(suffix, list){
+    var el = document.getElementById("genre-value-"+suffix);
+    if(list && list.length){
+      el.textContent = genreValueLabel(list);
+      el.classList.add("has-value");
+    }else{
+      el.textContent = "Escolher gêneros";
+      el.classList.remove("has-value");
+    }
+  }
+
+  function renderGenreGrid(){
+    var grid = document.getElementById("genre-grid");
+    grid.innerHTML = "";
+    var countEl = document.getElementById("genre-selected-count");
+    countEl.textContent = pendingGenreSelection.length
+      ? pendingGenreSelection.length + (pendingGenreSelection.length === 1 ? " selecionado" : " selecionados")
+      : "nenhum selecionado";
+
+    var frag = document.createDocumentFragment();
+    GENRE_LIST.forEach(function(g){
+      var isSelected = pendingGenreSelection.indexOf(g) !== -1;
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "genre-option" + (isSelected ? " is-selected" : "");
+      btn.innerHTML = '<span>'+ escapeHtml(g) +'</span><span class="go-check">✓</span>';
+      btn.addEventListener("click", function(){
+        var i = pendingGenreSelection.indexOf(g);
+        if(i === -1) pendingGenreSelection.push(g);
+        else pendingGenreSelection.splice(i, 1);
+        renderGenreGrid();
+      });
+      frag.appendChild(btn);
+    });
+    grid.appendChild(frag);
+  }
+
+  function openGenrePicker(suffix, currentList){
+    pendingGenreTarget = suffix;
+    pendingGenreSelection = (currentList || []).slice();
+    renderGenreGrid();
+    openOverlay("overlay-genre");
+  }
+
+  document.getElementById("btn-genre-add").addEventListener("click", function(){
+    openGenrePicker("add", genreStateAdd);
+  });
+  document.getElementById("btn-genre-edit").addEventListener("click", function(){
+    openGenrePicker("edit", genreStateEdit);
+  });
+  document.getElementById("btn-genre-cancel").addEventListener("click", function(){
+    closeOverlay("overlay-genre");
+  });
+  document.getElementById("btn-genre-confirm").addEventListener("click", function(){
+    if(pendingGenreTarget === "add"){
+      genreStateAdd = pendingGenreSelection.slice();
+      updateGenreButtonLabel("add", genreStateAdd);
+    }else if(pendingGenreTarget === "edit"){
+      genreStateEdit = pendingGenreSelection.slice();
+      updateGenreButtonLabel("edit", genreStateEdit);
+    }
+    closeOverlay("overlay-genre");
+  });
+
+  var genreStateAdd = [];
+  var genreStateEdit = [];
+
+  /* ---------- dublado / legendado ---------- */
+  var langStateAdd = "Legendado";
+  var langStateEdit = "Legendado";
+
+  function wireLangToggle(suffix, getSet){
+    var dubBtn = document.getElementById("lang-dub-"+suffix);
+    var legBtn = document.getElementById("lang-leg-"+suffix);
+    dubBtn.addEventListener("click", function(){
+      getSet("Dublado");
+      dubBtn.classList.add("active");
+      legBtn.classList.remove("active");
+    });
+    legBtn.addEventListener("click", function(){
+      getSet("Legendado");
+      legBtn.classList.add("active");
+      dubBtn.classList.remove("active");
+    });
+  }
+  wireLangToggle("add", function(v){ langStateAdd = v; });
+  wireLangToggle("edit", function(v){ langStateEdit = v; });
+
+  function setLangUI(suffix, value){
+    var dubBtn = document.getElementById("lang-dub-"+suffix);
+    var legBtn = document.getElementById("lang-leg-"+suffix);
+    dubBtn.classList.toggle("active", value === "Dublado");
+    legBtn.classList.toggle("active", value === "Legendado");
+  }
 
   /* ---------- reorder mode ---------- */
   var reorderMode = false;
@@ -856,19 +1062,116 @@
     return animes.length - 1 - displayIdx;
   }
 
-  function moveAnimeByDisplayIndex(displayIdx, direction){
-    var newDisplayIdx = displayIdx + direction;
-    if(newDisplayIdx < 0 || newDisplayIdx >= animes.length) return;
+  /* arraste deslizando o dedo — usa o mesmo handle visual do drag de mouse,
+     mas com touchstart/touchmove/touchend, já que o HTML5 drag-and-drop
+     nativo não funciona bem em navegadores de celular. */
+  function wireTouchDrag(card, animeId){
+    var handle = card.querySelector(".reorder-handle");
+    if(!handle) return;
 
-    var realA = displayIndexToRealIndex(displayIdx);
-    var realB = displayIndexToRealIndex(newDisplayIdx);
+    var startX = 0, startY = 0, startTop = 0, startLeft = 0, width = 0, height = 0;
+    var dragging = false;
+    var currentTargetCard = null;
+    var LONG_PRESS_MS = 120;
+    var pressTimer = null;
 
-    var tmp = animes[realA];
-    animes[realA] = animes[realB];
-    animes[realB] = tmp;
+    function getGridCards(){
+      return Array.prototype.slice.call(document.querySelectorAll("#anime-grid .card"));
+    }
 
-    saveAnimes();
-    renderGrid();
+    function findCardUnder(clientX, clientY){
+      var cards = getGridCards();
+      for(var i=0;i<cards.length;i++){
+        var c = cards[i];
+        if(c === card) continue;
+        var r = c.getBoundingClientRect();
+        if(clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom){
+          return c;
+        }
+      }
+      return null;
+    }
+
+    function onTouchStart(ev){
+      if(ev.touches.length !== 1) return;
+      var t = ev.touches[0];
+      var rect = card.getBoundingClientRect();
+      startX = t.clientX;
+      startY = t.clientY;
+      startTop = rect.top;
+      startLeft = rect.left;
+      width = rect.width;
+      height = rect.height;
+
+      pressTimer = setTimeout(function(){
+        dragging = true;
+        card.classList.add("is-dragging", "is-touch-floating");
+        card.style.width = width + "px";
+        card.style.height = height + "px";
+        card.style.top = startTop + "px";
+        card.style.left = startLeft + "px";
+        if(navigator.vibrate) navigator.vibrate(12);
+      }, LONG_PRESS_MS);
+
+      document.addEventListener("touchmove", onTouchMove, { passive:false });
+      document.addEventListener("touchend", onTouchEnd);
+      document.addEventListener("touchcancel", onTouchEnd);
+    }
+
+    function onTouchMove(ev){
+      if(!dragging){
+        var t0 = ev.touches[0];
+        if(Math.abs(t0.clientX - startX) > 8 || Math.abs(t0.clientY - startY) > 8){
+          clearTimeout(pressTimer);
+        }
+        return;
+      }
+      ev.preventDefault();
+      var t = ev.touches[0];
+      var dx = t.clientX - startX;
+      var dy = t.clientY - startY;
+      card.style.top = (startTop + dy) + "px";
+      card.style.left = (startLeft + dx) + "px";
+
+      var target = findCardUnder(t.clientX, t.clientY);
+      if(target !== currentTargetCard){
+        if(currentTargetCard) currentTargetCard.classList.remove("is-drop-target");
+        currentTargetCard = target;
+        if(currentTargetCard) currentTargetCard.classList.add("is-drop-target");
+      }
+    }
+
+    function onTouchEnd(){
+      clearTimeout(pressTimer);
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener("touchcancel", onTouchEnd);
+
+      if(!dragging){ return; }
+      dragging = false;
+
+      card.classList.remove("is-dragging", "is-touch-floating");
+      card.style.top = "";
+      card.style.left = "";
+      card.style.width = "";
+      card.style.height = "";
+
+      if(currentTargetCard){
+        currentTargetCard.classList.remove("is-drop-target");
+        var targetId = currentTargetCard.getAttribute("data-id");
+        currentTargetCard = null;
+        if(targetId && targetId !== animeId){
+          var displayList = (reorderMode ? animes : getFilteredAnimes()).slice().reverse();
+          var fromIdx = displayList.findIndex(function(x){ return x.id === animeId; });
+          var toIdx = displayList.findIndex(function(x){ return x.id === targetId; });
+          if(fromIdx !== -1 && toIdx !== -1){
+            moveAnimeToDisplayIndex(fromIdx, toIdx);
+          }
+        }
+      }
+    }
+
+    handle.addEventListener("touchstart", onTouchStart, { passive:true });
   }
 
   function moveAnimeToDisplayIndex(fromDisplayIdx, toDisplayIdx){
@@ -1031,28 +1334,16 @@
       card.style.setProperty("--i", idx);
       card.setAttribute("data-id", a.id);
 
-      var reorderBarHtml = "";
       var handleHtml = "";
       if(reorderMode){
-        var isFirst = idx === 0;
-        var isLast = idx === displayList.length - 1;
-        reorderBarHtml =
-          '<span class="reorder-bar">' +
-            '<button type="button" class="reorder-btn reorder-prev" '+(isFirst?'disabled':'')+' title="Mover para trás" aria-label="Mover para trás">' +
-              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>' +
-            '</button>' +
-            '<button type="button" class="reorder-btn reorder-next" '+(isLast?'disabled':'')+' title="Mover para frente" aria-label="Mover para frente">' +
-              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>' +
-            '</button>' +
-          '</span>';
         handleHtml =
-          '<span class="reorder-handle" title="Arrastar para reordenar">' +
-            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg>' +
+          '<span class="reorder-handle" title="Arraste para reordenar">' +
+            '<span class="rh-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span>' +
           '</span>';
       }
 
       card.innerHTML =
-        '<span class="card-cover">'+ coverHtml(a.cover) + (reorderMode ? '' : '<span class="card-rating">'+ formatRating(a.rating) +'</span>') + handleHtml + reorderBarHtml +'</span>' +
+        '<span class="card-cover">'+ coverHtml(a.cover) + (reorderMode ? '' : '<span class="card-rating">'+ formatRating(a.rating) +'</span>') + handleHtml +'</span>' +
         '<span class="card-body">' +
           '<span class="card-title">'+ escapeHtml(a.name) +'</span>' +
         '</span>';
@@ -1060,17 +1351,7 @@
       if(reorderMode){
         card.draggable = true;
 
-        var prevBtn = card.querySelector(".reorder-prev");
-        var nextBtn = card.querySelector(".reorder-next");
-        prevBtn.addEventListener("click", function(ev){
-          ev.stopPropagation();
-          moveAnimeByDisplayIndex(idx, -1);
-        });
-        nextBtn.addEventListener("click", function(ev){
-          ev.stopPropagation();
-          moveAnimeByDisplayIndex(idx, 1);
-        });
-
+        // ---- arraste com mouse (desktop) ----
         card.addEventListener("dragstart", function(ev){
           dragSourceId = a.id;
           card.classList.add("is-dragging");
@@ -1099,6 +1380,9 @@
           if(fromIdx === -1 || toIdx === -1) return;
           moveAnimeToDisplayIndex(fromIdx, toIdx);
         });
+
+        // ---- arraste deslizando o dedo (touch/celular) ----
+        wireTouchDrag(card, a.id);
 
         card.addEventListener("click", function(ev){ ev.preventDefault(); });
       }else{
@@ -1306,6 +1590,10 @@
     setLinkChoice("add", "nao");
     pendingLinkAdd = null;
     pendingAddCover = null;
+    genreStateAdd = [];
+    updateGenreButtonLabel("add", genreStateAdd);
+    langStateAdd = "Legendado";
+    setLangUI("add", "Legendado");
     document.getElementById("preview-add").innerHTML =
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
   }
@@ -1331,6 +1619,8 @@
       rating: Number(document.getElementById("input-rating-add").value),
       cover: pendingAddCover,
       linkedPrevId: seasonNum > 1 ? pendingLinkAdd : null,
+      language: langStateAdd,
+      genres: genreStateAdd.slice(),
       createdAt: Date.now()
     });
     await saveAnimes();
@@ -1378,6 +1668,11 @@
       ? '<img src="'+anime.cover+'" alt="">'
       : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
 
+    langStateEdit = anime.language || "Legendado";
+    setLangUI("edit", langStateEdit);
+    genreStateEdit = (anime.genres || []).slice();
+    updateGenreButtonLabel("edit", genreStateEdit);
+
     var seasonNum = anime.season || 1;
     var linkBlock = document.getElementById("link-block-edit");
     var picker = document.getElementById("link-picker-edit");
@@ -1417,6 +1712,8 @@
     anime.rating = Number(document.getElementById("input-rating-edit").value);
     anime.cover = pendingEditCover;
     anime.linkedPrevId = seasonNum > 1 ? pendingLinkEdit : null;
+    anime.language = langStateEdit;
+    anime.genres = genreStateEdit.slice();
     await saveAnimes();
     closeOverlay("overlay-edit");
     renderGrid();
@@ -1466,6 +1763,8 @@
     var rows = "";
     rows += detailRow("Status", statusLabel(anime));
     rows += detailRow("Temporada", "Temporada " + (anime.season || 1));
+    rows += detailRow("Áudio", anime.language || "não informado", !anime.language);
+    rows += detailRow("Gênero", (anime.genres && anime.genres.length) ? anime.genres.join(", ") : "não informado", !(anime.genres && anime.genres.length));
     rows += detailRow("Onde assistiu", anime.place || "não informado", !anime.place);
     rows += detailRow("Início", anime.dateStart ? formatDateBR(anime.dateStart) : "não informado", !anime.dateStart);
     rows += detailRow("Fim da temporada", anime.dateEnd ? formatDateBR(anime.dateEnd) : "não informado", !anime.dateEnd);
@@ -1592,6 +1891,8 @@
         if(a.linkedPrevId === undefined) a.linkedPrevId = null;
         if(a.rating == null) a.rating = 0;
         if(a.createdAt == null) a.createdAt = Date.now();
+        if(a.language == null) a.language = "Legendado";
+        if(!Array.isArray(a.genres)) a.genres = [];
       });
 
       animes = incoming;
