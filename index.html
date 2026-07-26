@@ -200,8 +200,16 @@
   .card.is-clickable:hover{ transform:translateY(-4px); box-shadow:var(--shadow-soft); border-color:rgba(255,143,177,.3); }
   .card.is-clickable:active{ transform:translateY(-1px) scale(.98); }
 
-  .card.is-reordering{ cursor:default; }
+  .card.is-reordering{ cursor:pointer; touch-action:none; }
   .card.is-reordering:hover{ transform:none; box-shadow:none; border-color:var(--line); }
+  .card.is-selected{ border-color:var(--aurora); box-shadow:0 0 0 2px var(--aurora) inset; }
+  .card.is-dragging{ opacity:.4; border-color:var(--aurora); z-index:5; }
+  .card.is-drop-target{ border-color:var(--aurora); box-shadow:0 0 0 2px var(--aurora) inset; }
+  .card.is-touch-floating{
+    position:fixed; z-index:50; pointer-events:none; opacity:.94;
+    box-shadow:var(--shadow-pop); border-color:var(--aurora);
+    transition:none !important;
+  }
 
   .card-cover{
     position:relative; display:block; width:100%; aspect-ratio:2/3; flex:none;
@@ -224,24 +232,52 @@
     overflow:hidden; opacity:1; visibility:visible;
   }
 
-  /* ---- modo organizar: setas de direção sobre o card ---- */
-  .reorder-dpad{ position:absolute; inset:0; z-index:2; pointer-events:none; }
-  .reorder-arrow{
-    position:absolute; pointer-events:auto;
+  /* ---- modo organizar: alcinha para arrastar + selo de seleção ---- */
+  .reorder-handle{
+    position:absolute; top:9px; right:9px; z-index:3;
     width:32px; height:32px; border-radius:9px;
     background:rgba(10,9,15,.86); backdrop-filter:blur(6px); color:var(--paper);
-    border:1px solid var(--line-strong);
     display:flex; align-items:center; justify-content:center;
-    box-shadow:0 6px 14px -4px rgba(0,0,0,.55);
-    transition:background .2s, transform .15s, opacity .2s, border-color .2s;
+    box-shadow:0 6px 14px -4px rgba(0,0,0,.5);
+    cursor:grab; touch-action:none;
   }
-  .reorder-arrow:hover{ background:var(--bloom); border-color:var(--bloom); color:var(--bloom-ink); }
-  .reorder-arrow:active{ transform:scale(.88); }
-  .reorder-arrow[disabled]{ opacity:.18; pointer-events:none; }
-  .reorder-arrow-up{ top:8px; left:50%; transform:translateX(-50%); }
-  .reorder-arrow-down{ bottom:8px; left:50%; transform:translateX(-50%); }
-  .reorder-arrow-left{ left:8px; top:50%; transform:translateY(-50%); }
-  .reorder-arrow-right{ right:8px; top:50%; transform:translateY(-50%); }
+  .reorder-handle:active{ cursor:grabbing; }
+  .reorder-select-badge{
+    position:absolute; top:9px; left:9px; z-index:3;
+    width:26px; height:26px; border-radius:50%;
+    background:rgba(10,9,15,.7); border:1.5px solid var(--line-strong); color:transparent;
+    display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800;
+    transition:background .2s, border-color .2s, color .2s, transform .2s;
+  }
+  .card.is-selected .reorder-select-badge{
+    background:var(--aurora); border-color:var(--aurora); color:#0f2b23; transform:scale(1.08);
+  }
+
+  /* ---- modo organizar: barra flutuante com setas grandes ---- */
+  .reorder-toolbar{
+    position:fixed; left:50%; bottom:26px; z-index:40;
+    transform:translate(-50%,18px); opacity:0; pointer-events:none;
+    background:var(--dusk); border:1px solid var(--line-strong); border-radius:22px;
+    padding:16px 20px; box-shadow:var(--shadow-pop);
+    display:flex; flex-direction:column; align-items:center; gap:11px;
+    transition:opacity .3s var(--ease), transform .35s var(--ease-spring);
+  }
+  .reorder-toolbar.show{ opacity:1; transform:translate(-50%,0); pointer-events:auto; }
+  .reorder-toolbar-label{ font-size:12.5px; font-weight:800; color:var(--aurora); letter-spacing:.03em; }
+  .reorder-toolbar-arrows{ display:grid; grid-template-columns:58px 58px 58px; grid-template-rows:56px 56px; gap:8px; }
+  .reorder-toolbar-btn{
+    background:var(--card); border:1px solid var(--line-strong); color:var(--paper);
+    border-radius:15px; display:flex; align-items:center; justify-content:center;
+    transition:background .2s, transform .15s, border-color .2s;
+  }
+  .reorder-toolbar-btn:hover{ background:var(--bloom); border-color:var(--bloom); color:var(--bloom-ink); }
+  .reorder-toolbar-btn:active{ transform:scale(.88); }
+  #rt-up{ grid-column:2; grid-row:1; }
+  #rt-left{ grid-column:1; grid-row:2; }
+  #rt-down{ grid-column:2; grid-row:2; }
+  #rt-right{ grid-column:3; grid-row:2; }
+  .reorder-toolbar-clear{ background:none; border:none; color:var(--mist); font-size:12px; font-weight:700; padding:2px 4px; transition:color .2s; }
+  .reorder-toolbar-clear:hover{ color:var(--paper); }
 
   .empty-state{ grid-column:1/-1; text-align:center; padding:64px 20px; color:var(--mist); }
   .empty-state svg{ width:40px; height:40px; margin-bottom:14px; opacity:.6; }
@@ -601,7 +637,7 @@
 
       <p class="reorder-hint" id="reorder-hint" hidden>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18L4 14l4-4"/><path d="M4 14h16"/><path d="M16 6l4 4-4 4"/><path d="M20 10H4"/></svg>
-        Toque nas setas de cada card para mover ele para cima, para baixo, para esquerda ou para direita. Toque em "Concluir" quando terminar.
+        Segure a alcinha ⋮⋮ no canto do card e arraste para trocar de lugar, ou toque na capa para selecionar um ou mais animes e usar as setas grandes que aparecem embaixo. Toque em "Concluir" quando terminar.
       </p>
 
       <div class="anime-grid" id="anime-grid"></div>
@@ -609,6 +645,26 @@
   </section>
 
 </main>
+
+<!-- ===================== BARRA FLUTUANTE: SETAS DO MODO ORGANIZAR ===================== -->
+<div class="reorder-toolbar" id="reorder-toolbar">
+  <span class="reorder-toolbar-label" id="reorder-toolbar-label">0 selecionado</span>
+  <div class="reorder-toolbar-arrows">
+    <button type="button" class="reorder-toolbar-btn" id="rt-up" title="Mover para cima" aria-label="Mover para cima">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+    </button>
+    <button type="button" class="reorder-toolbar-btn" id="rt-left" title="Mover para a esquerda" aria-label="Mover para a esquerda">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button type="button" class="reorder-toolbar-btn" id="rt-down" title="Mover para baixo" aria-label="Mover para baixo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <button type="button" class="reorder-toolbar-btn" id="rt-right" title="Mover para a direita" aria-label="Mover para a direita">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+  <button type="button" class="reorder-toolbar-clear" id="rt-clear">Limpar seleção</button>
+</div>
 
 <!-- ===================== OVERLAY: ADICIONAR ===================== -->
 <div class="overlay" id="overlay-add">
@@ -1105,6 +1161,8 @@
 
   /* ---------- reorder mode ---------- */
   var reorderMode = false;
+  var selectedIds = [];
+  var dragSourceId = null;
 
   function setReorderMode(on){
     reorderMode = on;
@@ -1123,12 +1181,9 @@
       document.getElementById("search-input").value = "";
       document.getElementById("search-clear").hidden = true;
     }
+    selectedIds = [];
+    updateReorderToolbar();
     renderGrid();
-  }
-
-  /* devolve a posição real (no array "animes") a partir da posição mostrada na tela */
-  function displayIndexToRealIndex(displayIdx){
-    return animes.length - 1 - displayIdx;
   }
 
   /* quantas colunas a grade tem agora, seguindo as mesmas larguras do CSS */
@@ -1138,16 +1193,243 @@
     return 4;
   }
 
-  /* troca de posição dois animes pela posição mostrada na tela (0 = primeiro card) */
-  function swapDisplayIndexes(idxA, idxB){
-    if(idxB < 0 || idxB >= animes.length) return;
-    var realA = displayIndexToRealIndex(idxA);
-    var realB = displayIndexToRealIndex(idxB);
-    var tmp = animes[realA];
-    animes[realA] = animes[realB];
-    animes[realB] = tmp;
+  /* ---- animação suave de troca de posição (FLIP) ---- */
+  function captureCardRects(){
+    var map = {};
+    document.querySelectorAll("#anime-grid .card").forEach(function(c){
+      map[c.getAttribute("data-id")] = c.getBoundingClientRect();
+    });
+    return map;
+  }
+
+  function playCardFlip(oldRects){
+    document.querySelectorAll("#anime-grid .card").forEach(function(c){
+      var id = c.getAttribute("data-id");
+      var oldRect = oldRects[id];
+      if(!oldRect) return;
+      var newRect = c.getBoundingClientRect();
+      var dx = oldRect.left - newRect.left;
+      var dy = oldRect.top - newRect.top;
+      if(!dx && !dy) return;
+      c.style.transition = "none";
+      c.style.transform = "translate("+dx+"px,"+dy+"px)";
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          c.style.transition = "transform .38s cubic-bezier(.22,1,.36,1)";
+          c.style.transform = "";
+        });
+      });
+      c.addEventListener("transitionend", function handler(ev){
+        if(ev.propertyName !== "transform") return;
+        c.style.transition = "";
+        c.removeEventListener("transitionend", handler);
+      });
+    });
+  }
+
+  /* move o(s) anime(s) selecionado(s) uma posição na direção pedida (respeitando as colunas da grade) */
+  function moveSelectedDirection(direction){
+    if(!selectedIds.length) return;
+    var columns = getGridColumnCount();
+    var displayList = animes.slice().reverse();
+    var idxMap = {};
+    selectedIds.forEach(function(id){
+      idxMap[id] = displayList.findIndex(function(x){ return x.id === id; });
+    });
+    var order = selectedIds.slice();
+    if(direction === "down" || direction === "right"){
+      order.sort(function(a,b){ return idxMap[b] - idxMap[a]; });
+    }else{
+      order.sort(function(a,b){ return idxMap[a] - idxMap[b]; });
+    }
+
+    var oldRects = captureCardRects();
+    var moved = false;
+
+    order.forEach(function(id){
+      var curDisplayList = animes.slice().reverse();
+      var curIdx = curDisplayList.findIndex(function(x){ return x.id === id; });
+      if(curIdx === -1) return;
+
+      if(direction === "left" && curIdx % columns === 0) return;
+      if(direction === "right" && (curIdx % columns === columns - 1 || curIdx === animes.length - 1)) return;
+
+      var delta = direction === "up" ? -columns : direction === "down" ? columns : direction === "left" ? -1 : 1;
+      var targetIdx = curIdx + delta;
+      if(targetIdx < 0 || targetIdx >= animes.length) return;
+
+      var realA = animes.length - 1 - curIdx;
+      var realB = animes.length - 1 - targetIdx;
+      var tmp = animes[realA];
+      animes[realA] = animes[realB];
+      animes[realB] = tmp;
+      moved = true;
+    });
+
+    if(!moved) return;
     saveAnimes();
     renderGrid();
+    playCardFlip(oldRects);
+  }
+
+  function updateReorderToolbar(){
+    var toolbar = document.getElementById("reorder-toolbar");
+    var label = document.getElementById("reorder-toolbar-label");
+    toolbar.classList.toggle("show", selectedIds.length > 0);
+    label.textContent = selectedIds.length + (selectedIds.length === 1 ? " selecionado" : " selecionados");
+  }
+
+  document.getElementById("rt-up").addEventListener("click", function(){ moveSelectedDirection("up"); });
+  document.getElementById("rt-down").addEventListener("click", function(){ moveSelectedDirection("down"); });
+  document.getElementById("rt-left").addEventListener("click", function(){ moveSelectedDirection("left"); });
+  document.getElementById("rt-right").addEventListener("click", function(){ moveSelectedDirection("right"); });
+  document.getElementById("rt-clear").addEventListener("click", function(){
+    selectedIds = [];
+    updateReorderToolbar();
+    document.querySelectorAll("#anime-grid .card.is-selected").forEach(function(c){ c.classList.remove("is-selected"); });
+  });
+
+  function toggleCardSelection(card, id){
+    var isSelected = card.classList.toggle("is-selected");
+    var i = selectedIds.indexOf(id);
+    if(isSelected){
+      if(i === -1) selectedIds.push(id);
+    }else{
+      if(i !== -1) selectedIds.splice(i, 1);
+    }
+    updateReorderToolbar();
+  }
+
+  /* arraste (mouse no PC, dedo no celular) — troca o card de lugar deslizando */
+  function wireCardDrag(card, animeId){
+    // ---- desktop: HTML5 drag nativo, iniciado em qualquer ponto do card ----
+    card.draggable = true;
+    card.addEventListener("dragstart", function(ev){
+      dragSourceId = animeId;
+      card.classList.add("is-dragging");
+      ev.dataTransfer.effectAllowed = "move";
+      try{ ev.dataTransfer.setData("text/plain", animeId); }catch(err){}
+    });
+    card.addEventListener("dragend", function(){
+      card.classList.remove("is-dragging");
+      document.querySelectorAll(".card.is-drop-target").forEach(function(c){ c.classList.remove("is-drop-target"); });
+      dragSourceId = null;
+    });
+    card.addEventListener("dragover", function(ev){
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = "move";
+      if(dragSourceId && dragSourceId !== animeId) card.classList.add("is-drop-target");
+    });
+    card.addEventListener("dragleave", function(){
+      card.classList.remove("is-drop-target");
+    });
+    card.addEventListener("drop", function(ev){
+      ev.preventDefault();
+      card.classList.remove("is-drop-target");
+      if(!dragSourceId || dragSourceId === animeId) return;
+      dropAnimeOnto(dragSourceId, animeId);
+    });
+
+    // ---- celular: arraste deslizando o dedo a partir da alcinha ----
+    var handle = card.querySelector(".reorder-handle");
+    if(!handle) return;
+
+    var startX = 0, startY = 0, startTop = 0, startLeft = 0, width = 0, height = 0;
+    var dragging = false;
+    var currentTargetCard = null;
+
+    function findCardUnder(clientX, clientY){
+      var cards = document.querySelectorAll("#anime-grid .card");
+      for(var i=0;i<cards.length;i++){
+        var c = cards[i];
+        if(c === card) continue;
+        var r = c.getBoundingClientRect();
+        if(clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom){
+          return c;
+        }
+      }
+      return null;
+    }
+
+    function onTouchStart(ev){
+      if(ev.touches.length !== 1) return;
+      var t = ev.touches[0];
+      var rect = card.getBoundingClientRect();
+      startX = t.clientX; startY = t.clientY;
+      startTop = rect.top; startLeft = rect.left;
+      width = rect.width; height = rect.height;
+      dragging = true;
+      card.classList.add("is-dragging", "is-touch-floating");
+      card.style.width = width + "px";
+      card.style.height = height + "px";
+      card.style.top = startTop + "px";
+      card.style.left = startLeft + "px";
+      if(navigator.vibrate) navigator.vibrate(10);
+      document.addEventListener("touchmove", onTouchMove, { passive:false });
+      document.addEventListener("touchend", onTouchEnd);
+      document.addEventListener("touchcancel", onTouchEnd);
+    }
+
+    function onTouchMove(ev){
+      if(!dragging) return;
+      ev.preventDefault();
+      var t = ev.touches[0];
+      var dx = t.clientX - startX;
+      var dy = t.clientY - startY;
+      card.style.top = (startTop + dy) + "px";
+      card.style.left = (startLeft + dx) + "px";
+
+      var target = findCardUnder(t.clientX, t.clientY);
+      if(target !== currentTargetCard){
+        if(currentTargetCard) currentTargetCard.classList.remove("is-drop-target");
+        currentTargetCard = target;
+        if(currentTargetCard) currentTargetCard.classList.add("is-drop-target");
+      }
+    }
+
+    function onTouchEnd(){
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener("touchcancel", onTouchEnd);
+      if(!dragging) return;
+      dragging = false;
+
+      card.classList.remove("is-dragging", "is-touch-floating");
+      card.style.top = ""; card.style.left = ""; card.style.width = ""; card.style.height = "";
+
+      if(currentTargetCard){
+        currentTargetCard.classList.remove("is-drop-target");
+        var targetId = currentTargetCard.getAttribute("data-id");
+        currentTargetCard = null;
+        if(targetId && targetId !== animeId){
+          dropAnimeOnto(animeId, targetId);
+        }
+      }
+    }
+
+    handle.addEventListener("touchstart", onTouchStart, { passive:true });
+  }
+
+  /* solta o anime arrastado exatamente na posição do alvo (insere no lugar) */
+  function dropAnimeOnto(draggedId, targetId){
+    var displayList = animes.slice().reverse();
+    var fromIdx = displayList.findIndex(function(x){ return x.id === draggedId; });
+    var toIdx = displayList.findIndex(function(x){ return x.id === targetId; });
+    if(fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return;
+
+    var oldRects = captureCardRects();
+
+    var realFrom = animes.length - 1 - fromIdx;
+    var item = animes[realFrom];
+    animes.splice(realFrom, 1);
+    var realTo = animes.length - toIdx;
+    if(realTo < 0) realTo = 0;
+    if(realTo > animes.length) realTo = animes.length;
+    animes.splice(realTo, 0, item);
+
+    saveAnimes();
+    renderGrid();
+    playCardFlip(oldRects);
   }
 
   /* ---------- ambient background ---------- */
@@ -1278,64 +1560,43 @@
     }
 
     eyebrow.textContent = reorderMode
-      ? (filtered.length + " no total — use as setas para reordenar")
+      ? (filtered.length + " no total — arraste ou selecione para reordenar")
       : (filtered.length + (searchQuery
           ? (filtered.length === 1 ? " resultado" : " resultados")
           : (filtered.length === 1 ? " assistido" : " assistidos")));
 
     var displayList = filtered.slice().reverse();
-    var columns = getGridColumnCount();
     var frag = document.createDocumentFragment();
 
     displayList.forEach(function(a, idx){
+      var isSelected = reorderMode && selectedIds.indexOf(a.id) !== -1;
       var card = document.createElement("button");
       card.type = "button";
-      card.className = "card " + (reorderMode ? "is-reordering" : "is-clickable");
+      card.className = "card " + (reorderMode ? "is-reordering" : "is-clickable") + (isSelected ? " is-selected" : "");
       card.style.setProperty("--i", idx);
       card.setAttribute("data-id", a.id);
 
-      var dpadHtml = "";
+      var reorderExtrasHtml = "";
       if(reorderMode){
-        var canUp = (idx - columns) >= 0;
-        var canDown = (idx + columns) < displayList.length;
-        var canLeft = (idx % columns) !== 0;
-        var canRight = (idx % columns) !== (columns - 1) && idx < displayList.length - 1;
-
-        dpadHtml =
-          '<span class="reorder-dpad">' +
-            '<button type="button" class="reorder-arrow reorder-arrow-up" '+(canUp?'':'disabled')+' title="Mover para cima" aria-label="Mover para cima">' +
-              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>' +
-            '</button>' +
-            '<button type="button" class="reorder-arrow reorder-arrow-down" '+(canDown?'':'disabled')+' title="Mover para baixo" aria-label="Mover para baixo">' +
-              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>' +
-            '</button>' +
-            '<button type="button" class="reorder-arrow reorder-arrow-left" '+(canLeft?'':'disabled')+' title="Mover para a esquerda" aria-label="Mover para a esquerda">' +
-              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>' +
-            '</button>' +
-            '<button type="button" class="reorder-arrow reorder-arrow-right" '+(canRight?'':'disabled')+' title="Mover para a direita" aria-label="Mover para a direita">' +
-              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>' +
-            '</button>' +
+        reorderExtrasHtml =
+          '<span class="reorder-select-badge">✓</span>' +
+          '<span class="reorder-handle" title="Arraste para reordenar">' +
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg>' +
           '</span>';
       }
 
       card.innerHTML =
-        '<span class="card-cover">'+ coverHtml(a.cover) + (reorderMode ? '' : '<span class="card-rating">'+ formatRating(a.rating) +'</span>') + dpadHtml +'</span>' +
+        '<span class="card-cover">'+ coverHtml(a.cover) + (reorderMode ? '' : '<span class="card-rating">'+ formatRating(a.rating) +'</span>') + reorderExtrasHtml +'</span>' +
         '<span class="card-body">' +
           '<span class="card-title">'+ escapeHtml(a.name) +'</span>' +
         '</span>';
 
       if(reorderMode){
-        var upBtn = card.querySelector(".reorder-arrow-up");
-        var downBtn = card.querySelector(".reorder-arrow-down");
-        var leftBtn = card.querySelector(".reorder-arrow-left");
-        var rightBtn = card.querySelector(".reorder-arrow-right");
-
-        upBtn.addEventListener("click", function(ev){ ev.stopPropagation(); swapDisplayIndexes(idx, idx - columns); });
-        downBtn.addEventListener("click", function(ev){ ev.stopPropagation(); swapDisplayIndexes(idx, idx + columns); });
-        leftBtn.addEventListener("click", function(ev){ ev.stopPropagation(); swapDisplayIndexes(idx, idx - 1); });
-        rightBtn.addEventListener("click", function(ev){ ev.stopPropagation(); swapDisplayIndexes(idx, idx + 1); });
-
-        card.addEventListener("click", function(ev){ ev.preventDefault(); });
+        wireCardDrag(card, a.id);
+        card.addEventListener("click", function(ev){
+          ev.preventDefault();
+          toggleCardSelection(card, a.id);
+        });
       }else{
         // toque na capa/cartão abre VISUALIZAÇÃO, nunca edição direta
         card.addEventListener("click", function(){ openView(a.id); });
