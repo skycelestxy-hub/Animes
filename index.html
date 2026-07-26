@@ -200,15 +200,8 @@
   .card.is-clickable:hover{ transform:translateY(-4px); box-shadow:var(--shadow-soft); border-color:rgba(255,143,177,.3); }
   .card.is-clickable:active{ transform:translateY(-1px) scale(.98); }
 
-  .card.is-reordering{ cursor:default; touch-action:none; }
+  .card.is-reordering{ cursor:default; }
   .card.is-reordering:hover{ transform:none; box-shadow:none; border-color:var(--line); }
-  .card.is-dragging{ opacity:.4; border-color:var(--aurora); z-index:5; }
-  .card.is-drop-target{ border-color:var(--aurora); box-shadow:0 0 0 2px var(--aurora) inset; }
-  .card.is-touch-floating{
-    position:fixed; z-index:50; pointer-events:none; opacity:.94;
-    box-shadow:var(--shadow-pop); border-color:var(--aurora);
-    transition:none !important;
-  }
 
   .card-cover{
     position:relative; display:block; width:100%; aspect-ratio:2/3; flex:none;
@@ -231,18 +224,24 @@
     overflow:hidden; opacity:1; visibility:visible;
   }
 
-  .reorder-handle{
-    position:absolute; inset:0; z-index:2;
-    display:flex; align-items:flex-end; justify-content:center; padding-bottom:12px;
-    background:linear-gradient(to top, rgba(9,8,13,.55), rgba(9,8,13,0) 45%);
-    cursor:grab; touch-action:none;
-  }
-  .reorder-handle:active{ cursor:grabbing; }
-  .reorder-handle .rh-pill{
+  /* ---- modo organizar: setas de direção sobre o card ---- */
+  .reorder-dpad{ position:absolute; inset:0; z-index:2; pointer-events:none; }
+  .reorder-arrow{
+    position:absolute; pointer-events:auto;
+    width:32px; height:32px; border-radius:9px;
     background:rgba(10,9,15,.86); backdrop-filter:blur(6px); color:var(--paper);
-    width:44px; height:26px; border-radius:999px; display:flex; align-items:center; justify-content:center;
-    box-shadow:0 6px 14px -4px rgba(0,0,0,.5);
+    border:1px solid var(--line-strong);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 14px -4px rgba(0,0,0,.55);
+    transition:background .2s, transform .15s, opacity .2s, border-color .2s;
   }
+  .reorder-arrow:hover{ background:var(--bloom); border-color:var(--bloom); color:var(--bloom-ink); }
+  .reorder-arrow:active{ transform:scale(.88); }
+  .reorder-arrow[disabled]{ opacity:.18; pointer-events:none; }
+  .reorder-arrow-up{ top:8px; left:50%; transform:translateX(-50%); }
+  .reorder-arrow-down{ bottom:8px; left:50%; transform:translateX(-50%); }
+  .reorder-arrow-left{ left:8px; top:50%; transform:translateY(-50%); }
+  .reorder-arrow-right{ right:8px; top:50%; transform:translateY(-50%); }
 
   .empty-state{ grid-column:1/-1; text-align:center; padding:64px 20px; color:var(--mist); }
   .empty-state svg{ width:40px; height:40px; margin-bottom:14px; opacity:.6; }
@@ -327,6 +326,15 @@
   .rating-row{ display:flex; align-items:center; gap:14px; }
   .rating-row input[type="range"]{ flex:1; accent-color:var(--bloom); height:20px; }
   .rating-value{ font-family:'Fraunces',serif; font-weight:700; font-size:16px; color:var(--aurora); min-width:48px; text-align:right; }
+
+  .field textarea{
+    width:100%; min-height:84px; box-sizing:border-box; resize:vertical;
+    background:var(--ink); border:1px solid var(--line); color:var(--paper);
+    padding:12px 14px; border-radius:var(--radius-sm); font-size:14.5px; font-family:inherit; line-height:1.5;
+    transition:border-color .25s, background .25s;
+  }
+  .field textarea:focus{ outline:none; border-color:rgba(255,143,177,.4); background:var(--card); }
+  .field textarea::placeholder{ color:var(--mist-dim); }
 
   .dropzone{
     display:flex; align-items:center; gap:15px; border:1.5px dashed var(--line);
@@ -593,7 +601,7 @@
 
       <p class="reorder-hint" id="reorder-hint" hidden>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18L4 14l4-4"/><path d="M4 14h16"/><path d="M16 6l4 4-4 4"/><path d="M20 10H4"/></svg>
-        Segure a alcinha ⋮⋮ no card e arraste (deslize o dedo) até o lugar que quiser. Toque em "Concluir" quando terminar.
+        Toque nas setas de cada card para mover ele para cima, para baixo, para esquerda ou para direita. Toque em "Concluir" quando terminar.
       </p>
 
       <div class="anime-grid" id="anime-grid"></div>
@@ -652,6 +660,17 @@
         </button>
       </div>
       <div class="field">
+        <label>Tem episódio especial?</label>
+        <div class="toggle-group">
+          <button type="button" class="toggle-btn active" id="special-nao-add" aria-pressed="true">Não</button>
+          <button type="button" class="toggle-btn is-yes" id="special-sim-add" aria-pressed="false">Sim</button>
+        </div>
+        <div class="field" id="special-qty-block-add" hidden style="margin:14px 0 0;">
+          <label for="input-special-qty-add">Quantos?</label>
+          <input type="number" id="input-special-qty-add" min="1" step="1" placeholder="ex: 2">
+        </div>
+      </div>
+      <div class="field">
         <label for="input-place-add">Onde assistiu</label>
         <input type="text" id="input-place-add" placeholder="ex: Crunchyroll, Netflix...">
       </div>
@@ -669,6 +688,10 @@
           <input type="range" min="0" max="10" step="0.5" value="8" id="input-rating-add">
           <span class="rating-value" id="rating-value-add">8/10</span>
         </div>
+      </div>
+      <div class="field">
+        <label for="input-note-add">Anotações</label>
+        <textarea id="input-note-add" rows="3" placeholder="ex: esse anime é muito bom..."></textarea>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" data-close="overlay-add">Cancelar</button>
@@ -742,6 +765,17 @@
         </button>
       </div>
       <div class="field">
+        <label>Tem episódio especial?</label>
+        <div class="toggle-group">
+          <button type="button" class="toggle-btn active" id="special-nao-edit" aria-pressed="true">Não</button>
+          <button type="button" class="toggle-btn is-yes" id="special-sim-edit" aria-pressed="false">Sim</button>
+        </div>
+        <div class="field" id="special-qty-block-edit" hidden style="margin:14px 0 0;">
+          <label for="input-special-qty-edit">Quantos?</label>
+          <input type="number" id="input-special-qty-edit" min="1" step="1" placeholder="ex: 2">
+        </div>
+      </div>
+      <div class="field">
         <label for="input-place-edit">Onde assistiu</label>
         <input type="text" id="input-place-edit">
       </div>
@@ -759,6 +793,10 @@
           <input type="range" min="0" max="10" step="0.5" value="8" id="input-rating-edit">
           <span class="rating-value" id="rating-value-edit">8/10</span>
         </div>
+      </div>
+      <div class="field">
+        <label for="input-note-edit">Anotações</label>
+        <textarea id="input-note-edit" rows="3" placeholder="ex: esse anime é muito bom..."></textarea>
       </div>
       <div class="modal-actions split">
         <button type="button" class="btn-danger" id="btn-delete">Excluir anime</button>
@@ -905,6 +943,9 @@
         if(a.linkedPrevId === undefined) a.linkedPrevId = null;
         if(a.language == null) a.language = "Legendado";
         if(!Array.isArray(a.genres)) a.genres = [];
+        if(a.hasSpecialEpisode == null) a.hasSpecialEpisode = false;
+        if(a.specialEpisodeCount === undefined) a.specialEpisodeCount = null;
+        if(a.note == null) a.note = "";
       });
       return list;
     });
@@ -1033,9 +1074,37 @@
     legBtn.classList.toggle("active", value === "Legendado");
   }
 
+  /* ---------- tem episódio especial? ---------- */
+  function setSpecialChoice(suffix, choice){
+    var btnNao = document.getElementById("special-nao-"+suffix);
+    var btnSim = document.getElementById("special-sim-"+suffix);
+    btnNao.classList.toggle("active", choice === "nao");
+    btnNao.setAttribute("aria-pressed", choice === "nao" ? "true" : "false");
+    btnSim.classList.toggle("active", choice === "sim");
+    btnSim.setAttribute("aria-pressed", choice === "sim" ? "true" : "false");
+  }
+
+  function wireSpecialToggle(suffix){
+    var btnNao = document.getElementById("special-nao-"+suffix);
+    var btnSim = document.getElementById("special-sim-"+suffix);
+    var qtyBlock = document.getElementById("special-qty-block-"+suffix);
+    btnNao.addEventListener("click", function(){
+      setSpecialChoice(suffix, "nao");
+      qtyBlock.hidden = true;
+      // se apertar Não, nada mais muda — o valor digitado antes fica guardado
+      // só não é usado ao salvar (ver leitura no submit).
+    });
+    btnSim.addEventListener("click", function(){
+      setSpecialChoice(suffix, "sim");
+      qtyBlock.hidden = false;
+      document.getElementById("input-special-qty-"+suffix).focus();
+    });
+  }
+  wireSpecialToggle("add");
+  wireSpecialToggle("edit");
+
   /* ---------- reorder mode ---------- */
   var reorderMode = false;
-  var dragSourceId = null;
 
   function setReorderMode(on){
     reorderMode = on;
@@ -1062,131 +1131,21 @@
     return animes.length - 1 - displayIdx;
   }
 
-  /* arraste deslizando o dedo — usa o mesmo handle visual do drag de mouse,
-     mas com touchstart/touchmove/touchend, já que o HTML5 drag-and-drop
-     nativo não funciona bem em navegadores de celular. */
-  function wireTouchDrag(card, animeId){
-    var handle = card.querySelector(".reorder-handle");
-    if(!handle) return;
-
-    var startX = 0, startY = 0, startTop = 0, startLeft = 0, width = 0, height = 0;
-    var dragging = false;
-    var currentTargetCard = null;
-    var LONG_PRESS_MS = 120;
-    var pressTimer = null;
-
-    function getGridCards(){
-      return Array.prototype.slice.call(document.querySelectorAll("#anime-grid .card"));
-    }
-
-    function findCardUnder(clientX, clientY){
-      var cards = getGridCards();
-      for(var i=0;i<cards.length;i++){
-        var c = cards[i];
-        if(c === card) continue;
-        var r = c.getBoundingClientRect();
-        if(clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom){
-          return c;
-        }
-      }
-      return null;
-    }
-
-    function onTouchStart(ev){
-      if(ev.touches.length !== 1) return;
-      var t = ev.touches[0];
-      var rect = card.getBoundingClientRect();
-      startX = t.clientX;
-      startY = t.clientY;
-      startTop = rect.top;
-      startLeft = rect.left;
-      width = rect.width;
-      height = rect.height;
-
-      pressTimer = setTimeout(function(){
-        dragging = true;
-        card.classList.add("is-dragging", "is-touch-floating");
-        card.style.width = width + "px";
-        card.style.height = height + "px";
-        card.style.top = startTop + "px";
-        card.style.left = startLeft + "px";
-        if(navigator.vibrate) navigator.vibrate(12);
-      }, LONG_PRESS_MS);
-
-      document.addEventListener("touchmove", onTouchMove, { passive:false });
-      document.addEventListener("touchend", onTouchEnd);
-      document.addEventListener("touchcancel", onTouchEnd);
-    }
-
-    function onTouchMove(ev){
-      if(!dragging){
-        var t0 = ev.touches[0];
-        if(Math.abs(t0.clientX - startX) > 8 || Math.abs(t0.clientY - startY) > 8){
-          clearTimeout(pressTimer);
-        }
-        return;
-      }
-      ev.preventDefault();
-      var t = ev.touches[0];
-      var dx = t.clientX - startX;
-      var dy = t.clientY - startY;
-      card.style.top = (startTop + dy) + "px";
-      card.style.left = (startLeft + dx) + "px";
-
-      var target = findCardUnder(t.clientX, t.clientY);
-      if(target !== currentTargetCard){
-        if(currentTargetCard) currentTargetCard.classList.remove("is-drop-target");
-        currentTargetCard = target;
-        if(currentTargetCard) currentTargetCard.classList.add("is-drop-target");
-      }
-    }
-
-    function onTouchEnd(){
-      clearTimeout(pressTimer);
-      document.removeEventListener("touchmove", onTouchMove);
-      document.removeEventListener("touchend", onTouchEnd);
-      document.removeEventListener("touchcancel", onTouchEnd);
-
-      if(!dragging){ return; }
-      dragging = false;
-
-      card.classList.remove("is-dragging", "is-touch-floating");
-      card.style.top = "";
-      card.style.left = "";
-      card.style.width = "";
-      card.style.height = "";
-
-      if(currentTargetCard){
-        currentTargetCard.classList.remove("is-drop-target");
-        var targetId = currentTargetCard.getAttribute("data-id");
-        currentTargetCard = null;
-        if(targetId && targetId !== animeId){
-          var displayList = (reorderMode ? animes : getFilteredAnimes()).slice().reverse();
-          var fromIdx = displayList.findIndex(function(x){ return x.id === animeId; });
-          var toIdx = displayList.findIndex(function(x){ return x.id === targetId; });
-          if(fromIdx !== -1 && toIdx !== -1){
-            moveAnimeToDisplayIndex(fromIdx, toIdx);
-          }
-        }
-      }
-    }
-
-    handle.addEventListener("touchstart", onTouchStart, { passive:true });
+  /* quantas colunas a grade tem agora, seguindo as mesmas larguras do CSS */
+  function getGridColumnCount(){
+    if(window.matchMedia("(max-width: 680px)").matches) return 2;
+    if(window.matchMedia("(max-width: 920px)").matches) return 3;
+    return 4;
   }
 
-  function moveAnimeToDisplayIndex(fromDisplayIdx, toDisplayIdx){
-    if(fromDisplayIdx === toDisplayIdx) return;
-    var realFrom = displayIndexToRealIndex(fromDisplayIdx);
-    var item = animes[realFrom];
-    animes.splice(realFrom, 1);
-
-    // recalcula o índice real de destino depois da remoção
-    var adjustedToDisplayIdx = toDisplayIdx > fromDisplayIdx ? toDisplayIdx : toDisplayIdx;
-    var realTo = (animes.length) - adjustedToDisplayIdx;
-    if(realTo < 0) realTo = 0;
-    if(realTo > animes.length) realTo = animes.length;
-
-    animes.splice(realTo, 0, item);
+  /* troca de posição dois animes pela posição mostrada na tela (0 = primeiro card) */
+  function swapDisplayIndexes(idxA, idxB){
+    if(idxB < 0 || idxB >= animes.length) return;
+    var realA = displayIndexToRealIndex(idxA);
+    var realB = displayIndexToRealIndex(idxB);
+    var tmp = animes[realA];
+    animes[realA] = animes[realB];
+    animes[realB] = tmp;
     saveAnimes();
     renderGrid();
   }
@@ -1319,12 +1278,13 @@
     }
 
     eyebrow.textContent = reorderMode
-      ? (filtered.length + " no total — arraste para reordenar")
+      ? (filtered.length + " no total — use as setas para reordenar")
       : (filtered.length + (searchQuery
           ? (filtered.length === 1 ? " resultado" : " resultados")
           : (filtered.length === 1 ? " assistido" : " assistidos")));
 
     var displayList = filtered.slice().reverse();
+    var columns = getGridColumnCount();
     var frag = document.createDocumentFragment();
 
     displayList.forEach(function(a, idx){
@@ -1334,55 +1294,46 @@
       card.style.setProperty("--i", idx);
       card.setAttribute("data-id", a.id);
 
-      var handleHtml = "";
+      var dpadHtml = "";
       if(reorderMode){
-        handleHtml =
-          '<span class="reorder-handle" title="Arraste para reordenar">' +
-            '<span class="rh-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span>' +
+        var canUp = (idx - columns) >= 0;
+        var canDown = (idx + columns) < displayList.length;
+        var canLeft = (idx % columns) !== 0;
+        var canRight = (idx % columns) !== (columns - 1) && idx < displayList.length - 1;
+
+        dpadHtml =
+          '<span class="reorder-dpad">' +
+            '<button type="button" class="reorder-arrow reorder-arrow-up" '+(canUp?'':'disabled')+' title="Mover para cima" aria-label="Mover para cima">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>' +
+            '</button>' +
+            '<button type="button" class="reorder-arrow reorder-arrow-down" '+(canDown?'':'disabled')+' title="Mover para baixo" aria-label="Mover para baixo">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>' +
+            '</button>' +
+            '<button type="button" class="reorder-arrow reorder-arrow-left" '+(canLeft?'':'disabled')+' title="Mover para a esquerda" aria-label="Mover para a esquerda">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>' +
+            '</button>' +
+            '<button type="button" class="reorder-arrow reorder-arrow-right" '+(canRight?'':'disabled')+' title="Mover para a direita" aria-label="Mover para a direita">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>' +
+            '</button>' +
           '</span>';
       }
 
       card.innerHTML =
-        '<span class="card-cover">'+ coverHtml(a.cover) + (reorderMode ? '' : '<span class="card-rating">'+ formatRating(a.rating) +'</span>') + handleHtml +'</span>' +
+        '<span class="card-cover">'+ coverHtml(a.cover) + (reorderMode ? '' : '<span class="card-rating">'+ formatRating(a.rating) +'</span>') + dpadHtml +'</span>' +
         '<span class="card-body">' +
           '<span class="card-title">'+ escapeHtml(a.name) +'</span>' +
         '</span>';
 
       if(reorderMode){
-        card.draggable = true;
+        var upBtn = card.querySelector(".reorder-arrow-up");
+        var downBtn = card.querySelector(".reorder-arrow-down");
+        var leftBtn = card.querySelector(".reorder-arrow-left");
+        var rightBtn = card.querySelector(".reorder-arrow-right");
 
-        // ---- arraste com mouse (desktop) ----
-        card.addEventListener("dragstart", function(ev){
-          dragSourceId = a.id;
-          card.classList.add("is-dragging");
-          ev.dataTransfer.effectAllowed = "move";
-          try{ ev.dataTransfer.setData("text/plain", a.id); }catch(err){}
-        });
-        card.addEventListener("dragend", function(){
-          card.classList.remove("is-dragging");
-          document.querySelectorAll(".card.is-drop-target").forEach(function(c){ c.classList.remove("is-drop-target"); });
-          dragSourceId = null;
-        });
-        card.addEventListener("dragover", function(ev){
-          ev.preventDefault();
-          ev.dataTransfer.dropEffect = "move";
-          if(dragSourceId && dragSourceId !== a.id) card.classList.add("is-drop-target");
-        });
-        card.addEventListener("dragleave", function(){
-          card.classList.remove("is-drop-target");
-        });
-        card.addEventListener("drop", function(ev){
-          ev.preventDefault();
-          card.classList.remove("is-drop-target");
-          if(!dragSourceId || dragSourceId === a.id) return;
-          var fromIdx = displayList.findIndex(function(x){ return x.id === dragSourceId; });
-          var toIdx = displayList.findIndex(function(x){ return x.id === a.id; });
-          if(fromIdx === -1 || toIdx === -1) return;
-          moveAnimeToDisplayIndex(fromIdx, toIdx);
-        });
-
-        // ---- arraste deslizando o dedo (touch/celular) ----
-        wireTouchDrag(card, a.id);
+        upBtn.addEventListener("click", function(ev){ ev.stopPropagation(); swapDisplayIndexes(idx, idx - columns); });
+        downBtn.addEventListener("click", function(ev){ ev.stopPropagation(); swapDisplayIndexes(idx, idx + columns); });
+        leftBtn.addEventListener("click", function(ev){ ev.stopPropagation(); swapDisplayIndexes(idx, idx - 1); });
+        rightBtn.addEventListener("click", function(ev){ ev.stopPropagation(); swapDisplayIndexes(idx, idx + 1); });
 
         card.addEventListener("click", function(ev){ ev.preventDefault(); });
       }else{
@@ -1594,6 +1545,9 @@
     updateGenreButtonLabel("add", genreStateAdd);
     langStateAdd = "Legendado";
     setLangUI("add", "Legendado");
+    setSpecialChoice("add", "nao");
+    document.getElementById("special-qty-block-add").hidden = true;
+    document.getElementById("input-special-qty-add").value = "";
     document.getElementById("preview-add").innerHTML =
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
   }
@@ -1609,6 +1563,8 @@
     var name = document.getElementById("input-name-add").value.trim();
     if(!name){ document.getElementById("input-name-add").focus(); return; }
     var seasonNum = parseInt(document.getElementById("input-season-add").value, 10) || 1;
+    var hasSpecial = document.getElementById("special-sim-add").classList.contains("active");
+    var specialQty = hasSpecial ? (parseInt(document.getElementById("input-special-qty-add").value, 10) || null) : null;
     animes.push({
       id: uid(),
       name: name,
@@ -1621,6 +1577,9 @@
       linkedPrevId: seasonNum > 1 ? pendingLinkAdd : null,
       language: langStateAdd,
       genres: genreStateAdd.slice(),
+      hasSpecialEpisode: hasSpecial,
+      specialEpisodeCount: specialQty,
+      note: document.getElementById("input-note-add").value.trim(),
       createdAt: Date.now()
     });
     await saveAnimes();
@@ -1664,6 +1623,7 @@
     document.getElementById("input-dateend-edit").value = anime.dateEnd || "";
     document.getElementById("input-rating-edit").value = anime.rating || 0;
     document.getElementById("rating-value-edit").textContent = formatRating(anime.rating || 0);
+    document.getElementById("input-note-edit").value = anime.note || "";
     document.getElementById("preview-edit").innerHTML = anime.cover
       ? '<img src="'+anime.cover+'" alt="">'
       : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
@@ -1672,6 +1632,11 @@
     setLangUI("edit", langStateEdit);
     genreStateEdit = (anime.genres || []).slice();
     updateGenreButtonLabel("edit", genreStateEdit);
+
+    var hasSpecial = !!anime.hasSpecialEpisode;
+    setSpecialChoice("edit", hasSpecial ? "sim" : "nao");
+    document.getElementById("special-qty-block-edit").hidden = !hasSpecial;
+    document.getElementById("input-special-qty-edit").value = anime.specialEpisodeCount || "";
 
     var seasonNum = anime.season || 1;
     var linkBlock = document.getElementById("link-block-edit");
@@ -1714,6 +1679,10 @@
     anime.linkedPrevId = seasonNum > 1 ? pendingLinkEdit : null;
     anime.language = langStateEdit;
     anime.genres = genreStateEdit.slice();
+    var hasSpecialEdit = document.getElementById("special-sim-edit").classList.contains("active");
+    anime.hasSpecialEpisode = hasSpecialEdit;
+    anime.specialEpisodeCount = hasSpecialEdit ? (parseInt(document.getElementById("input-special-qty-edit").value, 10) || null) : null;
+    anime.note = document.getElementById("input-note-edit").value.trim();
     await saveAnimes();
     closeOverlay("overlay-edit");
     renderGrid();
@@ -1765,10 +1734,14 @@
     rows += detailRow("Temporada", "Temporada " + (anime.season || 1));
     rows += detailRow("Áudio", anime.language || "não informado", !anime.language);
     rows += detailRow("Gênero", (anime.genres && anime.genres.length) ? anime.genres.join(", ") : "não informado", !(anime.genres && anime.genres.length));
+    rows += detailRow("Episódio especial", anime.hasSpecialEpisode
+      ? ("Sim — " + (anime.specialEpisodeCount || "?") + (anime.specialEpisodeCount === 1 ? " episódio" : " episódios"))
+      : "Não", !anime.hasSpecialEpisode);
     rows += detailRow("Onde assistiu", anime.place || "não informado", !anime.place);
     rows += detailRow("Início", anime.dateStart ? formatDateBR(anime.dateStart) : "não informado", !anime.dateStart);
     rows += detailRow("Fim da temporada", anime.dateEnd ? formatDateBR(anime.dateEnd) : "não informado", !anime.dateEnd);
     rows += detailRow("Nota", formatRating(anime.rating));
+    rows += detailRow("Anotações", anime.note || "sem anotações", !anime.note);
 
     var prev = getPrevSeason(anime);
     var next = getNextSeason(anime);
@@ -1893,6 +1866,9 @@
         if(a.createdAt == null) a.createdAt = Date.now();
         if(a.language == null) a.language = "Legendado";
         if(!Array.isArray(a.genres)) a.genres = [];
+        if(a.hasSpecialEpisode == null) a.hasSpecialEpisode = false;
+        if(a.specialEpisodeCount === undefined) a.specialEpisodeCount = null;
+        if(a.note == null) a.note = "";
       });
 
       animes = incoming;
@@ -1910,6 +1886,10 @@
   /* ---------- navigation ---------- */
   document.getElementById("btn-go-list").addEventListener("click", function(){ showScreen("list"); });
   document.getElementById("btn-back").addEventListener("click", function(){ showScreen("landing"); });
+
+  window.addEventListener("resize", function(){
+    if(reorderMode) renderGrid();
+  });
 
   /* ---------- init ---------- */
   buildAmbient();
