@@ -1193,7 +1193,7 @@
     if(!alert || !alert.status) return "";
     if(alert.status === "red") return "🔴 sem data";
     if(alert.status === "yellow") return "🟡 " + (alert.releaseDate ? formatDateBR(alert.releaseDate) : "com data");
-    if(alert.status === "green") return "🟢 lançada" + (alert.releaseDate ? (" — " + formatDateBR(alert.releaseDate)) : "");
+    if(alert.status === "green") return "✅ lançada" + (alert.releaseDate ? (" — " + formatDateBR(alert.releaseDate)) : "");
     if(alert.status === "finished") return "✓ obra finalizada";
     return "";
   }
@@ -1202,7 +1202,7 @@
     if(!alert || !alert.status) return "";
     if(alert.status === "red") return "🔴 nova temporada confirmada, sem data de estreia";
     if(alert.status === "yellow") return "🟡 nova temporada confirmada — estreia em " + (alert.releaseDate ? formatDateBR(alert.releaseDate) : "data não informada");
-    if(alert.status === "green") return "🟢 nova temporada lançada" + (alert.releaseDate ? (" em " + formatDateBR(alert.releaseDate)) : "");
+    if(alert.status === "green") return "✅ temporada já lançada e confirmada" + (alert.releaseDate ? (" em " + formatDateBR(alert.releaseDate)) : "");
     if(alert.status === "finished") return "✓ obra totalmente finalizada, sem novas temporadas planejadas" + (alert.note ? (" — " + alert.note) : "");
     return "";
   }
@@ -1211,6 +1211,9 @@
     if(!a || !a.seasonAlert || !a.seasonAlert.status) return "";
     if(a.seasonAlert.status === "finished"){
       return '<span class="alert-badge alert-finished" title="Obra finalizada — sem novas temporadas planejadas">✓</span>';
+    }
+    if(a.seasonAlert.status === "green"){
+      return '<span class="alert-badge alert-green" title="Temporada já lançada — confirmada">✓</span>';
     }
     return '<span class="alert-badge alert-'+a.seasonAlert.status+'" title="Nova temporada — toque para ver detalhes">!</span>';
   }
@@ -2504,25 +2507,26 @@
   function buildAiExportPayload(){
     var instructions =
 "Você está analisando um backup do aplicativo yozora, um diário pessoal de animes assistidos.\n\n" +
-"Para cada item da lista \"animes\", pesquise informações ATUAIS e confiáveis sobre uma possível nova temporada, ou se a obra já foi oficialmente encerrada (use fontes oficiais — estúdio, distribuidora, anúncio oficial — e não considere rumores ou especulação como confirmação).\n\n" +
+"Para cada item da lista \"animes\", pesquise informações ATUAIS e confiáveis sobre uma possível nova temporada, se uma temporada já anunciada foi lançada, ou se a obra já foi oficialmente encerrada (use fontes oficiais — estúdio, distribuidora, anúncio oficial — e não considere rumores ou especulação como confirmação).\n\n" +
 "Cada anime pode aparecer mais de uma vez na lista (uma entrada por temporada já registrada, ligadas por \"existingSeasons\"). Ao decidir em qual entrada colocar o campo \"proposedAlert\", use sempre a entrada cujo \"currentSeason\" seja o maior dentro do mesmo grupo de \"existingSeasons\" — ou seja, a temporada mais recente já registrada daquela obra.\n\n" +
-"Verifique o campo \"watchedSeasonsLog\" de cada anime: essas temporadas já foram assistidas e marcadas pelo usuário. NÃO gere um alerta de nova temporada igual ou anterior à última já registrada ali — só para uma temporada NOVA, ainda não assistida. Verifique também \"currentAlert\": se já existir um alerta igual ao que você encontraria, não precisa repetir.\n\n" +
-"Se existir uma nova temporada confirmada, ou se a obra estiver encerrada, adicione ao anime um campo \"proposedAlert\" com este formato exato:\n" +
+"IMPORTANTE — reconfira também os alertas que já existem: se um anime já tiver um \"currentAlert\" com status \"red\" ou \"yellow\" (uma temporada pendente que uma análise anterior já tinha encontrado), verifique se essa temporada específica JÁ FOI LANÇADA desde então. Se sim, devolva \"proposedAlert\" com status \"green\" para confirmar — o app mostra isso como um símbolo de confirmação (✓), não mais como um alerta pendente (!). Faça essa reconferência para TODOS os animes com alerta pendente, não só procure novidades.\n\n" +
+"Verifique o campo \"watchedSeasonsLog\" de cada anime: essas temporadas já foram assistidas e marcadas pelo usuário. NÃO gere um alerta de nova temporada igual ou anterior à última já registrada ali — só para uma temporada NOVA, ainda não assistida. Se \"currentAlert\" já estiver correto e nada mudou, não precisa repetir.\n\n" +
+"Se existir uma nova temporada confirmada, uma temporada pendente que foi lançada, ou se a obra estiver encerrada, adicione ao anime um campo \"proposedAlert\" com este formato exato:\n" +
 '{ "status": "red" | "yellow" | "green" | "finished", "seasonNumber": <número ou null>, "releaseDate": "AAAA-MM-DD" ou null, "note": "<explicação curta e a fonte>" }\n\n' +
 "Regras de classificação:\n" +
-"RED = nova temporada confirmada, mas SEM data de estreia divulgada.\n" +
-"YELLOW = nova temporada confirmada COM data de estreia divulgada (ainda não lançada).\n" +
-"GREEN = temporada já lançada (a data de estreia já passou).\n" +
-"FINISHED = a obra terminou oficialmente e não há nenhuma nova temporada prevista ou planejada (nesse caso \"seasonNumber\" e \"releaseDate\" podem ficar null).\n\n" +
-"Se não houver nenhuma novidade (nem nova temporada, nem confirmação de encerramento), não adicione o campo \"proposedAlert\" para esse anime (ou deixe null).\n\n" +
+"RED = nova temporada confirmada, mas SEM data de estreia divulgada. Exibido como alerta (!) vermelho.\n" +
+"YELLOW = nova temporada confirmada COM data de estreia divulgada (ainda não lançada). Exibido como alerta (!) amarelo.\n" +
+"GREEN = a temporada JÁ FOI LANÇADA (a data de estreia já passou, ou você confirmou que já está disponível). Não é mais um alerta pendente — é uma confirmação, exibida como um símbolo de \"correto\" (✓) verde.\n" +
+"FINISHED = a obra terminou oficialmente e não há nenhuma nova temporada prevista ou planejada (nesse caso \"seasonNumber\" e \"releaseDate\" podem ficar null). Exibido como um símbolo (✓) branco.\n\n" +
+"Se não houver nenhuma novidade e nenhum alerta pendente precisar ser confirmado, não adicione o campo \"proposedAlert\" para esse anime (ou deixe null).\n\n" +
 "Regras obrigatórias — muito importantes:\n" +
 "- NÃO altere o campo \"id\" de nenhum anime.\n" +
 "- NÃO remova nenhum anime da lista, nem adicione animes novos.\n" +
 "- NÃO altere nome, capa, nota, temporada, idioma, gênero, datas, anotações ou qualquer outro campo além de \"proposedAlert\".\n" +
 "- NÃO apague \"watchedSeasonsLog\" nem \"alertHistory\".\n" +
-"- NÃO invente temporadas ou encerramentos sem evidência real de pesquisa.\n" +
+"- NÃO invente temporadas, lançamentos ou encerramentos sem evidência real de pesquisa.\n" +
 "- Respeite \"watchedSeasonsLog\": nunca repita alerta de uma temporada já assistida.\n\n" +
-"Ao terminar, devolva o MESMO arquivo JSON (a mesma estrutura completa), apenas incluindo o campo \"proposedAlert\" dentro de cada anime que tiver novidade. Esse arquivo devolvido será importado de volta no aplicativo yozora, na opção \"Importar backup analisado\".";
+"Ao terminar, devolva o MESMO arquivo JSON (a mesma estrutura completa), apenas incluindo o campo \"proposedAlert\" dentro de cada anime que tiver novidade ou alerta pendente para confirmar. Esse arquivo devolvido será importado de volta no aplicativo yozora, na opção \"Importar backup analisado\".";
 
     var animesPayload = animes.map(function(a){
       return {
