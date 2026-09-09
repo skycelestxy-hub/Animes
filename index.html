@@ -555,6 +555,74 @@
   .detail-value.empty{ color:var(--mist-dim); font-weight:500; font-style:italic; }
   .detail-value.link{ color:var(--bloom); cursor:pointer; }
   .detail-value.link:hover{ text-decoration:underline; }
+
+  /* ============ ALERTA DE TEMPORADA (análise por IA) ============ */
+  .alert-badge{
+    position:absolute; z-index:4; right:9px; bottom:9px;
+    width:28px; height:28px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif; font-weight:800; font-size:15px;
+    box-shadow:0 6px 16px -4px rgba(0,0,0,.6), 0 0 0 2px var(--ink);
+  }
+  .alert-badge.alert-red{ background:#ff5470; color:#2b0510; }
+  .alert-badge.alert-yellow{ background:#ffcf56; color:#3a2600; }
+  .alert-badge.alert-green{ background:#7ee6a8; color:#0c2c17; }
+
+  .alert-chip{
+    display:inline-flex; align-items:center; gap:7px;
+    border-radius:999px; padding:7px 15px; font-weight:800; font-size:12.5px;
+  }
+  .alert-chip.alert-red{ background:rgba(255,84,112,.14); border:1px solid rgba(255,84,112,.4); color:#ff8199; }
+  .alert-chip.alert-yellow{ background:rgba(255,207,86,.14); border:1px solid rgba(255,207,86,.4); color:#ffd873; }
+  .alert-chip.alert-green{ background:rgba(126,230,168,.14); border:1px solid rgba(126,230,168,.4); color:var(--aurora); }
+
+  .view-alert-row{
+    display:none; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:10px;
+    opacity:0; transform:translateY(8px);
+    transition:opacity .5s var(--ease) .19s, transform .5s var(--ease) .19s;
+  }
+  .view-alert-row.show{ display:flex; }
+  #view-overlay.open .view-alert-row.show{ opacity:1; transform:translateY(0); }
+
+  .edit-alert-block{
+    display:none; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius-sm);
+    padding:14px 16px; margin-bottom:18px;
+  }
+  .edit-alert-block.show{ display:flex; }
+  .edit-alert-block .eab-text{ font-size:12.5px; color:var(--mist); line-height:1.5; max-width:230px; }
+  .edit-alert-block .eab-text strong{ color:var(--paper); display:block; font-size:14px; margin-bottom:2px; }
+
+  /* ---- overlays: IA (hub / comparação / motivo) ---- */
+  .ai-actions{ display:flex; flex-direction:column; gap:11px; margin-top:6px; }
+  .ai-actions .btn{ width:100%; justify-content:center; }
+  .ai-note{
+    background:rgba(183,155,255,.1); border:1px solid rgba(183,155,255,.28);
+    color:var(--mist); font-size:12.5px; line-height:1.6; border-radius:var(--radius-sm);
+    padding:12px 14px; margin-top:18px;
+  }
+
+  .diff-list{ display:flex; flex-direction:column; gap:10px; max-height:48vh; overflow-y:auto; padding:2px; margin-bottom:6px; }
+  .diff-row{
+    display:flex; align-items:center; gap:12px;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius-sm);
+    padding:11px 14px;
+  }
+  .diff-row .diff-cover{ width:38px; height:56px; border-radius:8px; overflow:hidden; flex:none; background:var(--ink); }
+  .diff-row .diff-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .diff-row .diff-cover .no-cover svg{ width:16px; height:16px; }
+  .diff-row .diff-info{ flex:1; min-width:0; }
+  .diff-row .diff-name{ font-weight:700; font-size:14px; margin-bottom:4px; }
+  .diff-row .diff-change{ font-size:12px; }
+  .diff-warning{
+    display:flex; align-items:flex-start; gap:9px;
+    background:rgba(255,138,138,.08); border:1px solid rgba(255,138,138,.28);
+    color:var(--danger); font-size:12.5px; line-height:1.55; border-radius:var(--radius-sm);
+    padding:12px 14px; margin-bottom:16px;
+  }
+
+  .reason-actions{ display:flex; flex-direction:column; gap:10px; margin-top:6px; }
+  .reason-actions .btn{ width:100%; justify-content:center; }
 </style>
 </head>
 <body>
@@ -602,7 +670,11 @@
         <button class="btn-icon" id="btn-import" title="Importar backup" aria-label="Importar backup">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 8l5-5 5 5"/><path d="M12 3v12"/></svg>
         </button>
+        <button class="btn-icon" id="btn-ai" title="Análise de temporadas por IA" aria-label="Análise de temporadas por IA">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.8L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.2L12 3z"/><path d="M19 15.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>
+        </button>
         <input type="file" id="import-file-input" class="file-input-hidden" accept="application/json,.json">
+        <input type="file" id="import-ai-file-input" class="file-input-hidden" accept="application/json,.json">
       </div>
     </div>
     <div class="list-wrap">
@@ -775,6 +847,13 @@
     <h3>Editar com calma</h3>
     <p class="modal-hint">ajuste os detalhes e confirme quando estiver pronto.</p>
     <div class="season-nav" id="season-nav-edit"></div>
+    <div class="edit-alert-block" id="edit-alert-block">
+      <div class="eab-text">
+        <strong id="edit-alert-title"></strong>
+        <span id="edit-alert-sub"></span>
+      </div>
+      <button type="button" class="btn btn-secondary" id="btn-edit-remove-alert">Remover !</button>
+    </div>
     <form id="form-edit" novalidate>
       <input type="hidden" id="edit-id">
       <div class="field">
@@ -888,6 +967,10 @@
     <div class="view-cover" id="view-cover"></div>
     <h2 class="view-title" id="view-title"></h2>
     <span class="view-rating-chip" id="view-rating-chip"></span>
+    <div class="view-alert-row" id="view-alert-row">
+      <span class="alert-chip" id="view-alert-chip-el"></span>
+      <button type="button" class="btn-ghost" id="btn-view-remove-alert" style="padding:6px 4px;">remover !</button>
+    </div>
     <button type="button" class="view-expand-btn" id="view-expand-btn">
       detalhes
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -896,6 +979,55 @@
       <div class="view-details-inner">
         <div class="detail-card" id="view-detail-card"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== OVERLAY: ANÁLISE DE TEMPORADAS POR IA (hub) ===================== -->
+<div class="overlay" id="overlay-ai">
+  <div class="modal">
+    <h3>Análise de temporadas por IA</h3>
+    <p class="modal-hint">gere um arquivo com seus animes para uma IA pesquisar novas temporadas, ou importe o arquivo que ela devolver.</p>
+    <div class="ai-actions">
+      <button type="button" class="btn btn-primary" id="btn-ai-export">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.8L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.2L12 3z"/></svg>
+        Preparar backup para IA
+      </button>
+      <button type="button" class="btn btn-secondary" id="btn-ai-import">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 8l5-5 5 5"/><path d="M12 3v12"/></svg>
+        Importar backup analisado
+      </button>
+    </div>
+    <p class="ai-note">funciona com qualquer IA que aceite arquivos, como ChatGPT, Gemini, Claude ou Copilot. envie o arquivo gerado, peça para pesquisar temporadas novas e depois importe o arquivo que ela devolver. suas informações e seu histórico continuam salvos só no seu navegador — a IA só pode sugerir alertas de temporada, nunca apagar ou alterar o resto dos seus dados.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" data-close="overlay-ai">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== OVERLAY: ALTERAÇÕES ENCONTRADAS (comparação antes de aplicar) ===================== -->
+<div class="overlay" id="overlay-ai-diff">
+  <div class="modal modal-select">
+    <h3>Alterações encontradas</h3>
+    <p class="modal-hint">a IA sugeriu os alertas abaixo. confira antes de aplicar — nada é alterado até você confirmar.</p>
+    <div id="ai-diff-warning"></div>
+    <div class="diff-list" id="ai-diff-list"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" id="btn-ai-diff-cancel">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-ai-diff-apply">Aplicar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== OVERLAY: REMOVER ALERTA (motivo) ===================== -->
+<div class="overlay" id="overlay-alert-reason">
+  <div class="modal" style="max-width:400px;">
+    <h3>Remover alerta</h3>
+    <p class="modal-hint" id="alert-reason-hint">por que deseja remover o alerta?</p>
+    <div class="reason-actions">
+      <button type="button" class="btn btn-primary" id="btn-reason-watched">Já assisti</button>
+      <button type="button" class="btn btn-secondary" id="btn-reason-other">Outro motivo</button>
+      <button type="button" class="btn-ghost" data-close="overlay-alert-reason">Cancelar</button>
     </div>
   </div>
 </div>
@@ -1002,6 +1134,9 @@
         if(a.hasSpecialEpisode == null) a.hasSpecialEpisode = false;
         if(a.specialEpisodeCount === undefined) a.specialEpisodeCount = null;
         if(a.note == null) a.note = "";
+        if(a.seasonAlert === undefined) a.seasonAlert = null;
+        if(!Array.isArray(a.alertHistory)) a.alertHistory = [];
+        if(!Array.isArray(a.watchedSeasonsLog)) a.watchedSeasonsLog = [];
       });
       return list;
     });
@@ -1017,6 +1152,44 @@
   }
 
   var animes = [];
+
+  /* ---------- alertas de temporada (análise por IA) ---------- */
+  function alertChipLabel(alert){
+    if(!alert || !alert.status) return "";
+    if(alert.status === "red") return "🔴 sem data";
+    if(alert.status === "yellow") return "🟡 " + (alert.releaseDate ? formatDateBR(alert.releaseDate) : "com data");
+    if(alert.status === "green") return "🟢 lançada" + (alert.releaseDate ? (" — " + formatDateBR(alert.releaseDate)) : "");
+    return "";
+  }
+
+  function alertStatusText(alert){
+    if(!alert || !alert.status) return "";
+    if(alert.status === "red") return "🔴 nova temporada confirmada, sem data de estreia";
+    if(alert.status === "yellow") return "🟡 nova temporada confirmada — estreia em " + (alert.releaseDate ? formatDateBR(alert.releaseDate) : "data não informada");
+    if(alert.status === "green") return "🟢 nova temporada lançada" + (alert.releaseDate ? (" em " + formatDateBR(alert.releaseDate)) : "");
+    return "";
+  }
+
+  function alertBadgeHtml(a){
+    if(!a.seasonAlert || !a.seasonAlert.status) return "";
+    return '<span class="alert-badge alert-'+a.seasonAlert.status+'" title="Nova temporada — toque para ver detalhes">!</span>';
+  }
+
+  /* atualiza yellow → green sozinho quando a data de estreia já passou, sem precisar de nova análise */
+  function recalcAlertStatuses(){
+    var todayStr = new Date().toISOString().slice(0,10);
+    var changed = false;
+    animes.forEach(function(a){
+      if(a.seasonAlert && a.seasonAlert.releaseDate && a.seasonAlert.status !== "red"){
+        var isPast = a.seasonAlert.releaseDate <= todayStr;
+        if(isPast && a.seasonAlert.status !== "green"){
+          a.seasonAlert.status = "green";
+          changed = true;
+        }
+      }
+    });
+    return changed;
+  }
 
   /* ---------- gêneros ---------- */
   var GENRE_LIST = [
@@ -1586,7 +1759,7 @@
       }
 
       card.innerHTML =
-        '<span class="card-cover">'+ coverHtml(a.cover) + (reorderMode ? '' : '<span class="card-rating">'+ formatRating(a.rating) +'</span>') + reorderExtrasHtml +'</span>' +
+        '<span class="card-cover">'+ coverHtml(a.cover) + (reorderMode ? '' : ('<span class="card-rating">'+ formatRating(a.rating) +'</span>' + alertBadgeHtml(a))) + reorderExtrasHtml +'</span>' +
         '<span class="card-body">' +
           '<span class="card-title">'+ escapeHtml(a.name) +'</span>' +
         '</span>';
@@ -1841,7 +2014,10 @@
       hasSpecialEpisode: hasSpecial,
       specialEpisodeCount: specialQty,
       note: document.getElementById("input-note-add").value.trim(),
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      seasonAlert: null,
+      alertHistory: [],
+      watchedSeasonsLog: []
     });
     await saveAnimes();
     closeOverlay("overlay-add");
@@ -1918,6 +2094,15 @@
       picker.hidden = true;
     }
 
+    var alertBlock = document.getElementById("edit-alert-block");
+    if(anime.seasonAlert && anime.seasonAlert.status){
+      document.getElementById("edit-alert-title").textContent = alertChipLabel(anime.seasonAlert);
+      document.getElementById("edit-alert-sub").textContent = anime.seasonAlert.note ? anime.seasonAlert.note : "alerta encontrado pela análise de IA";
+      alertBlock.classList.add("show");
+    }else{
+      alertBlock.classList.remove("show");
+    }
+
     renderSeasonNav(anime);
     openOverlay("overlay-edit");
   }
@@ -1964,8 +2149,74 @@
     }
   });
 
+  document.getElementById("btn-edit-remove-alert").addEventListener("click", function(){
+    var id = document.getElementById("edit-id").value;
+    if(id) openAlertReasonDialog(id);
+  });
+
+  /* ---------- remover alerta (motivo) ---------- */
+  var pendingAlertRemovalId = null;
+
+  function openAlertReasonDialog(animeId){
+    pendingAlertRemovalId = animeId;
+    var anime = animes.find(function(a){ return a.id === animeId; });
+    var hint = document.getElementById("alert-reason-hint");
+    if(anime && anime.seasonAlert){
+      hint.textContent = "Por que deseja remover o alerta de \"" + anime.name + "\" (temporada " + (anime.seasonAlert.seasonNumber || ((anime.season||1)+1)) + ")?";
+    }else{
+      hint.textContent = "Por que deseja remover o alerta?";
+    }
+    openOverlay("overlay-alert-reason");
+  }
+
+  async function removeAlert(animeId, reason, reasonText){
+    var anime = animes.find(function(a){ return a.id === animeId; });
+    if(!anime || !anime.seasonAlert){ closeOverlay("overlay-alert-reason"); return; }
+    var now = new Date();
+    var removed = anime.seasonAlert;
+
+    if(!Array.isArray(anime.alertHistory)) anime.alertHistory = [];
+    anime.alertHistory.push({
+      seasonNumber: removed.seasonNumber || anime.season || 1,
+      previousStatus: removed.status,
+      releaseDate: removed.releaseDate || null,
+      reason: reason,
+      reasonText: reasonText || "",
+      removedAt: now.getTime(),
+      removedDate: now.toISOString().slice(0,10),
+      removedTime: now.toTimeString().slice(0,5)
+    });
+
+    if(reason === "Já assisti"){
+      if(!Array.isArray(anime.watchedSeasonsLog)) anime.watchedSeasonsLog = [];
+      anime.watchedSeasonsLog.push({
+        seasonNumber: removed.seasonNumber || anime.season || 1,
+        watchedAt: now.getTime(),
+        dateWatched: now.toISOString().slice(0,10)
+      });
+    }
+
+    anime.seasonAlert = null;
+    await saveAnimes();
+    closeOverlay("overlay-alert-reason");
+    renderGrid();
+    if(currentViewId === animeId) openView(animeId);
+    if(document.getElementById("edit-id").value === animeId) openEdit(animeId);
+    showToast(reason === "Já assisti" ? "Alerta removido — temporada marcada como assistida." : "Alerta removido.");
+  }
+
+  document.getElementById("btn-reason-watched").addEventListener("click", function(){
+    removeAlert(pendingAlertRemovalId, "Já assisti", "");
+  });
+  document.getElementById("btn-reason-other").addEventListener("click", function(){
+    var reasonText = prompt("Descreva o motivo:");
+    if(reasonText === null) return;
+    removeAlert(pendingAlertRemovalId, "Outro motivo", reasonText.trim());
+  });
+
   /* ---------- VIEW MODE (somente leitura) ---------- */
   var viewDetailsOpen = false;
+  var currentViewId = null;
 
   function statusLabel(anime){
     if(anime.dateEnd) return "Concluído";
@@ -1983,6 +2234,7 @@
   function openView(id){
     var anime = animes.find(function(a){ return a.id === id; });
     if(!anime) return;
+    currentViewId = id;
 
     document.getElementById("view-cover").innerHTML = anime.cover
       ? '<img src="'+anime.cover+'" alt="">'
@@ -1990,9 +2242,20 @@
     document.getElementById("view-title").textContent = anime.name || "";
     document.getElementById("view-rating-chip").textContent = "★ " + formatRating(anime.rating);
 
+    var alertRow = document.getElementById("view-alert-row");
+    var alertChipEl = document.getElementById("view-alert-chip-el");
+    if(anime.seasonAlert && anime.seasonAlert.status){
+      alertChipEl.className = "alert-chip alert-" + anime.seasonAlert.status;
+      alertChipEl.textContent = alertChipLabel(anime.seasonAlert);
+      alertRow.classList.add("show");
+    }else{
+      alertRow.classList.remove("show");
+    }
+
     var rows = "";
     rows += detailRow("Status", statusLabel(anime));
     rows += detailRow("Temporada", "Temporada " + (anime.season || 1));
+    rows += detailRow("Alerta de nova temporada", anime.seasonAlert ? alertStatusText(anime.seasonAlert) : "nenhum no momento", !anime.seasonAlert);
     rows += detailRow("Áudio", anime.language || "não informado", !anime.language);
     rows += detailRow("Gênero", (anime.genres && anime.genres.length) ? anime.genres.join(", ") : "não informado", !(anime.genres && anime.genres.length));
     rows += detailRow("Episódio especial", anime.hasSpecialEpisode
@@ -2030,6 +2293,10 @@
   }
 
   document.getElementById("btn-view-back").addEventListener("click", closeViewOverlay);
+
+  document.getElementById("btn-view-remove-alert").addEventListener("click", function(){
+    if(currentViewId) openAlertReasonDialog(currentViewId);
+  });
 
   document.getElementById("view-expand-btn").addEventListener("click", function(){
     viewDetailsOpen = !viewDetailsOpen;
@@ -2078,6 +2345,7 @@
     var payload = {
       app: "yozora",
       version: 1,
+      backup_version: 1,
       exportedAt: new Date().toISOString(),
       animes: animes
     };
@@ -2130,6 +2398,9 @@
         if(a.hasSpecialEpisode == null) a.hasSpecialEpisode = false;
         if(a.specialEpisodeCount === undefined) a.specialEpisodeCount = null;
         if(a.note == null) a.note = "";
+        if(a.seasonAlert === undefined) a.seasonAlert = null;
+        if(!Array.isArray(a.alertHistory)) a.alertHistory = [];
+        if(!Array.isArray(a.watchedSeasonsLog)) a.watchedSeasonsLog = [];
       });
 
       animes = incoming;
@@ -2144,6 +2415,232 @@
     reader.readAsText(file);
   });
 
+  /* ---------- análise de temporadas por IA ---------- */
+  function getSeasonChain(anime){
+    var chain = [];
+    var cursor = anime;
+    var guard = 0;
+    while(getPrevSeason(cursor) && guard < 50){
+      cursor = getPrevSeason(cursor);
+      guard++;
+    }
+    var node = cursor;
+    guard = 0;
+    while(node && guard < 50){
+      chain.push(node.season || 1);
+      node = getNextSeason(node);
+      guard++;
+    }
+    return chain;
+  }
+
+  function todayIso(){ return new Date().toISOString().slice(0,10); }
+
+  function buildAiExportPayload(){
+    var instructions =
+"Você está analisando um backup do aplicativo yozora, um diário pessoal de animes assistidos.\n\n" +
+"Para cada item da lista \"animes\", pesquise informações ATUAIS e confiáveis sobre uma possível nova temporada (use fontes oficiais — estúdio, distribuidora, anúncio oficial — e não considere rumores ou especulação como confirmação).\n\n" +
+"Verifique o campo \"watchedSeasonsLog\" de cada anime: essas temporadas já foram assistidas e marcadas pelo usuário. NÃO gere um alerta para uma temporada igual ou anterior à última já registrada ali — só para uma temporada NOVA, ainda não assistida. Verifique também \"currentAlert\": se já existir um alerta igual ao que você encontraria, não precisa repetir.\n\n" +
+"Se existir uma nova temporada confirmada, adicione ao anime um campo \"proposedAlert\" com este formato exato:\n" +
+'{ "status": "red" | "yellow" | "green", "seasonNumber": <número>, "releaseDate": "AAAA-MM-DD" ou null, "note": "<explicação curta e a fonte>" }\n\n' +
+"Regras de classificação:\n" +
+"RED = nova temporada confirmada, mas SEM data de estreia divulgada.\n" +
+"YELLOW = nova temporada confirmada COM data de estreia divulgada (ainda não lançada).\n" +
+"GREEN = temporada já lançada (a data de estreia já passou).\n\n" +
+"Se não houver nenhuma temporada nova confirmada, não adicione o campo \"proposedAlert\" para esse anime (ou deixe null).\n\n" +
+"Regras obrigatórias — muito importantes:\n" +
+"- NÃO altere o campo \"id\" de nenhum anime.\n" +
+"- NÃO remova nenhum anime da lista, nem adicione animes novos.\n" +
+"- NÃO altere nome, capa, nota, temporada, idioma, gênero, datas, anotações ou qualquer outro campo além de \"proposedAlert\".\n" +
+"- NÃO apague \"watchedSeasonsLog\" nem \"alertHistory\".\n" +
+"- NÃO invente temporadas sem evidência real de pesquisa.\n" +
+"- Respeite \"watchedSeasonsLog\": nunca repita alerta de uma temporada já assistida.\n\n" +
+"Ao terminar, devolva o MESMO arquivo JSON (a mesma estrutura completa), apenas incluindo o campo \"proposedAlert\" dentro de cada anime que tiver novidade. Esse arquivo devolvido será importado de volta no aplicativo yozora, na opção \"Importar backup analisado\".";
+
+    var animesPayload = animes.map(function(a){
+      return {
+        id: a.id,
+        name: a.name,
+        currentSeason: a.season || 1,
+        existingSeasons: getSeasonChain(a),
+        registeredInfo: {
+          language: a.language || "",
+          genres: a.genres || [],
+          place: a.place || "",
+          rating: a.rating || 0,
+          dateStart: a.dateStart || "",
+          dateEnd: a.dateEnd || "",
+          note: a.note || "",
+          hasSpecialEpisode: !!a.hasSpecialEpisode,
+          specialEpisodeCount: a.specialEpisodeCount || null
+        },
+        watchedSeasonsLog: a.watchedSeasonsLog || [],
+        alertHistory: (a.alertHistory || []).map(function(h){
+          return { seasonNumber: h.seasonNumber, reason: h.reason, reasonText: h.reasonText || "", removedDate: h.removedDate || "" };
+        }),
+        currentAlert: a.seasonAlert || null,
+        coverInfo: { hasCover: !!a.cover, coverRef: a.id }
+      };
+    });
+
+    return {
+      app: "yozora",
+      type: "ai_season_analysis_request",
+      backup_version: 1,
+      generated_at: new Date().toISOString(),
+      current_date: todayIso(),
+      instructions: instructions,
+      animes: animesPayload
+    };
+  }
+
+  document.getElementById("btn-ai").addEventListener("click", function(){
+    openOverlay("overlay-ai");
+  });
+
+  document.getElementById("btn-ai-export").addEventListener("click", function(){
+    if(!animes.length){
+      showToast("Você ainda não adicionou nenhum anime.", true);
+      return;
+    }
+    var payload = buildAiExportPayload();
+    var d = new Date();
+    var filename = "yozora-para-ia-" + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()) + ".json";
+    downloadJson(payload, filename);
+    closeOverlay("overlay-ai");
+    showToast("Arquivo pronto — envie para a IA que preferir.");
+  });
+
+  document.getElementById("btn-ai-import").addEventListener("click", function(){
+    document.getElementById("import-ai-file-input").click();
+  });
+
+  var pendingAiApply = [];
+
+  function pickAlertField(entry){
+    if(entry.proposedAlert !== undefined) return entry.proposedAlert;
+    if(entry.seasonAlert !== undefined) return entry.seasonAlert;
+    if(entry.alert !== undefined) return entry.alert;
+    return undefined;
+  }
+
+  function isValidAlertShape(alert){
+    if(!alert || typeof alert !== "object") return false;
+    if(["red","yellow","green"].indexOf(alert.status) === -1) return false;
+    return true;
+  }
+
+  function alertChangeText(alert){
+    return "Temporada " + alert.seasonNumber + " — " + alertChipLabel(alert);
+  }
+
+  function processAiResult(incomingList){
+    var diffs = [];
+    var ignoredCount = 0;
+    var byId = {};
+    incomingList.forEach(function(entry){ if(entry && entry.id) byId[entry.id] = entry; });
+
+    animes.forEach(function(a){
+      var entry = byId[a.id];
+      if(!entry) return;
+      var proposed = pickAlertField(entry);
+      if(proposed === undefined || proposed === null) return;
+
+      if(!isValidAlertShape(proposed)){
+        ignoredCount++;
+        return;
+      }
+
+      var seasonNumber = parseInt(proposed.seasonNumber, 10) || (a.season || 1) + 1;
+      var maxWatched = (a.watchedSeasonsLog || []).reduce(function(max,w){ return Math.max(max, w.seasonNumber || 0); }, 0);
+      if(seasonNumber <= maxWatched){
+        ignoredCount++;
+        return;
+      }
+
+      var releaseDate = (typeof proposed.releaseDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(proposed.releaseDate)) ? proposed.releaseDate : null;
+      var note = typeof proposed.note === "string" ? proposed.note.slice(0,300) : "";
+
+      var newAlert = { status: proposed.status, seasonNumber: seasonNumber, releaseDate: releaseDate, note: note, foundAt: Date.now() };
+      var old = a.seasonAlert;
+      var isSame = old && old.status === newAlert.status && old.seasonNumber === newAlert.seasonNumber && old.releaseDate === newAlert.releaseDate;
+      if(isSame) return;
+
+      diffs.push({ id: a.id, name: a.name, cover: a.cover, newAlert: newAlert });
+    });
+
+    if(!diffs.length){
+      showToast(ignoredCount ? "Nada de novo para aplicar — algumas sugestões foram ignoradas por segurança." : "Nenhuma novidade encontrada nesse arquivo.", true);
+      return;
+    }
+
+    pendingAiApply = diffs;
+    renderAiDiff(diffs, ignoredCount);
+    closeOverlay("overlay-ai");
+    openOverlay("overlay-ai-diff");
+  }
+
+  function renderAiDiff(diffs, ignoredCount){
+    var list = document.getElementById("ai-diff-list");
+    var warningEl = document.getElementById("ai-diff-warning");
+    list.innerHTML = "";
+    warningEl.innerHTML = ignoredCount
+      ? '<div class="diff-warning">⚠️ ' + ignoredCount + (ignoredCount === 1 ? " sugestão foi ignorada" : " sugestões foram ignoradas") + " por segurança (temporada já assistida ou formato inválido).</div>"
+      : "";
+
+    var frag = document.createDocumentFragment();
+    diffs.forEach(function(d){
+      var row = document.createElement("div");
+      row.className = "diff-row";
+      row.innerHTML =
+        '<span class="diff-cover">'+ coverHtml(d.cover) +'</span>' +
+        '<span class="diff-info">' +
+          '<span class="diff-name">'+ escapeHtml(d.name) +'</span>' +
+          '<span class="diff-change alert-chip alert-'+ d.newAlert.status +'">'+ escapeHtml(alertChangeText(d.newAlert)) +'</span>' +
+        '</span>';
+      frag.appendChild(row);
+    });
+    list.appendChild(frag);
+  }
+
+  document.getElementById("import-ai-file-input").addEventListener("change", function(){
+    var file = this.files && this.files[0];
+    this.value = "";
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onerror = function(){ showToast("Não foi possível ler o arquivo.", true); };
+    reader.onload = function(){
+      var data;
+      try{ data = JSON.parse(reader.result); }
+      catch(e){ showToast("Arquivo inválido. Selecione o backup devolvido pela IA.", true); return; }
+      var incomingList = Array.isArray(data.animes) ? data.animes : (Array.isArray(data) ? data : null);
+      if(!incomingList){
+        showToast("Esse arquivo não parece ser um backup analisado do yozora.", true);
+        return;
+      }
+      processAiResult(incomingList);
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById("btn-ai-diff-cancel").addEventListener("click", function(){
+    pendingAiApply = [];
+    closeOverlay("overlay-ai-diff");
+  });
+
+  document.getElementById("btn-ai-diff-apply").addEventListener("click", async function(){
+    if(!pendingAiApply.length){ closeOverlay("overlay-ai-diff"); return; }
+    pendingAiApply.forEach(function(d){
+      var anime = animes.find(function(a){ return a.id === d.id; });
+      if(anime) anime.seasonAlert = d.newAlert;
+    });
+    await saveAnimes();
+    pendingAiApply = [];
+    closeOverlay("overlay-ai-diff");
+    renderGrid();
+    showToast("Alertas atualizados.");
+  });
+
   /* ---------- navigation ---------- */
   document.getElementById("btn-go-list").addEventListener("click", function(){ showScreen("list"); });
   document.getElementById("btn-back").addEventListener("click", function(){ showScreen("landing"); });
@@ -2156,6 +2653,8 @@
   buildAmbient();
   loadAnimes().then(function(list){
     animes = list;
+    var changed = recalcAlertStatuses();
+    if(changed) saveAnimes();
     renderLandingCount();
     renderGrid();
   });
