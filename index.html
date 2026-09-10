@@ -1010,8 +1010,27 @@
       </button>
     </div>
     <p class="ai-note">funciona com qualquer IA que aceite arquivos, como ChatGPT, Gemini, Claude ou Copilot. envie o arquivo gerado, peça para pesquisar temporadas novas e depois importe o arquivo que ela devolver. suas informações e seu histórico continuam salvos só no seu navegador — a IA só pode sugerir alertas de temporada, nunca apagar ou alterar o resto dos seus dados.</p>
+    <button type="button" class="btn-danger" id="btn-ai-reset" style="width:100%; justify-content:center; margin-top:16px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      Reformatar Sinais
+    </button>
     <div class="modal-actions">
       <button type="button" class="btn btn-secondary" data-close="overlay-ai">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== OVERLAY: REFORMATAR SINAIS (apagar tudo ou selecionar) ===================== -->
+<div class="overlay" id="overlay-reset-alerts">
+  <div class="modal modal-select">
+    <h3>Reformatar sinais</h3>
+    <p class="modal-hint">apaga os símbolos (🔴🟡🟢✓) já colocados nos animes — incluindo os que você removeu manualmente. seu histórico de "já assisti" não é afetado.</p>
+    <button type="button" class="btn-danger" id="btn-reset-all" style="width:100%; justify-content:center; margin-bottom:18px;">Apagar de todos os animes</button>
+    <p class="modal-hint" id="reset-select-hint" style="margin-bottom:12px;">ou toque para escolher animes específicos:</p>
+    <div class="select-grid" id="reset-select-grid"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" data-close="overlay-reset-alerts">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-reset-selected">Apagar dos selecionados</button>
     </div>
   </div>
 </div>
@@ -1107,6 +1126,19 @@
   }
   function getRootAnimes(){
     return animes.filter(function(a){ return !a.linkedPrevId; });
+  }
+
+  /* ---------- reformatar sinais (apaga alertas ativos + histórico de remoções) ---------- */
+  function chainHasSignal(root){
+    return getChainNodes(root).some(function(n){
+      return (n.seasonAlert && n.seasonAlert.status) || (n.alertHistory && n.alertHistory.length);
+    });
+  }
+  function resetChainSignals(root){
+    getChainNodes(root).forEach(function(n){
+      n.seasonAlert = null;
+      n.alertHistory = [];
+    });
   }
 
   /* ---------- toast ---------- */
@@ -2507,26 +2539,27 @@
   function buildAiExportPayload(){
     var instructions =
 "Você está analisando um backup do aplicativo yozora, um diário pessoal de animes assistidos.\n\n" +
-"Para cada item da lista \"animes\", pesquise informações ATUAIS e confiáveis sobre uma possível nova temporada, se uma temporada já anunciada foi lançada, ou se a obra já foi oficialmente encerrada (use fontes oficiais — estúdio, distribuidora, anúncio oficial — e não considere rumores ou especulação como confirmação).\n\n" +
-"Cada anime pode aparecer mais de uma vez na lista (uma entrada por temporada já registrada, ligadas por \"existingSeasons\"). Ao decidir em qual entrada colocar o campo \"proposedAlert\", use sempre a entrada cujo \"currentSeason\" seja o maior dentro do mesmo grupo de \"existingSeasons\" — ou seja, a temporada mais recente já registrada daquela obra.\n\n" +
-"IMPORTANTE — reconfira também os alertas que já existem: se um anime já tiver um \"currentAlert\" com status \"red\" ou \"yellow\" (uma temporada pendente que uma análise anterior já tinha encontrado), verifique se essa temporada específica JÁ FOI LANÇADA desde então. Se sim, devolva \"proposedAlert\" com status \"green\" para confirmar — o app mostra isso como um símbolo de confirmação (✓), não mais como um alerta pendente (!). Faça essa reconferência para TODOS os animes com alerta pendente, não só procure novidades.\n\n" +
-"Verifique o campo \"watchedSeasonsLog\" de cada anime: essas temporadas já foram assistidas e marcadas pelo usuário. NÃO gere um alerta de nova temporada igual ou anterior à última já registrada ali — só para uma temporada NOVA, ainda não assistida. Se \"currentAlert\" já estiver correto e nada mudou, não precisa repetir.\n\n" +
-"Se existir uma nova temporada confirmada, uma temporada pendente que foi lançada, ou se a obra estiver encerrada, adicione ao anime um campo \"proposedAlert\" com este formato exato:\n" +
+"Cada anime pode aparecer mais de uma vez na lista \"animes\" (uma entrada por temporada já registrada, ligadas por \"existingSeasons\"). Ao decidir em qual entrada colocar o campo \"proposedAlert\", use sempre a entrada cujo \"currentSeason\" seja o maior dentro do mesmo grupo de \"existingSeasons\" — ou seja, a temporada mais recente já registrada daquela obra.\n\n" +
+"Para CADA obra da lista, sem pular nenhuma, siga esta checklist na ordem — ela tem 3 perguntas independentes, e você deve responder as 3 para todo anime, não só para os que já têm alerta:\n\n" +
+"1) NOVA TEMPORADA: existe uma temporada anunciada que ainda NÃO está em \"existingSeasons\" nem em \"watchedSeasonsLog\"? Se sim, monte \"proposedAlert\" com status \"red\" (confirmada, sem data), \"yellow\" (confirmada, com data futura) ou \"green\" (já lançada).\n\n" +
+"2) ALERTA PENDENTE JÁ SAIU: se \"currentAlert\" já existir com status \"red\" ou \"yellow\", essa temporada específica JÁ FOI LANÇADA desde a última análise? Se sim, devolva \"proposedAlert\" com status \"green\" para confirmar.\n\n" +
+"3) OBRA FINALIZADA — FAÇA ISSO PARA TODOS, inclusive os que NUNCA tiveram nenhum alerta antes, não pule esta pergunta: essa obra já terminou oficialmente, sem nenhuma nova temporada prevista? Isso inclui casos clássicos e amplamente conhecidos (ex: Death Note, Cowboy Bebop, Fullmetal Alchemist Brotherhood, Code Geass) — para esses, o conhecimento geral/consenso público já é evidência suficiente, não precisa de uma fonte oficial recente. Se você tem confiança razoável de que não haverá mais temporadas, devolva \"proposedAlert\" com status \"finished\", mesmo que essa obra nunca tenha tido nenhum alerta antes.\n\n" +
+"Se nenhuma das 3 perguntas acima resultar em novidade para aquele anime, não adicione o campo \"proposedAlert\" para ele (ou deixe null). Não considere rumores ou especulação como confirmação para as perguntas 1 e 2 — mas para a pergunta 3 (obra finalizada), consenso público bem estabelecido conta como evidência.\n\n" +
+"O campo \"proposedAlert\" segue este formato exato:\n" +
 '{ "status": "red" | "yellow" | "green" | "finished", "seasonNumber": <número ou null>, "releaseDate": "AAAA-MM-DD" ou null, "note": "<explicação curta e a fonte>" }\n\n' +
-"Regras de classificação:\n" +
+"Significado de cada status (para referência):\n" +
 "RED = nova temporada confirmada, mas SEM data de estreia divulgada. Exibido como alerta (!) vermelho.\n" +
 "YELLOW = nova temporada confirmada COM data de estreia divulgada (ainda não lançada). Exibido como alerta (!) amarelo.\n" +
-"GREEN = a temporada JÁ FOI LANÇADA (a data de estreia já passou, ou você confirmou que já está disponível). Não é mais um alerta pendente — é uma confirmação, exibida como um símbolo de \"correto\" (✓) verde.\n" +
-"FINISHED = a obra terminou oficialmente e não há nenhuma nova temporada prevista ou planejada (nesse caso \"seasonNumber\" e \"releaseDate\" podem ficar null). Exibido como um símbolo (✓) branco.\n\n" +
-"Se não houver nenhuma novidade e nenhum alerta pendente precisar ser confirmado, não adicione o campo \"proposedAlert\" para esse anime (ou deixe null).\n\n" +
+"GREEN = a temporada JÁ FOI LANÇADA. Não é mais um alerta pendente — é uma confirmação, exibida como um símbolo de \"correto\" (✓) verde.\n" +
+"FINISHED = a obra terminou oficialmente, sem nenhuma nova temporada prevista (\"seasonNumber\" e \"releaseDate\" podem ficar null). Exibido como um símbolo (✓) branco.\n\n" +
 "Regras obrigatórias — muito importantes:\n" +
 "- NÃO altere o campo \"id\" de nenhum anime.\n" +
 "- NÃO remova nenhum anime da lista, nem adicione animes novos.\n" +
 "- NÃO altere nome, capa, nota, temporada, idioma, gênero, datas, anotações ou qualquer outro campo além de \"proposedAlert\".\n" +
 "- NÃO apague \"watchedSeasonsLog\" nem \"alertHistory\".\n" +
-"- NÃO invente temporadas, lançamentos ou encerramentos sem evidência real de pesquisa.\n" +
+"- NÃO invente temporadas ou lançamentos sem evidência real de pesquisa (a exceção é a pergunta 3, onde consenso público bem conhecido basta).\n" +
 "- Respeite \"watchedSeasonsLog\": nunca repita alerta de uma temporada já assistida.\n\n" +
-"Ao terminar, devolva o MESMO arquivo JSON (a mesma estrutura completa), apenas incluindo o campo \"proposedAlert\" dentro de cada anime que tiver novidade ou alerta pendente para confirmar. Esse arquivo devolvido será importado de volta no aplicativo yozora, na opção \"Importar backup analisado\".";
+"Ao terminar, devolva o MESMO arquivo JSON (a mesma estrutura completa), apenas incluindo o campo \"proposedAlert\" dentro de cada anime que tiver resposta positiva em alguma das 3 perguntas. Esse arquivo devolvido será importado de volta no aplicativo yozora, na opção \"Importar backup analisado\".";
 
     var animesPayload = animes.map(function(a){
       return {
@@ -2567,6 +2600,78 @@
 
   document.getElementById("btn-ai").addEventListener("click", function(){
     openOverlay("overlay-ai");
+  });
+
+  /* ---------- reformatar sinais ---------- */
+  var resetSelectedIds = [];
+
+  function renderResetSelectGrid(){
+    resetSelectedIds = [];
+    var grid = document.getElementById("reset-select-grid");
+    var hint = document.getElementById("reset-select-hint");
+    grid.innerHTML = "";
+    var roots = getRootAnimes().filter(chainHasSignal);
+    if(!roots.length){
+      hint.textContent = "nenhum anime tem sinais para apagar no momento.";
+      return;
+    }
+    hint.textContent = "ou toque para escolher animes específicos:";
+    var frag = document.createDocumentFragment();
+    roots.slice().reverse().forEach(function(root){
+      var card = document.createElement("button");
+      card.type = "button";
+      card.className = "select-card";
+      card.innerHTML = selectCardInnerHtml(root);
+      card.addEventListener("click", function(){
+        var idx = resetSelectedIds.indexOf(root.id);
+        if(idx === -1){
+          resetSelectedIds.push(root.id);
+          card.classList.add("is-selected");
+        }else{
+          resetSelectedIds.splice(idx, 1);
+          card.classList.remove("is-selected");
+        }
+      });
+      frag.appendChild(card);
+    });
+    grid.appendChild(frag);
+  }
+
+  document.getElementById("btn-ai-reset").addEventListener("click", function(){
+    renderResetSelectGrid();
+    closeOverlay("overlay-ai");
+    openOverlay("overlay-reset-alerts");
+  });
+
+  document.getElementById("btn-reset-all").addEventListener("click", async function(){
+    var roots = getRootAnimes().filter(chainHasSignal);
+    if(!roots.length){
+      showToast("Nenhum anime tem sinais para apagar.", true);
+      return;
+    }
+    if(!confirm("Apagar os sinais de TODOS os " + roots.length + " " + (roots.length === 1 ? "anime" : "animes") + " com símbolo? Isso inclui os que você removeu manualmente. Essa ação não pode ser desfeita.")) return;
+    roots.forEach(resetChainSignals);
+    await saveAnimes();
+    closeOverlay("overlay-reset-alerts");
+    renderGrid();
+    showToast("Sinais apagados de todos os animes.");
+  });
+
+  document.getElementById("btn-reset-selected").addEventListener("click", async function(){
+    if(!resetSelectedIds.length){
+      showToast("Selecione pelo menos um anime.", true);
+      return;
+    }
+    var count = resetSelectedIds.length;
+    if(!confirm("Apagar os sinais dos " + count + " " + (count === 1 ? "anime selecionado" : "animes selecionados") + "? Isso inclui os que você removeu manualmente. Essa ação não pode ser desfeita.")) return;
+    resetSelectedIds.forEach(function(id){
+      var root = animes.find(function(a){ return a.id === id; });
+      if(root) resetChainSignals(root);
+    });
+    await saveAnimes();
+    closeOverlay("overlay-reset-alerts");
+    renderGrid();
+    showToast("Sinais apagados dos animes selecionados.");
   });
 
   document.getElementById("btn-ai-export").addEventListener("click", function(){
