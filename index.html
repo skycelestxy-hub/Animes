@@ -1024,7 +1024,12 @@
 <div class="overlay" id="overlay-reset-alerts">
   <div class="modal modal-select">
     <h3>Reformatar sinais</h3>
-    <p class="modal-hint">apaga os símbolos (🔴🟡🟢✓) já colocados nos animes — incluindo os que você removeu manualmente. seu histórico de "já assisti" não é afetado.</p>
+    <p class="modal-hint">apaga os símbolos (🔴🟡🟢✓) já colocados nos animes — incluindo os que você removeu manualmente.</p>
+    <div class="toggle-group" style="margin-bottom:18px;">
+      <button type="button" class="toggle-btn active" id="reset-unlock-nao" aria-pressed="true">Só os sinais</button>
+      <button type="button" class="toggle-btn is-yes" id="reset-unlock-sim" aria-pressed="false">Sinais + desbloquear</button>
+    </div>
+    <p class="modal-hint" id="reset-unlock-hint" style="margin-top:-8px;">"Sinais + desbloquear" também apaga o registro de "já assisti" daquela temporada — sem isso, a IA nunca sugere alerta de novo pra ela.</p>
     <button type="button" class="btn-danger" id="btn-reset-all" style="width:100%; justify-content:center; margin-bottom:18px;">Apagar de todos os animes</button>
     <p class="modal-hint" id="reset-select-hint" style="margin-bottom:12px;">ou toque para escolher animes específicos:</p>
     <div class="select-grid" id="reset-select-grid"></div>
@@ -1131,13 +1136,14 @@
   /* ---------- reformatar sinais (apaga alertas ativos + histórico de remoções) ---------- */
   function chainHasSignal(root){
     return getChainNodes(root).some(function(n){
-      return (n.seasonAlert && n.seasonAlert.status) || (n.alertHistory && n.alertHistory.length);
+      return (n.seasonAlert && n.seasonAlert.status) || (n.alertHistory && n.alertHistory.length) || (n.watchedSeasonsLog && n.watchedSeasonsLog.length);
     });
   }
-  function resetChainSignals(root){
+  function resetChainSignals(root, alsoUnlock){
     getChainNodes(root).forEach(function(n){
       n.seasonAlert = null;
       n.alertHistory = [];
+      if(alsoUnlock) n.watchedSeasonsLog = [];
     });
   }
 
@@ -2604,9 +2610,23 @@
 
   /* ---------- reformatar sinais ---------- */
   var resetSelectedIds = [];
+  var resetUnlockAlso = false;
+
+  function setResetUnlockChoice(v){
+    resetUnlockAlso = v;
+    var naoBtn = document.getElementById("reset-unlock-nao");
+    var simBtn = document.getElementById("reset-unlock-sim");
+    naoBtn.classList.toggle("active", !v);
+    naoBtn.setAttribute("aria-pressed", (!v).toString());
+    simBtn.classList.toggle("active", v);
+    simBtn.setAttribute("aria-pressed", v.toString());
+  }
+  document.getElementById("reset-unlock-nao").addEventListener("click", function(){ setResetUnlockChoice(false); });
+  document.getElementById("reset-unlock-sim").addEventListener("click", function(){ setResetUnlockChoice(true); });
 
   function renderResetSelectGrid(){
     resetSelectedIds = [];
+    setResetUnlockChoice(false);
     var grid = document.getElementById("reset-select-grid");
     var hint = document.getElementById("reset-select-hint");
     grid.innerHTML = "";
@@ -2649,12 +2669,13 @@
       showToast("Nenhum anime tem sinais para apagar.", true);
       return;
     }
-    if(!confirm("Apagar os sinais de TODOS os " + roots.length + " " + (roots.length === 1 ? "anime" : "animes") + " com símbolo? Isso inclui os que você removeu manualmente. Essa ação não pode ser desfeita.")) return;
-    roots.forEach(resetChainSignals);
+    var msg = "Apagar os sinais de TODOS os " + roots.length + " " + (roots.length === 1 ? "anime" : "animes") + " com símbolo?" + (resetUnlockAlso ? " Isso também desbloqueia as temporadas marcadas como já assistidas, permitindo que a IA sugira o alerta de novo." : " Isso inclui os que você removeu manualmente.") + " Essa ação não pode ser desfeita.";
+    if(!confirm(msg)) return;
+    roots.forEach(function(root){ resetChainSignals(root, resetUnlockAlso); });
     await saveAnimes();
     closeOverlay("overlay-reset-alerts");
     renderGrid();
-    showToast("Sinais apagados de todos os animes.");
+    showToast(resetUnlockAlso ? "Sinais apagados e temporadas desbloqueadas em todos os animes." : "Sinais apagados de todos os animes.");
   });
 
   document.getElementById("btn-reset-selected").addEventListener("click", async function(){
@@ -2663,15 +2684,16 @@
       return;
     }
     var count = resetSelectedIds.length;
-    if(!confirm("Apagar os sinais dos " + count + " " + (count === 1 ? "anime selecionado" : "animes selecionados") + "? Isso inclui os que você removeu manualmente. Essa ação não pode ser desfeita.")) return;
+    var msg = "Apagar os sinais dos " + count + " " + (count === 1 ? "anime selecionado" : "animes selecionados") + "?" + (resetUnlockAlso ? " Isso também desbloqueia as temporadas marcadas como já assistidas, permitindo que a IA sugira o alerta de novo." : " Isso inclui os que você removeu manualmente.") + " Essa ação não pode ser desfeita.";
+    if(!confirm(msg)) return;
     resetSelectedIds.forEach(function(id){
       var root = animes.find(function(a){ return a.id === id; });
-      if(root) resetChainSignals(root);
+      if(root) resetChainSignals(root, resetUnlockAlso);
     });
     await saveAnimes();
     closeOverlay("overlay-reset-alerts");
     renderGrid();
-    showToast("Sinais apagados dos animes selecionados.");
+    showToast(resetUnlockAlso ? "Sinais apagados e temporadas desbloqueadas nos selecionados." : "Sinais apagados dos animes selecionados.");
   });
 
   document.getElementById("btn-ai-export").addEventListener("click", function(){
