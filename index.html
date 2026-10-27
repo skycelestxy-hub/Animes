@@ -153,7 +153,7 @@ function load(){
     if(!rd(OLD+"_backup"))wr(OLD+"_backup",old);
     try{var l=JSON.parse(old);
       if(Array.isArray(l)&&l.length){l.forEach(function(a){a.type="anime";if(!a.id)a.id=uid()});
-        S.tabs.push({id:uid(),name:"Animes",types:["anime"],items:l});save();setTimeout(function(){toast("Seus animes antigos foram preservados na aba \"Animes\".")},600)}
+        S.tabs.push({id:uid(),name:"Animes",types:["anime"],items:l});save();if(rd(KEY)&&!rd("yozora_migrado")&&wr("yozora_migrado","1"))setTimeout(function(){toast("Seus animes antigos foram preservados na aba \"Animes\".")},600)}
     }catch(e){locked=true;toast("Dados antigos ilegíveis: preservados sem alteração.")}
   }
 }
