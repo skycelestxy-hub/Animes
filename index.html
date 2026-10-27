@@ -2,2861 +2,406 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0e0d13">
-<meta name="description" content="yozora — seu diário pessoal de animes assistidos">
-<title>yozora — diário de animes</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='mg' x1='4' y1='2' x2='28' y2='30' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23ffc7da'/%3E%3Cstop offset='.55' stop-color='%23ff8fb1'/%3E%3Cstop offset='1' stop-color='%23c08bff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23mg)' d='M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z'/%3E%3Cpath fill='%238de8d0' d='M25.6 5.4l1 2.3 2.3 1-2.3 1-1 2.3-1-2.3-2.3-1 2.3-1z'/%3E%3Ccircle cx='7.4' cy='25.2' r='1' fill='%238de8d0' opacity='.75'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>YOZORA — Diário de Animes, Filmes e Séries</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff8fb1' d='M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* ============ TOKENS ============ */
-  :root{
-    --ink:#0e0d13;
-    --dusk:#161420;
-    --card:#191722;
-    --card-hover:#1e1c29;
-    --line:rgba(241,238,252,.07);
-    --line-strong:rgba(241,238,252,.16);
-    --paper:#f1eefc;
-    --mist:#9d9ab8;
-    --mist-dim:#68657f;
-    --bloom:#ff8fb1;
-    --bloom-ink:#2b0f18;
-    --aurora:#8de8d0;
-    --violet:#b79bff;
-    --danger:#ff8a8a;
-    --radius-lg:24px;
-    --radius-md:16px;
-    --radius-sm:12px;
-    --shadow-soft:0 20px 50px -24px rgba(0,0,0,.6);
-    --shadow-pop:0 30px 70px -20px rgba(0,0,0,.7);
-    --ease:cubic-bezier(.22,1,.36,1);
-    --ease-spring:cubic-bezier(.34,1.56,.64,1);
-  }
-
-  *{box-sizing:border-box;}
-  html,body{height:100%;}
-  body{
-    margin:0;
-    background:var(--ink);
-    color:var(--paper);
-    font-family:'Manrope',sans-serif;
-    overflow-x:hidden;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3,.display{
-    font-family:'Fraunces',serif;
-    font-weight:600;
-    letter-spacing:-.01em;
-    margin:0;
-  }
-  ::selection{background:var(--bloom);color:var(--bloom-ink);}
-  a{color:inherit;}
-  :focus-visible{outline:2px solid var(--bloom);outline-offset:3px;border-radius:6px;}
-  button{font-family:inherit;cursor:pointer;}
-
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{ animation-duration:.001s !important; transition-duration:.001s !important; }
-  }
-
-  /* ============ AMBIENT BACKGROUND ============ */
-  #ambient{ position:fixed; inset:0; overflow:hidden; z-index:0; pointer-events:none; }
-  .lantern{ position:absolute; border-radius:50%; filter:blur(70px); opacity:.35; animation:drift ease-in-out infinite alternate; will-change:transform; }
-  @keyframes drift{ from{ transform:translate(0,0) scale(1); } to{ transform:translate(var(--dx,40px),var(--dy,-30px)) scale(1.08); } }
-  .star{
-    position:absolute; border-radius:50%; background:var(--paper);
-    animation:twinkle ease-in-out infinite;
-  }
-  @keyframes twinkle{
-    0%,100%{ opacity:.12; transform:scale(1); }
-    50%{ opacity:.95; transform:scale(1.5); }
-  }
-  .drop{
-    position:absolute; top:-40px; border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.9), rgba(255,255,255,0) 70%);
-    animation:fall linear infinite;
-    will-change:transform;
-  }
-  @keyframes fall{
-    0%{ transform:translateY(0) translateX(0); opacity:0; }
-    8%{ opacity:.7; }
-    92%{ opacity:.5; }
-    100%{ transform:translateY(112vh) translateX(var(--drift,20px)); opacity:0; }
-  }
-  @media (prefers-reduced-motion: reduce){ .lantern,.star,.drop{animation:none !important;} }
-
-  /* ============ LAYOUT / SCREENS ============ */
-  #app{ position:relative; z-index:1; min-height:100vh; }
-  .screen{
-    position:absolute; inset:0; min-height:100vh;
-    opacity:0; transform:translateY(10px); pointer-events:none;
-    transition:opacity .5s var(--ease), transform .5s var(--ease);
-  }
-  .screen.active{ position:relative; opacity:1; transform:translateY(0); pointer-events:auto; }
-
-  /* ---- landing ---- */
-  #screen-landing .landing-wrap{
-    min-height:100vh; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; text-align:center;
-    padding:32px; gap:20px;
-  }
-  .mark{
-    display:flex; align-items:center; gap:9px;
-    font-weight:800; font-size:13px; letter-spacing:.32em;
-    text-transform:uppercase; color:var(--mist);
-  }
-  .mark svg{width:22px;height:22px;flex:none;filter:drop-shadow(0 3px 10px rgba(255,143,177,.5));}
-  .landing-wrap h1{ font-size:clamp(2.4rem,7vw,4.6rem); line-height:1.04; color:var(--paper); }
-  .landing-wrap h1 em{ font-style:italic; color:var(--bloom); }
-  .landing-sub{ color:var(--mist); font-size:15.5px; max-width:400px; line-height:1.6; margin:0; }
-  .landing-count{ font-size:13px; color:var(--aurora); letter-spacing:.02em; }
-
-  /* ---- buttons ---- */
-  .btn{
-    border:none; border-radius:999px; padding:14px 26px; font-size:14.5px; font-weight:700;
-    display:inline-flex; align-items:center; gap:9px;
-    transition:transform .3s var(--ease), box-shadow .3s var(--ease), background .25s, opacity .25s;
-  }
-  .btn:active{ transform:scale(.96); }
-  .btn-primary{ background:var(--bloom); color:var(--bloom-ink); box-shadow:0 12px 28px -12px rgba(255,143,177,.5); }
-  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 18px 36px -12px rgba(255,143,177,.65); }
-  .btn-secondary{ background:var(--card); color:var(--paper); border:1px solid var(--line-strong); }
-  .btn-secondary:hover{ background:var(--card-hover); transform:translateY(-2px); }
-  .btn-icon{
-    background:var(--card); color:var(--paper); border:1px solid var(--line-strong);
-    width:42px; height:42px; border-radius:50%; padding:0; display:inline-flex; align-items:center; justify-content:center;
-  }
-  .btn-icon:hover{ background:var(--card-hover); transform:translateY(-2px); }
-  .btn-ghost{ background:none; border:none; color:var(--mist); padding:10px 6px; font-weight:600; font-size:14px; transition:color .25s; }
-  .btn-ghost:hover{ color:var(--paper); }
-  .btn-danger{
-    background:none; border:1.5px solid rgba(255,138,138,.3); color:var(--danger);
-    border-radius:999px; padding:11px 20px; font-weight:700; font-size:13.5px; transition:background .25s, transform .25s;
-  }
-  .btn-danger:hover{ background:rgba(255,138,138,.1); }
-  .btn[disabled]{ opacity:.4; pointer-events:none; }
-  .btn-organize.is-active{ background:var(--aurora); border-color:var(--aurora); color:#0f2b23; }
-
-  /* ---- top bar ---- */
-  .top-bar{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:22px 32px 0; gap:16px; flex-wrap:wrap;
-  }
-  .top-bar-right{ display:flex; gap:10px; }
-  .file-input-hidden{ display:none; }
-
-  /* ---- list screen ---- */
-  .list-wrap{ max-width:1080px; margin:0 auto; padding:28px 32px 100px; }
-  .list-header{
-    display:flex; align-items:flex-end; justify-content:space-between;
-    gap:18px; flex-wrap:wrap; margin-bottom:28px;
-  }
-  .list-header h2{ font-size:clamp(1.7rem,4vw,2.2rem); color:var(--paper); }
-  .list-eyebrow{
-    color:var(--aurora); font-size:12.5px; letter-spacing:.09em; text-transform:uppercase;
-    font-weight:700; margin:0 0 6px;
-  }
-  .list-actions{ display:flex; gap:10px; flex-wrap:wrap; }
-
-  .search-row{ margin-bottom:24px; }
-  .search-box{
-    display:flex; align-items:center; gap:10px; max-width:340px;
-    background:var(--card); border:1px solid var(--line); border-radius:999px;
-    padding:11px 16px; color:var(--mist);
-    transition:border-color .25s, background .25s;
-  }
-  .search-box:focus-within{ border-color:rgba(255,143,177,.35); }
-  .search-box svg{ flex:none; opacity:.8; }
-  .search-box input{ flex:1; min-width:0; background:none; border:none; color:var(--paper); font-size:14px; font-family:inherit; }
-  .search-box input:focus{ outline:none; }
-  .search-box input::placeholder{ color:var(--mist-dim); }
-  .search-clear{ flex:none; border:none; background:none; color:var(--mist); font-size:19px; line-height:1; padding:0 2px; transition:color .2s; }
-  .search-clear:hover{ color:var(--paper); }
-
-  .reorder-hint{
-    display:flex; align-items:center; gap:9px; margin:0 0 20px;
-    background:rgba(141,232,208,.08); border:1px solid rgba(141,232,208,.25);
-    color:var(--aurora); font-size:13px; font-weight:600; line-height:1.5;
-    padding:12px 16px; border-radius:var(--radius-sm);
-    animation:rise .35s var(--ease) both;
-  }
-  .reorder-hint svg{ flex:none; }
-
-  .anime-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
-  @media (max-width:920px){ .anime-grid{ grid-template-columns:repeat(3,1fr); } }
-  @media (max-width:680px){ .anime-grid{ grid-template-columns:repeat(2,1fr); gap:14px; } }
-
-  .card{
-    position:relative; background:var(--card); border:1px solid var(--line);
-    border-radius:var(--radius-md); overflow:hidden; text-align:left; padding:0; color:inherit;
-    display:flex; flex-direction:column; width:100%;
-    animation:rise .45s var(--ease) both; animation-delay:calc(var(--i,0) * 35ms);
-    transition:transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s;
-  }
-  @keyframes rise{ from{ opacity:0; transform:translateY(12px) scale(.98); } to{ opacity:1; transform:translateY(0) scale(1); } }
-  .card.is-clickable{ cursor:pointer; }
-  .card.is-clickable:hover{ transform:translateY(-4px); box-shadow:var(--shadow-soft); border-color:rgba(255,143,177,.3); }
-  .card.is-clickable:active{ transform:translateY(-1px) scale(.98); }
-
-  .card.is-reordering{ cursor:pointer; touch-action:none; }
-  .card.is-reordering:hover{ transform:none; box-shadow:none; border-color:var(--line); }
-  .card.is-selected{ border-color:var(--aurora); box-shadow:0 0 0 2px var(--aurora) inset; }
-  .card.is-dragging{ opacity:.4; border-color:var(--aurora); z-index:5; }
-  .card.is-drop-target{ border-color:var(--aurora); box-shadow:0 0 0 2px var(--aurora) inset; }
-  .card.is-touch-floating{
-    position:fixed; z-index:50; pointer-events:none; opacity:.94;
-    box-shadow:var(--shadow-pop); border-color:var(--aurora);
-    transition:none !important;
-  }
-
-  .card-cover{
-    position:relative; display:block; width:100%; aspect-ratio:2/3; flex:none;
-    background:linear-gradient(160deg,#221f30,#15131e); overflow:hidden;
-  }
-  .card-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .card-cover .no-cover{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--mist); opacity:.45; }
-  .card-cover .no-cover svg{ width:32px; height:32px; }
-  .card-rating{
-    position:absolute; top:9px; left:9px;
-    background:rgba(10,9,15,.82); backdrop-filter:blur(6px);
-    color:var(--paper); font-weight:800; font-size:12px;
-    padding:5px 9px; border-radius:8px; letter-spacing:.01em;
-    box-shadow:0 6px 14px -4px rgba(0,0,0,.5);
-  }
-  .card-body{ display:block; width:100%; padding:12px 13px 14px; min-height:44px; flex:none; }
-  .card-title{
-    display:-webkit-box; font-size:15.5px; font-weight:700; font-family:'Fraunces',serif;
-    color:var(--paper) !important; line-height:1.28; -webkit-line-clamp:2; -webkit-box-orient:vertical;
-    overflow:hidden; opacity:1; visibility:visible;
-  }
-
-  /* ---- modo organizar: alcinha para arrastar + selo de seleção ---- */
-  .reorder-handle{
-    position:absolute; top:9px; right:9px; z-index:3;
-    width:32px; height:32px; border-radius:9px;
-    background:rgba(10,9,15,.86); backdrop-filter:blur(6px); color:var(--paper);
-    display:flex; align-items:center; justify-content:center;
-    box-shadow:0 6px 14px -4px rgba(0,0,0,.5);
-    cursor:grab; touch-action:none;
-  }
-  .reorder-handle:active{ cursor:grabbing; }
-  .reorder-select-badge{
-    position:absolute; top:9px; left:9px; z-index:3;
-    width:26px; height:26px; border-radius:50%;
-    background:rgba(10,9,15,.7); border:1.5px solid var(--line-strong); color:transparent;
-    display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800;
-    transition:background .2s, border-color .2s, color .2s, transform .2s;
-  }
-  .card.is-selected .reorder-select-badge{
-    background:var(--aurora); border-color:var(--aurora); color:#0f2b23; transform:scale(1.08);
-  }
-
-  /* ---- modo organizar: barra flutuante com setas grandes ---- */
-  .reorder-toolbar{
-    position:fixed; left:50%; bottom:26px; z-index:40;
-    transform:translate(-50%,18px); opacity:0; pointer-events:none;
-    background:var(--dusk); border:1px solid var(--line-strong); border-radius:22px;
-    padding:16px 20px; box-shadow:var(--shadow-pop);
-    display:flex; flex-direction:column; align-items:center; gap:11px;
-    transition:opacity .3s var(--ease), transform .35s var(--ease-spring);
-  }
-  .reorder-toolbar.show{ opacity:1; transform:translate(-50%,0); pointer-events:auto; }
-  .reorder-toolbar-label{ font-size:12.5px; font-weight:800; color:var(--aurora); letter-spacing:.03em; }
-  .reorder-toolbar-arrows{ display:grid; grid-template-columns:58px 58px 58px; grid-template-rows:56px 56px; gap:8px; }
-  .reorder-toolbar-btn{
-    background:var(--card); border:1px solid var(--line-strong); color:var(--paper);
-    border-radius:15px; display:flex; align-items:center; justify-content:center;
-    transition:background .2s, transform .15s, border-color .2s;
-  }
-  .reorder-toolbar-btn:hover{ background:var(--bloom); border-color:var(--bloom); color:var(--bloom-ink); }
-  .reorder-toolbar-btn:active{ transform:scale(.88); }
-  #rt-up{ grid-column:2; grid-row:1; }
-  #rt-left{ grid-column:1; grid-row:2; }
-  #rt-down{ grid-column:2; grid-row:2; }
-  #rt-right{ grid-column:3; grid-row:2; }
-  .reorder-toolbar-clear{ background:none; border:none; color:var(--mist); font-size:12px; font-weight:700; padding:2px 4px; transition:color .2s; }
-  .reorder-toolbar-clear:hover{ color:var(--paper); }
-
-  .empty-state{ grid-column:1/-1; text-align:center; padding:64px 20px; color:var(--mist); }
-  .empty-state svg{ width:40px; height:40px; margin-bottom:14px; opacity:.6; }
-  .empty-state p{ margin:0; font-size:14.5px; line-height:1.6; }
-  .empty-state strong{ color:var(--paper); display:block; font-family:'Fraunces',serif; font-size:20px; margin-bottom:8px; font-weight:600; }
-
-  /* ============ TOAST ============ */
-  #toast{
-    position:fixed; left:50%; bottom:28px; transform:translate(-50%,20px);
-    background:var(--card); border:1px solid var(--line-strong); color:var(--paper);
-    padding:13px 22px; border-radius:999px; font-size:13.5px; font-weight:600;
-    box-shadow:var(--shadow-pop); z-index:100; opacity:0; pointer-events:none;
-    transition:opacity .35s var(--ease), transform .35s var(--ease);
-    display:flex; align-items:center; gap:8px;
-  }
-  #toast.show{ opacity:1; transform:translate(-50%,0); }
-  #toast.error{ border-color:rgba(255,138,138,.35); }
-
-  /* ============ OVERLAYS / MODALS ============ */
-  .overlay{
-    position:fixed; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
-    padding:24px; background:rgba(7,6,11,.7); backdrop-filter:blur(8px);
-    opacity:0; visibility:hidden; transition:opacity .35s var(--ease), visibility 0s linear .35s;
-  }
-  .overlay.open{ opacity:1; visibility:visible; transition:opacity .35s var(--ease), visibility 0s; }
-  .modal{
-    background:var(--dusk); border:1px solid var(--line); border-radius:var(--radius-lg);
-    width:100%; max-width:460px; max-height:88vh; overflow-y:auto; padding:30px;
-    transform:translateY(16px) scale(.97); transition:transform .4s var(--ease-spring);
-  }
-  .overlay.open .modal{ transform:translateY(0) scale(1); }
-  .modal-select{ max-width:740px; }
-  .modal h3{ font-size:22px; margin-bottom:5px; }
-  .modal-hint{ color:var(--mist); font-size:13.5px; margin:0 0 20px; line-height:1.5; }
-
-  .field{ margin-bottom:16px; }
-  .field label{
-    display:block; font-size:11.5px; font-weight:700; letter-spacing:.08em;
-    text-transform:uppercase; color:var(--mist); margin-bottom:8px;
-  }
-
-  .toggle-group{ display:flex; gap:9px; }
-  .toggle-btn{
-    flex:1; background:var(--ink); border:1.5px solid var(--line); color:var(--mist);
-    padding:10px; border-radius:var(--radius-sm); font-weight:700; font-size:13.5px;
-    transition:background .25s, border-color .25s, color .25s, transform .2s;
-  }
-  .toggle-btn:active{ transform:scale(.97); }
-  .toggle-btn.active{ border-color:var(--line-strong); color:var(--paper); }
-  .toggle-btn.is-yes.active{ background:var(--aurora); border-color:var(--aurora); color:#0f2b23; }
-  .link-picker{ animation:rise .3s var(--ease) both; }
-
-  .season-nav{ display:flex; gap:9px; margin-bottom:18px; flex-wrap:wrap; }
-  .season-nav:empty{ display:none; margin:0; }
-  .season-nav-btn{
-    background:var(--card); border:1px solid var(--line); color:var(--paper);
-    padding:8px 14px; border-radius:999px; font-size:12.5px; font-weight:700;
-    display:inline-flex; align-items:center; gap:6px; transition:border-color .25s, transform .25s;
-  }
-  .season-nav-btn:hover{ border-color:rgba(255,143,177,.35); transform:translateY(-1px); }
-
-  /* ---- padronização total dos campos de entrada ---- */
-  .field input[type="text"],
-  .field input[type="date"],
-  .field input[type="number"]{
-    width:100%; height:46px; box-sizing:border-box;
-    background:var(--ink); border:1px solid var(--line); color:var(--paper);
-    padding:0 14px; border-radius:var(--radius-sm); font-size:14.5px; font-family:inherit;
-    transition:border-color .25s, background .25s;
-    -moz-appearance:textfield;
-  }
-  .field input[type="text"]:focus,
-  .field input[type="date"]:focus,
-  .field input[type="number"]:focus{ outline:none; border-color:rgba(255,143,177,.4); background:var(--card); }
-  .field input::placeholder{ color:var(--mist-dim); }
-  .field input[type="date"]{ color-scheme:dark; }
-  .field input[type="number"]::-webkit-outer-spin-button,
-  .field input[type="number"]::-webkit-inner-spin-button{
-    -webkit-appearance:inner-spin-button; opacity:.6; margin-left:6px;
-  }
-
-  .rating-row{ display:flex; align-items:center; gap:14px; }
-  .rating-row input[type="range"]{ flex:1; accent-color:var(--bloom); height:20px; }
-  .rating-value{ font-family:'Fraunces',serif; font-weight:700; font-size:16px; color:var(--aurora); min-width:48px; text-align:right; }
-
-  .field textarea{
-    width:100%; min-height:84px; box-sizing:border-box; resize:vertical;
-    background:var(--ink); border:1px solid var(--line); color:var(--paper);
-    padding:12px 14px; border-radius:var(--radius-sm); font-size:14.5px; font-family:inherit; line-height:1.5;
-    transition:border-color .25s, background .25s;
-  }
-  .field textarea:focus{ outline:none; border-color:rgba(255,143,177,.4); background:var(--card); }
-  .field textarea::placeholder{ color:var(--mist-dim); }
-
-  .dropzone{
-    display:flex; align-items:center; gap:15px; border:1.5px dashed var(--line);
-    border-radius:var(--radius-md); padding:13px; cursor:pointer;
-    transition:border-color .25s, background .25s;
-  }
-  .dropzone:hover{ border-color:rgba(255,143,177,.4); background:rgba(255,143,177,.04); }
-  .dropzone-preview{
-    width:58px; height:58px; border-radius:11px; background:var(--ink); overflow:hidden;
-    flex:none; display:flex; align-items:center; justify-content:center;
-  }
-  .dropzone-preview img{ width:100%; height:100%; object-fit:cover; }
-  .dropzone-preview svg{ width:22px; height:22px; color:var(--mist); }
-  .dropzone-text{ font-size:13px; color:var(--mist); line-height:1.5; }
-  .dropzone-text strong{ color:var(--paper); font-weight:700; }
-  .dropzone input[type="file"]{ display:none; }
-
-  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:24px; flex-wrap:wrap; }
-  .modal-actions.split{ justify-content:space-between; }
-
-  .select-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:13px; max-height:56vh; overflow-y:auto; padding:2px; }
-  @media (max-width:560px){ .select-grid{ grid-template-columns:repeat(2,1fr); } }
-  .select-grid.compact{ grid-template-columns:repeat(2,1fr); max-height:250px; }
-  .select-card{
-    position:relative; background:var(--card); border:1px solid var(--line); border-radius:13px;
-    overflow:hidden; text-align:left; color:inherit; cursor:pointer;
-    transition:transform .22s var(--ease), border-color .22s;
-  }
-  .select-card:hover{ transform:translateY(-3px); border-color:rgba(255,143,177,.35); }
-  .select-card.is-selected{ border-color:var(--aurora); box-shadow:0 0 0 2px var(--aurora) inset; }
-  .select-card.is-selected .sc-name{ color:var(--aurora); }
-  .select-card .sc-check{
-    position:absolute; top:6px; right:6px; width:19px; height:19px; border-radius:50%;
-    background:var(--aurora); color:#0f2b23; display:flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:800; opacity:0; transform:scale(.4);
-    transition:opacity .22s, transform .22s;
-  }
-  .select-card.is-selected .sc-check{ opacity:1; transform:scale(1); }
-  .select-card .sc-cover{ width:100%; aspect-ratio:2/3; background:var(--ink); }
-  .select-card .sc-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .select-card .sc-name{
-    font-size:12px; font-weight:600; padding:8px; display:-webkit-box;
-    -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.3;
-  }
-
-  .overlay-fullscreen{ background:rgba(7,6,11,.88); }
-  .overlay-fullscreen .modal{ max-width:500px; }
-
-  /* ---- gênero picker ---- */
-  .genre-picker-btn{
-    width:100%; text-align:left; display:flex; align-items:center; justify-content:space-between;
-    background:var(--ink); border:1px solid var(--line); color:var(--paper);
-    padding:0 14px; height:46px; border-radius:var(--radius-sm); font-size:14.5px; font-family:inherit;
-    transition:border-color .25s, background .25s;
-  }
-  .genre-picker-btn:hover{ border-color:rgba(255,143,177,.4); background:var(--card); }
-  .genre-picker-btn .gpb-value{ color:var(--mist-dim); font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .genre-picker-btn .gpb-value.has-value{ color:var(--paper); font-style:normal; }
-  .genre-picker-btn svg{ flex:none; color:var(--mist); margin-left:10px; }
-
-  .genre-chips{ display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
-  .genre-chip{
-    background:rgba(183,155,255,.14); border:1px solid rgba(183,155,255,.3); color:var(--violet);
-    font-size:12px; font-weight:700; padding:5px 11px; border-radius:999px;
-  }
-
-  .genre-modal .modal-hint{ margin-bottom:16px; }
-  .genre-grid{
-    display:grid; grid-template-columns:repeat(2,1fr); gap:10px;
-    max-height:52vh; overflow-y:auto; padding:2px; margin-bottom:8px;
-  }
-  .genre-option{
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    background:var(--card); border:1.5px solid var(--line); color:var(--paper);
-    padding:12px 14px; border-radius:var(--radius-sm); font-size:13.5px; font-weight:600;
-    transition:border-color .2s, background .2s, transform .2s;
-  }
-  .genre-option:active{ transform:scale(.97); }
-  .genre-option.is-selected{ border-color:var(--violet); background:rgba(183,155,255,.12); color:var(--violet); }
-  .genre-option .go-check{
-    flex:none; width:18px; height:18px; border-radius:50%; border:1.5px solid var(--line-strong);
-    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:transparent;
-    transition:background .2s, border-color .2s, color .2s;
-  }
-  .genre-option.is-selected .go-check{ background:var(--violet); border-color:var(--violet); color:#1c1330; }
-  .genre-selected-count{ font-size:12.5px; color:var(--aurora); font-weight:700; margin-bottom:14px; }
-
-  /* ---- dublado/legendado ---- */
-  .lang-toggle{ display:flex; gap:9px; }
-  .lang-btn{
-    flex:1; background:var(--ink); border:1.5px solid var(--line); color:var(--mist);
-    padding:10px; border-radius:var(--radius-sm); font-weight:700; font-size:13.5px;
-    transition:background .25s, border-color .25s, color .25s, transform .2s;
-  }
-  .lang-btn:active{ transform:scale(.97); }
-  .lang-btn.active{ background:var(--violet); border-color:var(--violet); color:#1c1330; }
-  .lang-tag{
-    display:inline-flex; align-items:center; gap:5px;
-    background:rgba(10,9,15,.82); backdrop-filter:blur(6px);
-    color:var(--paper); font-weight:800; font-size:11px;
-    padding:5px 8px; border-radius:8px; position:absolute; top:9px; right:9px;
-  }
-
-  ::-webkit-scrollbar{ width:8px; }
-  ::-webkit-scrollbar-thumb{ background:var(--line-strong); border-radius:99px; }
-
-  /* ============ VIEW MODE (visualização) ============ */
-  #view-overlay{
-    position:fixed; inset:0; z-index:30; background:var(--ink);
-    opacity:0; visibility:hidden; pointer-events:none;
-    transition:opacity .45s var(--ease), visibility 0s linear .45s;
-    overflow-y:auto;
-  }
-  #view-overlay.open{ opacity:1; visibility:visible; pointer-events:auto; transition:opacity .45s var(--ease), visibility 0s; }
-
-  .view-topbar{
-    position:sticky; top:0; z-index:2; display:flex; justify-content:flex-start;
-    padding:20px 24px; background:linear-gradient(to bottom, var(--ink) 40%, transparent);
-  }
-  .view-stage{
-    display:flex; flex-direction:column; align-items:center;
-    padding:10px 24px 60px; min-height:calc(100vh - 76px);
-  }
-  .view-cover{
-    width:min(78vw,300px); aspect-ratio:2/3; border-radius:20px; overflow:hidden;
-    background:linear-gradient(160deg,#221f30,#15131e);
-    box-shadow:var(--shadow-pop);
-    transform:scale(.82) translateY(18px); opacity:0;
-    transition:transform .55s var(--ease-spring), opacity .5s var(--ease);
-    flex:none;
-  }
-  #view-overlay.open .view-cover{ transform:scale(1) translateY(0); opacity:1; }
-  .view-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .view-cover .no-cover{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--mist); opacity:.4; }
-  .view-cover .no-cover svg{ width:46px; height:46px; }
-
-  .view-title{
-    font-size:clamp(1.5rem,4vw,2rem); text-align:center; margin-top:22px; padding:0 12px;
-    opacity:0; transform:translateY(8px);
-    transition:opacity .5s var(--ease) .1s, transform .5s var(--ease) .1s;
-  }
-  #view-overlay.open .view-title{ opacity:1; transform:translateY(0); }
-
-  .view-rating-chip{
-    margin-top:12px; display:inline-flex; align-items:center; gap:7px;
-    background:var(--card); border:1px solid var(--line-strong);
-    padding:8px 16px; border-radius:999px; font-weight:800; font-size:14px; color:var(--aurora);
-    opacity:0; transform:translateY(8px);
-    transition:opacity .5s var(--ease) .16s, transform .5s var(--ease) .16s;
-  }
-  #view-overlay.open .view-rating-chip{ opacity:1; transform:translateY(0); }
-
-  .view-expand-btn{
-    margin-top:30px; background:none; border:none; color:var(--mist);
-    display:flex; flex-direction:column; align-items:center; gap:6px;
-    font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-    transition:color .25s;
-    opacity:0; transform:translateY(8px);
-    transition:opacity .5s var(--ease) .22s, transform .5s var(--ease) .22s, color .25s;
-  }
-  #view-overlay.open .view-expand-btn{ opacity:1; transform:translateY(0); }
-  .view-expand-btn:hover{ color:var(--paper); }
-  .view-expand-btn svg{ transition:transform .4s var(--ease); }
-  .view-expand-btn.is-open svg{ transform:rotate(180deg); }
-
-  .view-details{
-    width:100%; max-width:480px; margin-top:8px;
-    display:grid; grid-template-rows:0fr; overflow:hidden;
-    transition:grid-template-rows .5s var(--ease);
-  }
-  .view-details.is-open{ grid-template-rows:1fr; }
-  .view-details-inner{ overflow:hidden; }
-
-  .detail-card{
-    background:var(--card); border:1px solid var(--line); border-radius:var(--radius-md);
-    padding:6px 20px; margin-top:18px;
-  }
-  .detail-row{ display:flex; justify-content:space-between; gap:16px; padding:14px 0; border-bottom:1px solid var(--line); }
-  .detail-row:last-child{ border-bottom:none; }
-  .detail-label{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--mist); flex:none; }
-  .detail-value{ font-size:14.5px; color:var(--paper); text-align:right; font-weight:600; }
-  .detail-value.empty{ color:var(--mist-dim); font-weight:500; font-style:italic; }
-  .detail-value.link{ color:var(--bloom); cursor:pointer; }
-  .detail-value.link:hover{ text-decoration:underline; }
-
-  /* ============ ALERTA DE TEMPORADA (análise por IA) ============ */
-  .alert-badge{
-    position:absolute; z-index:4; right:9px; bottom:9px;
-    width:28px; height:28px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Fraunces',serif; font-weight:800; font-size:15px;
-    box-shadow:0 6px 16px -4px rgba(0,0,0,.6), 0 0 0 2px var(--ink);
-  }
-  .alert-badge.alert-red{ background:#ff5470; color:#2b0510; }
-  .alert-badge.alert-yellow{ background:#ffcf56; color:#3a2600; }
-  .alert-badge.alert-green{ background:#7ee6a8; color:#0c2c17; }
-  .alert-badge.alert-finished{ background:var(--paper); color:var(--ink); }
-
-  .alert-chip{
-    display:inline-flex; align-items:center; gap:7px;
-    border-radius:999px; padding:7px 15px; font-weight:800; font-size:12.5px;
-  }
-  .alert-chip.alert-red{ background:rgba(255,84,112,.14); border:1px solid rgba(255,84,112,.4); color:#ff8199; }
-  .alert-chip.alert-yellow{ background:rgba(255,207,86,.14); border:1px solid rgba(255,207,86,.4); color:#ffd873; }
-  .alert-chip.alert-green{ background:rgba(126,230,168,.14); border:1px solid rgba(126,230,168,.4); color:var(--aurora); }
-  .alert-chip.alert-finished{ background:rgba(241,238,252,.12); border:1px solid rgba(241,238,252,.35); color:var(--paper); }
-
-  .view-season-nav{
-    display:flex; align-items:center; gap:10px; margin-top:16px; flex-wrap:wrap; justify-content:center;
-    opacity:0; transform:translateY(8px);
-    transition:opacity .5s var(--ease) .06s, transform .5s var(--ease) .06s;
-  }
-  .view-season-nav:empty{ display:none; margin:0; }
-  #view-overlay.open .view-season-nav{ opacity:1; transform:translateY(0); }
-
-  .view-alert-row{
-    display:none; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:10px;
-    opacity:0; transform:translateY(8px);
-    transition:opacity .5s var(--ease) .19s, transform .5s var(--ease) .19s;
-  }
-  .view-alert-row.show{ display:flex; }
-  #view-overlay.open .view-alert-row.show{ opacity:1; transform:translateY(0); }
-
-  .edit-alert-block{
-    display:none; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
-    background:var(--card); border:1px solid var(--line); border-radius:var(--radius-sm);
-    padding:14px 16px; margin-bottom:18px;
-  }
-  .edit-alert-block.show{ display:flex; }
-  .edit-alert-block .eab-text{ font-size:12.5px; color:var(--mist); line-height:1.5; max-width:230px; }
-  .edit-alert-block .eab-text strong{ color:var(--paper); display:block; font-size:14px; margin-bottom:2px; }
-
-  /* ---- overlays: IA (hub / comparação / motivo) ---- */
-  .ai-actions{ display:flex; flex-direction:column; gap:11px; margin-top:6px; }
-  .ai-actions .btn{ width:100%; justify-content:center; }
-  .ai-note{
-    background:rgba(183,155,255,.1); border:1px solid rgba(183,155,255,.28);
-    color:var(--mist); font-size:12.5px; line-height:1.6; border-radius:var(--radius-sm);
-    padding:12px 14px; margin-top:18px;
-  }
-
-  .diff-list{ display:flex; flex-direction:column; gap:10px; max-height:48vh; overflow-y:auto; padding:2px; margin-bottom:6px; }
-  .diff-row{
-    display:flex; align-items:center; gap:12px;
-    background:var(--card); border:1px solid var(--line); border-radius:var(--radius-sm);
-    padding:11px 14px;
-  }
-  .diff-row .diff-cover{ width:38px; height:56px; border-radius:8px; overflow:hidden; flex:none; background:var(--ink); }
-  .diff-row .diff-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .diff-row .diff-cover .no-cover svg{ width:16px; height:16px; }
-  .diff-row .diff-info{ flex:1; min-width:0; }
-  .diff-row .diff-name{ font-weight:700; font-size:14px; margin-bottom:4px; }
-  .diff-row .diff-change{ font-size:12px; }
-  .diff-warning{
-    display:flex; align-items:flex-start; gap:9px;
-    background:rgba(255,138,138,.08); border:1px solid rgba(255,138,138,.28);
-    color:var(--danger); font-size:12.5px; line-height:1.55; border-radius:var(--radius-sm);
-    padding:12px 14px; margin-bottom:16px;
-  }
-
-  .reason-actions{ display:flex; flex-direction:column; gap:10px; margin-top:6px; }
-  .reason-actions .btn{ width:100%; justify-content:center; }
+:root{--ink:#0e0d13;--dusk:#161420;--card:#191722;--hov:#1e1c29;--line:rgba(241,238,252,.08);--ls:rgba(241,238,252,.18);--paper:#f1eefc;--mist:#9d9ab8;--dim:#68657f;--bloom:#ff8fb1;--bi:#2b0f18;--aur:#8de8d0;--vio:#b79bff;--red:#ff5470;--yel:#ffcf56;--grn:#7ee6a8;--e:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:var(--ink);color:var(--paper);font-family:'Manrope',sans-serif;color-scheme:dark;-webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+h1,h2,h3{font-family:'Fraunces',serif;margin:0;font-weight:600;letter-spacing:-.01em}
+button{font-family:inherit;cursor:pointer;color:inherit}
+#sky{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.st{position:absolute;border-radius:50%;background:#fff;animation:tw 3s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.1}50%{opacity:.9}}
+.gl{position:absolute;border-radius:50%;filter:blur(80px);opacity:.28}
+.scr{display:none;position:relative;z-index:1;min-height:100vh}.scr.on{display:block}
+.btn{border:0;border-radius:999px;padding:13px 24px;font-weight:700;font-size:14.5px;display:inline-flex;align-items:center;gap:8px;transition:transform .25s var(--e),background .2s}
+.btn:active{transform:scale(.96)}.p{background:var(--bloom);color:var(--bi)}.p:hover{transform:translateY(-2px)}
+.s{background:var(--card);border:1px solid var(--ls)}.s:hover{background:var(--hov)}.s.act{background:var(--aur);color:#0f2b23;border-color:var(--aur)}
+.d{background:none;border:1.5px solid rgba(255,138,138,.35);color:#ff8a8a}
+.ic{width:42px;height:42px;border-radius:50%;background:var(--card);border:1px solid var(--ls);display:inline-flex;align-items:center;justify-content:center;font-size:16px}
+.gh{background:none;border:0;color:var(--mist);font-weight:600;font-size:14px;padding:8px 4px}.gh:hover{color:var(--paper)}
+.land{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;padding:32px}
+.land h1{font-size:clamp(2.2rem,7vw,4.4rem);line-height:1.05}.land h1 em{color:var(--bloom)}
+.mark{letter-spacing:.32em;font-size:13px;font-weight:800;color:var(--mist);text-transform:uppercase}
+.sub{color:var(--mist);max-width:430px;line-height:1.6;margin:0}
+.top{display:flex;justify-content:space-between;align-items:center;padding:20px 28px 0;gap:12px;flex-wrap:wrap}.top div{display:flex;gap:10px}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 28px 120px}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.hd h2{font-size:clamp(1.7rem,4vw,2.3rem)}.eb{color:var(--aur);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin:0 0 6px}
+.acts{display:flex;gap:10px;flex-wrap:wrap}
+.sb{display:flex;align-items:center;gap:10px;max-width:340px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:0 16px;margin-bottom:20px}
+.sb input{flex:1;background:none;border:0;color:var(--paper);height:44px;font:inherit;font-size:14px;outline:0;min-width:0}
+.hint{background:rgba(141,232,208,.08);border:1px solid rgba(141,232,208,.25);color:var(--aur);font-size:13px;font-weight:600;line-height:1.5;padding:12px 16px;border-radius:12px;margin:0 0 18px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+@media(max-width:920px){.grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:680px){.grid{grid-template-columns:repeat(2,1fr);gap:13px}}
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;text-align:left;padding:0;display:flex;flex-direction:column;transition:transform .3s var(--e),border-color .3s}
+.card:hover{transform:translateY(-4px);border-color:rgba(255,143,177,.35)}.card.sel{border-color:var(--aur);box-shadow:0 0 0 2px var(--aur) inset}
+.cv{position:relative;aspect-ratio:2/3;background:linear-gradient(160deg,#221f30,#15131e);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:34px}
+.cv img{width:100%;height:100%;object-fit:cover;display:block}
+.tg{position:absolute;top:9px;left:9px;background:rgba(10,9,15,.85);font-weight:800;font-size:12px;padding:5px 9px;border-radius:8px}
+.ty{position:absolute;top:9px;right:9px;background:rgba(183,155,255,.9);color:#1c1330;font-weight:800;font-size:10.5px;padding:4px 8px;border-radius:8px}
+.bd{position:absolute;right:9px;bottom:9px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 15px 'Fraunces',serif;box-shadow:0 0 0 2px var(--ink)}
+.bd.red{background:var(--red);color:#2b0510}.bd.yellow{background:var(--yel);color:#3a2600}.bd.green{background:var(--grn);color:#0c2c17}.bd.finished{background:var(--paper);color:var(--ink)}
+.nm{padding:12px 13px 14px;font:700 15px/1.28 'Fraunces',serif;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tab{padding:22px}.tab h3{font-size:21px;margin-bottom:8px}.tab small{color:var(--mist);display:block;line-height:1.7}
+.chip{display:inline-block;background:rgba(183,155,255,.14);border:1px solid rgba(183,155,255,.3);color:var(--vio);font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;margin:2px 4px 2px 0}
+.emp{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--mist);line-height:1.6}.emp strong{display:block;font:600 21px 'Fraunces',serif;color:var(--paper);margin-bottom:8px}
+.ov{position:fixed;inset:0;z-index:20;background:rgba(7,6,11,.78);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}.ov.on{display:flex}
+.md{background:var(--dusk);border:1px solid var(--line);border-radius:24px;width:100%;max-width:470px;max-height:90vh;overflow:auto;padding:28px}
+.md h3{font-size:22px;margin-bottom:4px}.mh{color:var(--mist);font-size:13.5px;margin:0 0 18px;line-height:1.5}
+.f{margin-bottom:15px}.f>label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mist);margin-bottom:7px}
+.f input[type=text],.f input[type=number]{width:100%;height:46px;background:var(--ink);border:1px solid var(--line);color:var(--paper);padding:0 14px;border-radius:12px;font:inherit;font-size:14.5px}
+.f input:focus{outline:0;border-color:rgba(255,143,177,.45)}
+.seg{display:flex;gap:8px;flex-wrap:wrap}.seg button{flex:1;min-width:84px;background:var(--ink);border:1.5px solid var(--line);color:var(--mist);padding:10px;border-radius:12px;font-weight:700;font-size:13px}
+.seg button.on{background:var(--vio);border-color:var(--vio);color:#1c1330}.seg.g button{flex:0 0 auto;min-width:0;padding:8px 13px;font-size:12.5px}
+.seg.w button.on{background:var(--grn);border-color:var(--grn);color:#0c2c17}
+.rg{display:flex;align-items:center;gap:12px}.rg input{flex:1;accent-color:var(--bloom)}.rg b{font:700 16px 'Fraunces',serif;color:var(--aur);min-width:48px;text-align:right}
+.dz{display:flex;align-items:center;gap:14px;border:1.5px dashed var(--ls);border-radius:16px;padding:12px;cursor:pointer;font-size:13px;color:var(--mist)}
+.dz i{width:56px;height:56px;border-radius:11px;background:var(--ink);overflow:hidden;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:22px}.dz i img{width:100%;height:100%;object-fit:cover}.dz input{display:none}
+.ma{display:flex;justify-content:flex-end;gap:10px;margin-top:22px;flex-wrap:wrap}.ma.sp{justify-content:space-between}
+.al{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:15px;font-size:13px;color:var(--mist)}
+.tb{position:fixed;left:50%;bottom:24px;z-index:15;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--dusk);border:1px solid var(--ls);border-radius:22px;padding:14px 18px;display:flex;flex-direction:column;align-items:center;gap:9px;transition:.3s var(--e)}
+.tb.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}.tb b{font-size:12.5px;color:var(--aur)}
+.ar{display:grid;grid-template-columns:54px 54px 54px;gap:8px}.ar button{height:50px;background:var(--card);border:1px solid var(--ls);border-radius:14px;font-size:20px}.ar button:hover{background:var(--bloom);color:var(--bi)}
+#u{grid-column:2}#l{grid-row:2}#dn{grid-column:2;grid-row:2}#r{grid-column:3;grid-row:2}
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:var(--card);border:1px solid var(--ls);padding:12px 22px;border-radius:999px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;z-index:50;transition:.35s var(--e)}#toast.on{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.sg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-height:250px;overflow:auto;padding:2px}
+.card.sc.on{border-color:var(--aur);box-shadow:0 0 0 2px var(--aur) inset}.sc .cv{font-size:24px}.sc .n{display:block;font-size:12px;font-weight:600;padding:8px}
+.gp{width:100%;height:46px;background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--dim);font:inherit;font-size:14.5px;text-align:left}.gp.has{color:var(--paper)}.gp span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-height:50vh;overflow:auto;padding:2px;margin-bottom:6px}.gg button{display:flex;justify-content:space-between;gap:6px;background:var(--card);border:1.5px solid var(--line);padding:12px 14px;border-radius:12px;font-weight:600;font-size:13.5px}.gg button.on{border-color:var(--vio);background:rgba(183,155,255,.12);color:var(--vio)}
+#ov2{z-index:25}.rw{display:flex;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}.rw span:first-child{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mist);flex:none}.rw span:last-child{font-weight:600;text-align:right;font-size:14.5px}.rw .e{color:var(--dim);font-style:italic;font-weight:500}
+@keyframes dr{from{transform:translate(0,0) scale(1)}to{transform:translate(70px,-50px) scale(1.18)}}
+.gl{animation:dr 22s ease-in-out infinite alternate;will-change:transform}
+.au{position:absolute;left:-20%;width:140%;height:170px;filter:blur(60px);opacity:.17;background:linear-gradient(90deg,transparent,var(--aur),var(--vio),var(--bloom),transparent);animation:aw 18s ease-in-out infinite alternate}
+@keyframes aw{from{transform:translateX(-8%) skewY(-4deg)}to{transform:translateX(8%) skewY(4deg) scaleY(1.5)}}
+.sh{position:absolute;height:2px;width:130px;border-radius:2px;background:linear-gradient(90deg,transparent,#fff);opacity:0;animation:sh 1.3s ease-out forwards}
+@keyframes sh{0%{opacity:0;transform:translate(0,0) rotate(25deg)}15%{opacity:1}100%{opacity:0;transform:translate(420px,196px) rotate(25deg)}}
+.pt{position:absolute;top:-30px;border-radius:80% 0 80% 0;background:linear-gradient(135deg,#ffc7da,#ff8fb1);opacity:.7;animation:pt linear infinite;will-change:transform}
+@keyframes pt{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(var(--dx),112vh) rotate(540deg)}}
+.ff{position:absolute;bottom:-10px;border-radius:50%;background:var(--aur);box-shadow:0 0 10px 3px rgba(141,232,208,.6);animation:ff linear infinite;will-change:transform}
+@keyframes ff{0%{transform:translate(0,0);opacity:0}15%{opacity:.9}85%{opacity:.6}100%{transform:translate(var(--dx),-110vh);opacity:0}}
+.mn{position:absolute;top:7%;right:8%;width:84px;height:84px;opacity:.55;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23ff8fb1' d='M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 0 22px rgba(255,143,177,.6));animation:mn 9s ease-in-out infinite alternate}
+@keyframes mn{from{transform:translateY(0) rotate(-6deg)}to{transform:translateY(14px) rotate(6deg)}}
 </style>
 </head>
 <body>
+<div id="sky"></div>
 
-<div id="ambient"></div>
+<section class="scr on" id="s-land"><div class="land">
+  <span class="mark">🌙 yozora</span>
+  <h1>seu <em>diário</em><br>de animes, filmes e séries</h1>
+  <p class="sub">organize tudo o que você assistiu ou leu em abas — tudo salvo só no seu navegador.</p>
+  <button class="btn p" id="go">Ver Abas →</button>
+</div></section>
 
-<main id="app">
-
-  <!-- ===================== TELA 1 — LANDING ===================== -->
-  <section id="screen-landing" class="screen active">
-    <div class="landing-wrap">
-      <span class="mark">
-        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="markMoonGrad" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#ffc7da"/>
-              <stop offset=".55" stop-color="#ff8fb1"/>
-              <stop offset="1" stop-color="#c08bff"/>
-            </linearGradient>
-          </defs>
-          <path fill="url(#markMoonGrad)" d="M22 4a12 12 0 1 0 6 22.2A14 14 0 0 1 22 4Z"/>
-          <path fill="#8de8d0" d="M25.6 5.4l1 2.3 2.3 1-2.3 1-1 2.3-1-2.3-2.3-1 2.3-1z"/>
-          <circle cx="7.4" cy="25.2" r="1" fill="#8de8d0" opacity=".75"/>
-        </svg>
-        yozora
-      </span>
-      <h1>seu <em>diário</em><br>de animes</h1>
-      <p class="landing-sub">guarde as capas, onde assistiu, a data e a nota de cada anime — tudo salvo só no seu navegador.</p>
-      <p class="landing-count" id="landing-count"></p>
-      <button class="btn btn-primary" id="btn-go-list">
-        Ver lista de animes
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </button>
-    </div>
-  </section>
-
-  <!-- ===================== TELA 2 — LISTA ===================== -->
-  <section id="screen-list" class="screen">
-    <div class="top-bar">
-      <button class="btn-ghost" id="btn-back">← voltar</button>
-      <div class="top-bar-right">
-        <button class="btn-icon" id="btn-export" title="Exportar backup" aria-label="Exportar backup">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-        </button>
-        <button class="btn-icon" id="btn-import" title="Importar backup" aria-label="Importar backup">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 8l5-5 5 5"/><path d="M12 3v12"/></svg>
-        </button>
-        <button class="btn-icon" id="btn-ai" title="Análise de temporadas por IA" aria-label="Análise de temporadas por IA">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.8L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.2L12 3z"/><path d="M19 15.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>
-        </button>
-        <input type="file" id="import-file-input" class="file-input-hidden" accept="application/json,.json">
-        <input type="file" id="import-ai-file-input" class="file-input-hidden" accept="application/json,.json">
-      </div>
-    </div>
-    <div class="list-wrap">
-      <div class="list-header">
-        <div>
-          <p class="list-eyebrow" id="list-eyebrow">sua coleção</p>
-          <h2>Meus animes</h2>
-        </div>
-        <div class="list-actions">
-          <button class="btn btn-secondary btn-organize" id="btn-organize">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18L4 14l4-4"/><path d="M4 14h16"/><path d="M16 6l4 4-4 4"/><path d="M20 10H4"/></svg>
-            <span id="btn-organize-label">Organizar</span>
-          </button>
-          <button class="btn btn-secondary" id="btn-edit">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-            Editar
-          </button>
-          <button class="btn btn-primary" id="btn-add">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-            Adicionar
-          </button>
-        </div>
-      </div>
-
-      <div class="search-row" id="search-row">
-        <div class="search-box">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" id="search-input" placeholder="Buscar anime pelo nome..." autocomplete="off">
-          <button type="button" class="search-clear" id="search-clear" hidden aria-label="Limpar busca">×</button>
-        </div>
-      </div>
-
-      <p class="reorder-hint" id="reorder-hint" hidden>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 18L4 14l4-4"/><path d="M4 14h16"/><path d="M16 6l4 4-4 4"/><path d="M20 10H4"/></svg>
-        Segure a alcinha ⋮⋮ no canto do card e arraste para trocar de lugar, ou toque na capa para selecionar um ou mais animes e usar as setas grandes que aparecem embaixo. Toque em "Concluir" quando terminar.
-      </p>
-
-      <div class="anime-grid" id="anime-grid"></div>
-    </div>
-  </section>
-
-</main>
-
-<!-- ===================== BARRA FLUTUANTE: SETAS DO MODO ORGANIZAR ===================== -->
-<div class="reorder-toolbar" id="reorder-toolbar">
-  <span class="reorder-toolbar-label" id="reorder-toolbar-label">0 selecionado</span>
-  <div class="reorder-toolbar-arrows">
-    <button type="button" class="reorder-toolbar-btn" id="rt-up" title="Mover para cima" aria-label="Mover para cima">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
-    </button>
-    <button type="button" class="reorder-toolbar-btn" id="rt-left" title="Mover para a esquerda" aria-label="Mover para a esquerda">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <button type="button" class="reorder-toolbar-btn" id="rt-down" title="Mover para baixo" aria-label="Mover para baixo">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-    </button>
-    <button type="button" class="reorder-toolbar-btn" id="rt-right" title="Mover para a direita" aria-label="Mover para a direita">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
+<section class="scr" id="s-tabs">
+  <div class="top"><button class="gh" id="t-back">← voltar</button>
+    <div><button class="ic" id="bk-out" title="Exportar backup">⤓</button><button class="ic" id="bk-in" title="Importar backup">⤒</button><input type="file" id="f-bk" accept=".json,application/json" hidden></div></div>
+  <div class="wrap">
+    <div class="hd"><div><p class="eb">suas coleções</p><h2>Minhas abas</h2></div><button class="btn p" id="new-tab">＋ Criar Aba</button></div>
+    <div class="grid" id="tabs-grid"></div>
   </div>
-  <button type="button" class="reorder-toolbar-clear" id="rt-clear">Limpar seleção</button>
-</div>
+</section>
 
-<!-- ===================== OVERLAY: ADICIONAR ===================== -->
-<div class="overlay" id="overlay-add">
-  <div class="modal">
-    <h3>Adicionar anime</h3>
-    <p class="modal-hint">preencha os detalhes de um anime que você assistiu.</p>
-    <form id="form-add" novalidate>
-      <div class="field">
-        <label>Capa</label>
-        <label class="dropzone" id="dropzone-add">
-          <span class="dropzone-preview" id="preview-add">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
-          </span>
-          <span class="dropzone-text"><strong>Escolher imagem</strong><br>PNG ou JPG</span>
-          <input type="file" accept="image/*" id="input-cover-add">
-        </label>
-      </div>
-      <div class="field">
-        <label for="input-name-add">Nome do anime</label>
-        <input type="text" id="input-name-add" placeholder="ex: Frieren" required>
-      </div>
-      <div class="field">
-        <label for="input-season-add">Temporada</label>
-        <input type="number" id="input-season-add" min="1" step="1" value="1">
-      </div>
-      <div class="field" id="link-block-add" hidden>
-        <label>Juntar com a temporada</label>
-        <div class="toggle-group">
-          <button type="button" class="toggle-btn active" id="link-nao-add" aria-pressed="true">Não</button>
-          <button type="button" class="toggle-btn is-yes" id="link-sim-add" aria-pressed="false">Sim</button>
-        </div>
-        <div class="link-picker" id="link-picker-add" hidden>
-          <p class="modal-hint" style="margin:14px 0 10px;">qual foi a temporada antiga?</p>
-          <div class="select-grid compact" id="link-grid-add"></div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Dublado ou legendado</label>
-        <div class="lang-toggle">
-          <button type="button" class="lang-btn" id="lang-dub-add" data-lang="Dublado">Dublado</button>
-          <button type="button" class="lang-btn active" id="lang-leg-add" data-lang="Legendado">Legendado</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>Gênero</label>
-        <button type="button" class="genre-picker-btn" id="btn-genre-add">
-          <span class="gpb-value" id="genre-value-add">Escolher gêneros</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-        </button>
-      </div>
-      <div class="field">
-        <label>Tem episódio especial?</label>
-        <div class="toggle-group">
-          <button type="button" class="toggle-btn active" id="special-nao-add" aria-pressed="true">Não</button>
-          <button type="button" class="toggle-btn is-yes" id="special-sim-add" aria-pressed="false">Sim</button>
-        </div>
-        <div class="field" id="special-qty-block-add" hidden style="margin:14px 0 0;">
-          <label for="input-special-qty-add">Quantos?</label>
-          <input type="number" id="input-special-qty-add" min="1" step="1" placeholder="ex: 2">
-        </div>
-      </div>
-      <div class="field">
-        <label for="input-place-add">Onde assistiu</label>
-        <input type="text" id="input-place-add" placeholder="ex: Crunchyroll, Netflix...">
-      </div>
-      <div class="field">
-        <label for="input-datestart-add">Data de início</label>
-        <input type="date" id="input-datestart-add">
-      </div>
-      <div class="field">
-        <label for="input-dateend-add">Data de finalização da temporada</label>
-        <input type="date" id="input-dateend-add">
-      </div>
-      <div class="field">
-        <label>Nota</label>
-        <div class="rating-row">
-          <input type="range" min="0" max="10" step="0.5" value="8" id="input-rating-add">
-          <span class="rating-value" id="rating-value-add">8/10</span>
-        </div>
-      </div>
-      <div class="field">
-        <label for="input-note-add">Anotações</label>
-        <textarea id="input-note-add" rows="3" placeholder="ex: esse anime é muito bom..."></textarea>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" data-close="overlay-add">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Confirmar</button>
-      </div>
-    </form>
+<section class="scr" id="s-tab">
+  <div class="top"><button class="gh" id="tab-back">← abas</button>
+    <div><button class="ic" id="ai" title="Análise por IA" hidden>✨</button><button class="ic" id="tab-set" title="Renomear / excluir aba">⚙</button></div></div>
+  <div class="wrap">
+    <div class="hd"><div><p class="eb" id="cnt"></p><h2 id="tab-name"></h2></div>
+      <div class="acts"><button class="btn s" id="org">⇄ <span id="org-l">Organizar</span></button><button class="btn p" id="add">＋ Adicionar</button></div></div>
+    <div class="sb" id="sb">🔍<input type="text" id="q" placeholder="Buscar pelo nome..." autocomplete="off"></div>
+    <p class="hint" id="hint" hidden>Arraste um card sobre outro para trocar de lugar, ou toque nas capas para selecionar e use as setas grandes embaixo. Toque em "Concluir" quando terminar.</p>
+    <div class="grid" id="grid"></div>
   </div>
-</div>
+</section>
 
-<!-- ===================== OVERLAY: ESCOLHER QUAL EDITAR ===================== -->
-<div class="overlay" id="overlay-select">
-  <div class="modal modal-select">
-    <h3>Editar anime</h3>
-    <p class="modal-hint">toque no anime que você quer editar.</p>
-    <div class="select-grid" id="select-grid"></div>
-    <div class="modal-actions">
-      <button type="button" class="btn btn-secondary" data-close="overlay-select">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===================== OVERLAY: EDITAR (tela cheia, modo calmo) ===================== -->
-<div class="overlay overlay-fullscreen" id="overlay-edit">
-  <div class="modal">
-    <h3>Editar com calma</h3>
-    <p class="modal-hint">ajuste os detalhes e confirme quando estiver pronto.</p>
-    <div class="season-nav" id="season-nav-edit"></div>
-    <div class="edit-alert-block" id="edit-alert-block">
-      <div class="eab-text">
-        <strong id="edit-alert-title"></strong>
-        <span id="edit-alert-sub"></span>
-      </div>
-      <button type="button" class="btn btn-secondary" id="btn-edit-remove-alert">Remover !</button>
-    </div>
-    <form id="form-edit" novalidate>
-      <input type="hidden" id="edit-id">
-      <div class="field">
-        <label>Capa</label>
-        <label class="dropzone" id="dropzone-edit">
-          <span class="dropzone-preview" id="preview-edit">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
-          </span>
-          <span class="dropzone-text"><strong>Trocar imagem</strong><br>opcional</span>
-          <input type="file" accept="image/*" id="input-cover-edit">
-        </label>
-      </div>
-      <div class="field">
-        <label for="input-name-edit">Nome do anime</label>
-        <input type="text" id="input-name-edit" required>
-      </div>
-      <div class="field">
-        <label for="input-season-edit">Temporada</label>
-        <input type="number" id="input-season-edit" min="1" step="1" value="1">
-      </div>
-      <div class="field" id="link-block-edit" hidden>
-        <label>Juntar com a temporada</label>
-        <div class="toggle-group">
-          <button type="button" class="toggle-btn active" id="link-nao-edit" aria-pressed="true">Não</button>
-          <button type="button" class="toggle-btn is-yes" id="link-sim-edit" aria-pressed="false">Sim</button>
-        </div>
-        <div class="link-picker" id="link-picker-edit" hidden>
-          <p class="modal-hint" style="margin:14px 0 10px;">qual foi a temporada antiga?</p>
-          <div class="select-grid compact" id="link-grid-edit"></div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Dublado ou legendado</label>
-        <div class="lang-toggle">
-          <button type="button" class="lang-btn" id="lang-dub-edit" data-lang="Dublado">Dublado</button>
-          <button type="button" class="lang-btn active" id="lang-leg-edit" data-lang="Legendado">Legendado</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>Gênero</label>
-        <button type="button" class="genre-picker-btn" id="btn-genre-edit">
-          <span class="gpb-value" id="genre-value-edit">Escolher gêneros</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-        </button>
-      </div>
-      <div class="field">
-        <label>Tem episódio especial?</label>
-        <div class="toggle-group">
-          <button type="button" class="toggle-btn active" id="special-nao-edit" aria-pressed="true">Não</button>
-          <button type="button" class="toggle-btn is-yes" id="special-sim-edit" aria-pressed="false">Sim</button>
-        </div>
-        <div class="field" id="special-qty-block-edit" hidden style="margin:14px 0 0;">
-          <label for="input-special-qty-edit">Quantos?</label>
-          <input type="number" id="input-special-qty-edit" min="1" step="1" placeholder="ex: 2">
-        </div>
-      </div>
-      <div class="field">
-        <label for="input-place-edit">Onde assistiu</label>
-        <input type="text" id="input-place-edit">
-      </div>
-      <div class="field">
-        <label for="input-datestart-edit">Data de início</label>
-        <input type="date" id="input-datestart-edit">
-      </div>
-      <div class="field">
-        <label for="input-dateend-edit">Data de finalização da temporada</label>
-        <input type="date" id="input-dateend-edit">
-      </div>
-      <div class="field">
-        <label>Nota</label>
-        <div class="rating-row">
-          <input type="range" min="0" max="10" step="0.5" value="8" id="input-rating-edit">
-          <span class="rating-value" id="rating-value-edit">8/10</span>
-        </div>
-      </div>
-      <div class="field">
-        <label for="input-note-edit">Anotações</label>
-        <textarea id="input-note-edit" rows="3" placeholder="ex: esse anime é muito bom..."></textarea>
-      </div>
-      <div class="modal-actions split">
-        <button type="button" class="btn-danger" id="btn-delete">Excluir anime</button>
-        <div style="display:flex; gap:10px;">
-          <button type="button" class="btn btn-secondary" data-close="overlay-edit">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Confirmar</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ===================== OVERLAY: ESCOLHER GÊNEROS ===================== -->
-<div class="overlay" id="overlay-genre">
-  <div class="modal genre-modal">
-    <h3>Gêneros</h3>
-    <p class="modal-hint">toque para marcar quantos quiser, depois confirme.</p>
-    <p class="genre-selected-count" id="genre-selected-count">nenhum selecionado</p>
-    <div class="genre-grid" id="genre-grid"></div>
-    <div class="modal-actions">
-      <button type="button" class="btn btn-secondary" id="btn-genre-cancel">Cancelar</button>
-      <button type="button" class="btn btn-primary" id="btn-genre-confirm">Confirmar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===================== OVERLAY: VISUALIZAÇÃO (somente leitura) ===================== -->
-<div id="view-overlay">
-  <div class="view-topbar">
-    <button class="btn-ghost" id="btn-view-back">← voltar</button>
-  </div>
-  <div class="view-stage">
-    <div class="view-cover" id="view-cover"></div>
-    <div class="view-season-nav" id="view-season-nav"></div>
-    <h2 class="view-title" id="view-title"></h2>
-    <span class="view-rating-chip" id="view-rating-chip"></span>
-    <div class="view-alert-row" id="view-alert-row">
-      <span class="alert-chip" id="view-alert-chip-el"></span>
-      <button type="button" class="btn-ghost" id="btn-view-remove-alert" style="padding:6px 4px;">remover !</button>
-    </div>
-    <button type="button" class="view-expand-btn" id="view-expand-btn">
-      detalhes
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-    </button>
-    <div class="view-details" id="view-details">
-      <div class="view-details-inner">
-        <div class="detail-card" id="view-detail-card"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===================== OVERLAY: ANÁLISE DE TEMPORADAS POR IA (hub) ===================== -->
-<div class="overlay" id="overlay-ai">
-  <div class="modal">
-    <h3>Análise de temporadas por IA</h3>
-    <p class="modal-hint">gere um arquivo com seus animes para uma IA pesquisar novas temporadas, ou importe o arquivo que ela devolver.</p>
-    <div class="ai-actions">
-      <button type="button" class="btn btn-primary" id="btn-ai-export">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.8L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.2L12 3z"/></svg>
-        Preparar backup para IA
-      </button>
-      <button type="button" class="btn btn-secondary" id="btn-ai-import">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 8l5-5 5 5"/><path d="M12 3v12"/></svg>
-        Importar backup analisado
-      </button>
-    </div>
-    <p class="ai-note">funciona com qualquer IA que aceite arquivos, como ChatGPT, Gemini, Claude ou Copilot. envie o arquivo gerado, peça para pesquisar temporadas novas e depois importe o arquivo que ela devolver. suas informações e seu histórico continuam salvos só no seu navegador — a IA só pode sugerir alertas de temporada, nunca apagar ou alterar o resto dos seus dados.</p>
-    <button type="button" class="btn-danger" id="btn-ai-reset" style="width:100%; justify-content:center; margin-top:16px;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
-      Reformatar Sinais
-    </button>
-    <div class="modal-actions">
-      <button type="button" class="btn btn-secondary" data-close="overlay-ai">Fechar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===================== OVERLAY: REFORMATAR SINAIS (apagar tudo ou selecionar) ===================== -->
-<div class="overlay" id="overlay-reset-alerts">
-  <div class="modal modal-select">
-    <h3>Reformatar sinais</h3>
-    <p class="modal-hint">apaga os símbolos (🔴🟡🟢✓) já colocados nos animes — incluindo os que você removeu manualmente.</p>
-    <div class="toggle-group" style="margin-bottom:18px;">
-      <button type="button" class="toggle-btn active" id="reset-unlock-nao" aria-pressed="true">Só os sinais</button>
-      <button type="button" class="toggle-btn is-yes" id="reset-unlock-sim" aria-pressed="false">Sinais + desbloquear</button>
-    </div>
-    <p class="modal-hint" id="reset-unlock-hint" style="margin-top:-8px;">"Sinais + desbloquear" também apaga o registro de "já assisti" daquela temporada — sem isso, a IA nunca sugere alerta de novo pra ela.</p>
-    <button type="button" class="btn-danger" id="btn-reset-all" style="width:100%; justify-content:center; margin-bottom:18px;">Apagar de todos os animes</button>
-    <p class="modal-hint" id="reset-select-hint" style="margin-bottom:12px;">ou toque para escolher animes específicos:</p>
-    <div class="select-grid" id="reset-select-grid"></div>
-    <div class="modal-actions">
-      <button type="button" class="btn btn-secondary" data-close="overlay-reset-alerts">Cancelar</button>
-      <button type="button" class="btn btn-primary" id="btn-reset-selected">Apagar dos selecionados</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===================== OVERLAY: ALTERAÇÕES ENCONTRADAS (comparação antes de aplicar) ===================== -->
-<div class="overlay" id="overlay-ai-diff">
-  <div class="modal modal-select">
-    <h3>Alterações encontradas</h3>
-    <p class="modal-hint">a IA sugeriu os alertas abaixo. confira antes de aplicar — nada é alterado até você confirmar.</p>
-    <div id="ai-diff-warning"></div>
-    <div class="diff-list" id="ai-diff-list"></div>
-    <div class="modal-actions">
-      <button type="button" class="btn btn-secondary" id="btn-ai-diff-cancel">Cancelar</button>
-      <button type="button" class="btn btn-primary" id="btn-ai-diff-apply">Aplicar alterações</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===================== OVERLAY: REMOVER ALERTA (motivo) ===================== -->
-<div class="overlay" id="overlay-alert-reason">
-  <div class="modal" style="max-width:400px;">
-    <h3>Remover alerta</h3>
-    <p class="modal-hint" id="alert-reason-hint">por que deseja remover o alerta?</p>
-    <div class="reason-actions">
-      <button type="button" class="btn btn-primary" id="btn-reason-watched">Já assisti</button>
-      <button type="button" class="btn btn-secondary" id="btn-reason-other">Outro motivo</button>
-      <button type="button" class="btn-ghost" data-close="overlay-alert-reason">Cancelar</button>
-    </div>
-  </div>
-</div>
-
+<div class="tb" id="tb"><b id="tb-n"></b><div class="ar"><button id="u">▲</button><button id="l">◀</button><button id="dn">▼</button><button id="r">▶</button></div><button class="gh" id="tb-c">Limpar seleção</button></div>
+<div class="ov" id="ov"><div class="md" id="md"></div></div>
+<div class="ov" id="ov2"><div class="md" id="md2"></div></div>
 <div id="toast"></div>
 
 <script>
 (function(){
-  "use strict";
-
-  var STORAGE_KEY = "yozora_animes_v1";
-
-  /* ---------- helpers ---------- */
-  function uid(){
-    if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
-    return "id-" + Date.now() + "-" + Math.random().toString(16).slice(2);
-  }
-  function escapeHtml(str){
-    return String(str == null ? "" : str)
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-  }
-  function formatDateBR(iso){
-    if(!iso) return "";
-    var p = iso.split("-");
-    if(p.length !== 3) return iso;
-    return p[2] + "/" + p[1] + "/" + p[0];
-  }
-  function formatRating(n){
-    n = Number(n);
-    if(isNaN(n)) n = 0;
-    var s = (Math.round(n*10)/10).toString();
-    return s + "/10";
-  }
-  function normalize(str){
-    return String(str || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  }
-  function getPrevSeason(a){
-    if(!a || !a.linkedPrevId) return null;
-    return animes.find(function(x){ return x.id === a.linkedPrevId; }) || null;
-  }
-  function getNextSeason(a){
-    if(!a) return null;
-    return animes.find(function(x){ return x.linkedPrevId === a.id; }) || null;
-  }
-
-  /* ---------- agrupamento de temporadas (uma capa principal por obra) ---------- */
-  function getChainRootNode(anime){
-    var cursor = anime, guard = 0;
-    while(getPrevSeason(cursor) && guard < 50){ cursor = getPrevSeason(cursor); guard++; }
-    return cursor;
-  }
-  function getChainTipNode(anime){
-    var cursor = getChainRootNode(anime);
-    var guard = 0;
-    var next = getNextSeason(cursor);
-    while(next && guard < 50){ cursor = next; next = getNextSeason(cursor); guard++; }
-    return cursor;
-  }
-  function getChainNodes(anime){
-    var nodes = [];
-    var cursor = getChainRootNode(anime);
-    var guard = 0;
-    while(cursor && guard < 50){ nodes.push(cursor); cursor = getNextSeason(cursor); guard++; }
-    return nodes;
-  }
-  function getRootAnimes(){
-    return animes.filter(function(a){ return !a.linkedPrevId; });
-  }
-
-  /* ---------- reformatar sinais (apaga alertas ativos + histórico de remoções) ---------- */
-  function chainHasSignal(root){
-    return getChainNodes(root).some(function(n){
-      return (n.seasonAlert && n.seasonAlert.status) || (n.alertHistory && n.alertHistory.length) || (n.watchedSeasonsLog && n.watchedSeasonsLog.length);
-    });
-  }
-  function resetChainSignals(root, alsoUnlock){
-    getChainNodes(root).forEach(function(n){
-      n.seasonAlert = null;
-      n.alertHistory = [];
-      if(alsoUnlock) n.watchedSeasonsLog = [];
-    });
-  }
-
-  /* ---------- toast ---------- */
-  var toastTimer = null;
-  function showToast(msg, isError){
-    var el = document.getElementById("toast");
-    el.textContent = msg;
-    el.classList.toggle("error", !!isError);
-    el.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 3200);
-  }
-
-  /* ---------- storage (persistente na pré-visualização + funciona sozinho quando baixado) ---------- */
-  var useCloudStorage = !!(window.storage && typeof window.storage.get === "function" && typeof window.storage.set === "function");
-
-  function storageGetRaw(key){
-    if(useCloudStorage){
-      return window.storage.get(key, false)
-        .then(function(res){ return res ? res.value : null; })
-        .catch(function(){ return null; });
-    }
-    try{
-      return Promise.resolve(localStorage.getItem(key));
-    }catch(e){
-      return Promise.resolve(null);
-    }
-  }
-
-  function storageSetRaw(key, valueStr){
-    if(useCloudStorage){
-      return window.storage.set(key, valueStr, false)
-        .then(function(res){ return !!res; })
-        .catch(function(){ return false; });
-    }
-    try{
-      localStorage.setItem(key, valueStr);
-      return Promise.resolve(true);
-    }catch(e){
-      return Promise.resolve(false);
-    }
-  }
-
-  function loadAnimes(){
-    return storageGetRaw(STORAGE_KEY).then(function(raw){
-      var list = [];
-      try{
-        list = raw ? JSON.parse(raw) : [];
-      }catch(e){
-        console.warn("Não foi possível ler os dados salvos:", e);
-        list = [];
-      }
-      list.forEach(function(a){
-        if(a.season == null) a.season = 1;
-        if(a.dateStart == null) a.dateStart = a.date || "";
-        if(a.dateEnd == null) a.dateEnd = "";
-        if(a.linkedPrevId === undefined) a.linkedPrevId = null;
-        if(a.language == null) a.language = "Legendado";
-        if(!Array.isArray(a.genres)) a.genres = [];
-        if(a.hasSpecialEpisode == null) a.hasSpecialEpisode = false;
-        if(a.specialEpisodeCount === undefined) a.specialEpisodeCount = null;
-        if(a.note == null) a.note = "";
-        if(a.seasonAlert === undefined) a.seasonAlert = null;
-        if(!Array.isArray(a.alertHistory)) a.alertHistory = [];
-        if(!Array.isArray(a.watchedSeasonsLog)) a.watchedSeasonsLog = [];
-      });
-      return list;
-    });
-  }
-
-  function saveAnimes(){
-    return storageSetRaw(STORAGE_KEY, JSON.stringify(animes)).then(function(ok){
-      if(!ok){
-        showToast("Não foi possível salvar. Armazenamento pode estar cheio.", true);
-      }
-      return ok;
-    });
-  }
-
-  var animes = [];
-
-  /* ---------- alertas de temporada (análise por IA) ---------- */
-  function alertChipLabel(alert){
-    if(!alert || !alert.status) return "";
-    if(alert.status === "red") return "🔴 sem data";
-    if(alert.status === "yellow") return "🟡 " + (alert.releaseDate ? formatDateBR(alert.releaseDate) : "com data");
-    if(alert.status === "green") return "✅ lançada" + (alert.releaseDate ? (" — " + formatDateBR(alert.releaseDate)) : "");
-    if(alert.status === "finished") return "✓ obra finalizada";
-    return "";
-  }
-
-  function alertStatusText(alert){
-    if(!alert || !alert.status) return "";
-    if(alert.status === "red") return "🔴 nova temporada confirmada, sem data de estreia";
-    if(alert.status === "yellow") return "🟡 nova temporada confirmada — estreia em " + (alert.releaseDate ? formatDateBR(alert.releaseDate) : "data não informada");
-    if(alert.status === "green") return "✅ temporada já lançada e confirmada" + (alert.releaseDate ? (" em " + formatDateBR(alert.releaseDate)) : "");
-    if(alert.status === "finished") return "✓ obra totalmente finalizada, sem novas temporadas planejadas" + (alert.note ? (" — " + alert.note) : "");
-    return "";
-  }
-
-  function alertBadgeHtml(a){
-    if(!a || !a.seasonAlert || !a.seasonAlert.status) return "";
-    if(a.seasonAlert.status === "finished"){
-      return '<span class="alert-badge alert-finished" title="Obra finalizada — sem novas temporadas planejadas">✓</span>';
-    }
-    if(a.seasonAlert.status === "green"){
-      return '<span class="alert-badge alert-green" title="Temporada já lançada — confirmada">✓</span>';
-    }
-    return '<span class="alert-badge alert-'+a.seasonAlert.status+'" title="Nova temporada — toque para ver detalhes">!</span>';
-  }
-
-  /* atualiza yellow → green sozinho quando a data de estreia já passou, sem precisar de nova análise */
-  function recalcAlertStatuses(){
-    var todayStr = new Date().toISOString().slice(0,10);
-    var changed = false;
-    animes.forEach(function(a){
-      if(a.seasonAlert && a.seasonAlert.releaseDate && a.seasonAlert.status !== "red"){
-        var isPast = a.seasonAlert.releaseDate <= todayStr;
-        if(isPast && a.seasonAlert.status !== "green"){
-          a.seasonAlert.status = "green";
-          changed = true;
-        }
-      }
-    });
-    return changed;
-  }
-
-  /* ---------- gêneros ---------- */
-  var GENRE_LIST = [
-    "Ação","Aventura","Comédia","Drama","Fantasia","Ficção Científica",
-    "Romance","Slice of Life","Terror","Suspense","Mistério","Sobrenatural",
-    "Isekai","Mecha","Esporte","Musical","Histórico","Militar",
-    "Psicológico","Artes Marciais","Escolar","Josei","Seinen","Shoujo",
-    "Shounen","Harém","Ecchi","Yaoi","Yuri","Games","Paródia","Vida Adulta"
-  ];
-
-  var pendingGenreTarget = null; // "add" | "edit"
-  var pendingGenreSelection = [];
-
-  function genreValueLabel(list){
-    if(!list || !list.length) return "";
-    return list.join(", ");
-  }
-
-  function updateGenreButtonLabel(suffix, list){
-    var el = document.getElementById("genre-value-"+suffix);
-    if(list && list.length){
-      el.textContent = genreValueLabel(list);
-      el.classList.add("has-value");
-    }else{
-      el.textContent = "Escolher gêneros";
-      el.classList.remove("has-value");
-    }
-  }
-
-  function renderGenreGrid(){
-    var grid = document.getElementById("genre-grid");
-    grid.innerHTML = "";
-    var countEl = document.getElementById("genre-selected-count");
-    countEl.textContent = pendingGenreSelection.length
-      ? pendingGenreSelection.length + (pendingGenreSelection.length === 1 ? " selecionado" : " selecionados")
-      : "nenhum selecionado";
-
-    var frag = document.createDocumentFragment();
-    GENRE_LIST.forEach(function(g){
-      var isSelected = pendingGenreSelection.indexOf(g) !== -1;
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "genre-option" + (isSelected ? " is-selected" : "");
-      btn.innerHTML = '<span>'+ escapeHtml(g) +'</span><span class="go-check">✓</span>';
-      btn.addEventListener("click", function(){
-        var i = pendingGenreSelection.indexOf(g);
-        if(i === -1) pendingGenreSelection.push(g);
-        else pendingGenreSelection.splice(i, 1);
-        renderGenreGrid();
-      });
-      frag.appendChild(btn);
-    });
-    grid.appendChild(frag);
-  }
-
-  function openGenrePicker(suffix, currentList){
-    pendingGenreTarget = suffix;
-    pendingGenreSelection = (currentList || []).slice();
-    renderGenreGrid();
-    openOverlay("overlay-genre");
-  }
-
-  document.getElementById("btn-genre-add").addEventListener("click", function(){
-    openGenrePicker("add", genreStateAdd);
-  });
-  document.getElementById("btn-genre-edit").addEventListener("click", function(){
-    openGenrePicker("edit", genreStateEdit);
-  });
-  document.getElementById("btn-genre-cancel").addEventListener("click", function(){
-    closeOverlay("overlay-genre");
-  });
-  document.getElementById("btn-genre-confirm").addEventListener("click", function(){
-    if(pendingGenreTarget === "add"){
-      genreStateAdd = pendingGenreSelection.slice();
-      updateGenreButtonLabel("add", genreStateAdd);
-    }else if(pendingGenreTarget === "edit"){
-      genreStateEdit = pendingGenreSelection.slice();
-      updateGenreButtonLabel("edit", genreStateEdit);
-    }
-    closeOverlay("overlay-genre");
-  });
-
-  var genreStateAdd = [];
-  var genreStateEdit = [];
-
-  /* ---------- dublado / legendado ---------- */
-  var langStateAdd = "Legendado";
-  var langStateEdit = "Legendado";
-
-  function wireLangToggle(suffix, getSet){
-    var dubBtn = document.getElementById("lang-dub-"+suffix);
-    var legBtn = document.getElementById("lang-leg-"+suffix);
-    dubBtn.addEventListener("click", function(){
-      getSet("Dublado");
-      dubBtn.classList.add("active");
-      legBtn.classList.remove("active");
-    });
-    legBtn.addEventListener("click", function(){
-      getSet("Legendado");
-      legBtn.classList.add("active");
-      dubBtn.classList.remove("active");
-    });
-  }
-  wireLangToggle("add", function(v){ langStateAdd = v; });
-  wireLangToggle("edit", function(v){ langStateEdit = v; });
-
-  function setLangUI(suffix, value){
-    var dubBtn = document.getElementById("lang-dub-"+suffix);
-    var legBtn = document.getElementById("lang-leg-"+suffix);
-    dubBtn.classList.toggle("active", value === "Dublado");
-    legBtn.classList.toggle("active", value === "Legendado");
-  }
-
-  /* ---------- tem episódio especial? ---------- */
-  function setSpecialChoice(suffix, choice){
-    var btnNao = document.getElementById("special-nao-"+suffix);
-    var btnSim = document.getElementById("special-sim-"+suffix);
-    btnNao.classList.toggle("active", choice === "nao");
-    btnNao.setAttribute("aria-pressed", choice === "nao" ? "true" : "false");
-    btnSim.classList.toggle("active", choice === "sim");
-    btnSim.setAttribute("aria-pressed", choice === "sim" ? "true" : "false");
-  }
-
-  function wireSpecialToggle(suffix){
-    var btnNao = document.getElementById("special-nao-"+suffix);
-    var btnSim = document.getElementById("special-sim-"+suffix);
-    var qtyBlock = document.getElementById("special-qty-block-"+suffix);
-    btnNao.addEventListener("click", function(){
-      setSpecialChoice(suffix, "nao");
-      qtyBlock.hidden = true;
-      // se apertar Não, nada mais muda — o valor digitado antes fica guardado
-      // só não é usado ao salvar (ver leitura no submit).
-    });
-    btnSim.addEventListener("click", function(){
-      setSpecialChoice(suffix, "sim");
-      qtyBlock.hidden = false;
-      document.getElementById("input-special-qty-"+suffix).focus();
-    });
-  }
-  wireSpecialToggle("add");
-  wireSpecialToggle("edit");
-
-  /* ---------- reorder mode ---------- */
-  var reorderMode = false;
-  var selectedIds = [];
-  var dragSourceId = null;
-
-  function setReorderMode(on){
-    reorderMode = on;
-    var btn = document.getElementById("btn-organize");
-    var label = document.getElementById("btn-organize-label");
-    var hint = document.getElementById("reorder-hint");
-    var searchRow = document.getElementById("search-row");
-
-    btn.classList.toggle("is-active", reorderMode);
-    label.textContent = reorderMode ? "Concluir" : "Organizar";
-    hint.hidden = !reorderMode;
-    searchRow.hidden = reorderMode;
-
-    if(reorderMode){
-      searchQuery = "";
-      document.getElementById("search-input").value = "";
-      document.getElementById("search-clear").hidden = true;
-    }
-    selectedIds = [];
-    updateReorderToolbar();
-    renderGrid();
-  }
-
-  /* quantas colunas a grade tem agora, seguindo as mesmas larguras do CSS */
-  function getGridColumnCount(){
-    if(window.matchMedia("(max-width: 680px)").matches) return 2;
-    if(window.matchMedia("(max-width: 920px)").matches) return 3;
-    return 4;
-  }
-
-  /* ---- animação suave de troca de posição (FLIP) ---- */
-  function captureCardRects(){
-    var map = {};
-    document.querySelectorAll("#anime-grid .card").forEach(function(c){
-      map[c.getAttribute("data-id")] = c.getBoundingClientRect();
-    });
-    return map;
-  }
-
-  function playCardFlip(oldRects){
-    document.querySelectorAll("#anime-grid .card").forEach(function(c){
-      var id = c.getAttribute("data-id");
-      var oldRect = oldRects[id];
-      if(!oldRect) return;
-      var newRect = c.getBoundingClientRect();
-      var dx = oldRect.left - newRect.left;
-      var dy = oldRect.top - newRect.top;
-      if(!dx && !dy) return;
-      c.style.transition = "none";
-      c.style.transform = "translate("+dx+"px,"+dy+"px)";
-      requestAnimationFrame(function(){
-        requestAnimationFrame(function(){
-          c.style.transition = "transform .38s cubic-bezier(.22,1,.36,1)";
-          c.style.transform = "";
-        });
-      });
-      c.addEventListener("transitionend", function handler(ev){
-        if(ev.propertyName !== "transform") return;
-        c.style.transition = "";
-        c.removeEventListener("transitionend", handler);
-      });
-    });
-  }
-
-  /* move o(s) anime(s) selecionado(s) uma posição na direção pedida (respeitando as colunas da grade) */
-  function moveSelectedDirection(direction){
-    if(!selectedIds.length) return;
-    var columns = getGridColumnCount();
-    var displayList = getRootAnimes().slice().reverse();
-    var idxMap = {};
-    selectedIds.forEach(function(id){
-      idxMap[id] = displayList.findIndex(function(x){ return x.id === id; });
-    });
-    var order = selectedIds.slice();
-    if(direction === "down" || direction === "right"){
-      order.sort(function(a,b){ return idxMap[b] - idxMap[a]; });
-    }else{
-      order.sort(function(a,b){ return idxMap[a] - idxMap[b]; });
-    }
-
-    var oldRects = captureCardRects();
-    var moved = false;
-
-    order.forEach(function(id){
-      var curDisplayList = getRootAnimes().slice().reverse();
-      var curIdx = curDisplayList.findIndex(function(x){ return x.id === id; });
-      if(curIdx === -1) return;
-
-      if(direction === "left" && curIdx % columns === 0) return;
-      if(direction === "right" && (curIdx % columns === columns - 1 || curIdx === curDisplayList.length - 1)) return;
-
-      var delta = direction === "up" ? -columns : direction === "down" ? columns : direction === "left" ? -1 : 1;
-      var targetIdx = curIdx + delta;
-      if(targetIdx < 0 || targetIdx >= curDisplayList.length) return;
-
-      var itemA = curDisplayList[curIdx];
-      var itemB = curDisplayList[targetIdx];
-      var realA = animes.findIndex(function(x){ return x.id === itemA.id; });
-      var realB = animes.findIndex(function(x){ return x.id === itemB.id; });
-      if(realA === -1 || realB === -1) return;
-      var tmp = animes[realA];
-      animes[realA] = animes[realB];
-      animes[realB] = tmp;
-      moved = true;
-    });
-
-    if(!moved) return;
-    saveAnimes();
-    renderGrid();
-    playCardFlip(oldRects);
-  }
-
-  function updateReorderToolbar(){
-    var toolbar = document.getElementById("reorder-toolbar");
-    var label = document.getElementById("reorder-toolbar-label");
-    toolbar.classList.toggle("show", selectedIds.length > 0);
-    label.textContent = selectedIds.length + (selectedIds.length === 1 ? " selecionado" : " selecionados");
-  }
-
-  document.getElementById("rt-up").addEventListener("click", function(){ moveSelectedDirection("up"); });
-  document.getElementById("rt-down").addEventListener("click", function(){ moveSelectedDirection("down"); });
-  document.getElementById("rt-left").addEventListener("click", function(){ moveSelectedDirection("left"); });
-  document.getElementById("rt-right").addEventListener("click", function(){ moveSelectedDirection("right"); });
-  document.getElementById("rt-clear").addEventListener("click", function(){
-    selectedIds = [];
-    updateReorderToolbar();
-    document.querySelectorAll("#anime-grid .card.is-selected").forEach(function(c){ c.classList.remove("is-selected"); });
-  });
-
-  function toggleCardSelection(card, id){
-    var isSelected = card.classList.toggle("is-selected");
-    var i = selectedIds.indexOf(id);
-    if(isSelected){
-      if(i === -1) selectedIds.push(id);
-    }else{
-      if(i !== -1) selectedIds.splice(i, 1);
-    }
-    updateReorderToolbar();
-  }
-
-  /* arraste (mouse no PC, dedo no celular) — troca o card de lugar deslizando */
-  function wireCardDrag(card, animeId){
-    // ---- desktop: HTML5 drag nativo, iniciado em qualquer ponto do card ----
-    card.draggable = true;
-    card.addEventListener("dragstart", function(ev){
-      dragSourceId = animeId;
-      card.classList.add("is-dragging");
-      ev.dataTransfer.effectAllowed = "move";
-      try{ ev.dataTransfer.setData("text/plain", animeId); }catch(err){}
-    });
-    card.addEventListener("dragend", function(){
-      card.classList.remove("is-dragging");
-      document.querySelectorAll(".card.is-drop-target").forEach(function(c){ c.classList.remove("is-drop-target"); });
-      dragSourceId = null;
-    });
-    card.addEventListener("dragover", function(ev){
-      ev.preventDefault();
-      ev.dataTransfer.dropEffect = "move";
-      if(dragSourceId && dragSourceId !== animeId) card.classList.add("is-drop-target");
-    });
-    card.addEventListener("dragleave", function(){
-      card.classList.remove("is-drop-target");
-    });
-    card.addEventListener("drop", function(ev){
-      ev.preventDefault();
-      card.classList.remove("is-drop-target");
-      if(!dragSourceId || dragSourceId === animeId) return;
-      dropAnimeOnto(dragSourceId, animeId);
-    });
-
-    // ---- celular: arraste deslizando o dedo a partir da alcinha ----
-    var handle = card.querySelector(".reorder-handle");
-    if(!handle) return;
-
-    var startX = 0, startY = 0, startTop = 0, startLeft = 0, width = 0, height = 0;
-    var dragging = false;
-    var currentTargetCard = null;
-
-    function findCardUnder(clientX, clientY){
-      var cards = document.querySelectorAll("#anime-grid .card");
-      for(var i=0;i<cards.length;i++){
-        var c = cards[i];
-        if(c === card) continue;
-        var r = c.getBoundingClientRect();
-        if(clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom){
-          return c;
-        }
-      }
-      return null;
-    }
-
-    function onTouchStart(ev){
-      if(ev.touches.length !== 1) return;
-      var t = ev.touches[0];
-      var rect = card.getBoundingClientRect();
-      startX = t.clientX; startY = t.clientY;
-      startTop = rect.top; startLeft = rect.left;
-      width = rect.width; height = rect.height;
-      dragging = true;
-      card.classList.add("is-dragging", "is-touch-floating");
-      card.style.width = width + "px";
-      card.style.height = height + "px";
-      card.style.top = startTop + "px";
-      card.style.left = startLeft + "px";
-      if(navigator.vibrate) navigator.vibrate(10);
-      document.addEventListener("touchmove", onTouchMove, { passive:false });
-      document.addEventListener("touchend", onTouchEnd);
-      document.addEventListener("touchcancel", onTouchEnd);
-    }
-
-    function onTouchMove(ev){
-      if(!dragging) return;
-      ev.preventDefault();
-      var t = ev.touches[0];
-      var dx = t.clientX - startX;
-      var dy = t.clientY - startY;
-      card.style.top = (startTop + dy) + "px";
-      card.style.left = (startLeft + dx) + "px";
-
-      var target = findCardUnder(t.clientX, t.clientY);
-      if(target !== currentTargetCard){
-        if(currentTargetCard) currentTargetCard.classList.remove("is-drop-target");
-        currentTargetCard = target;
-        if(currentTargetCard) currentTargetCard.classList.add("is-drop-target");
-      }
-    }
-
-    function onTouchEnd(){
-      document.removeEventListener("touchmove", onTouchMove);
-      document.removeEventListener("touchend", onTouchEnd);
-      document.removeEventListener("touchcancel", onTouchEnd);
-      if(!dragging) return;
-      dragging = false;
-
-      card.classList.remove("is-dragging", "is-touch-floating");
-      card.style.top = ""; card.style.left = ""; card.style.width = ""; card.style.height = "";
-
-      if(currentTargetCard){
-        currentTargetCard.classList.remove("is-drop-target");
-        var targetId = currentTargetCard.getAttribute("data-id");
-        currentTargetCard = null;
-        if(targetId && targetId !== animeId){
-          dropAnimeOnto(animeId, targetId);
-        }
-      }
-    }
-
-    handle.addEventListener("touchstart", onTouchStart, { passive:true });
-  }
-
-  /* solta o anime arrastado exatamente na posição do alvo (insere no lugar) */
-  function dropAnimeOnto(draggedId, targetId){
-    var displayList = getRootAnimes().slice().reverse();
-    var fromIdx = displayList.findIndex(function(x){ return x.id === draggedId; });
-    var toIdx = displayList.findIndex(function(x){ return x.id === targetId; });
-    if(fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return;
-
-    var oldRects = captureCardRects();
-
-    var realFrom = animes.findIndex(function(x){ return x.id === draggedId; });
-    var item = animes[realFrom];
-    animes.splice(realFrom, 1);
-    var realTo = animes.findIndex(function(x){ return x.id === targetId; });
-    if(realTo === -1) realTo = animes.length;
-    animes.splice(realTo, 0, item);
-
-    saveAnimes();
-    renderGrid();
-    playCardFlip(oldRects);
-  }
-
-  /* ---------- ambient background ---------- */
-  function buildAmbient(){
-    var host = document.getElementById("ambient");
-    var colors = ["#ff8fb1","#8de8d0","#b79bff"];
-    var frag = document.createDocumentFragment();
-
-    for(var i=0;i<4;i++){
-      var l = document.createElement("div");
-      l.className = "lantern";
-      var size = 220 + Math.random()*220;
-      l.style.width = size+"px";
-      l.style.height = size+"px";
-      l.style.left = (Math.random()*100)+"%";
-      l.style.top = (Math.random()*100)+"%";
-      l.style.background = colors[i % colors.length];
-      l.style.setProperty("--dx",(Math.random()*100-50)+"px");
-      l.style.setProperty("--dy",(Math.random()*100-50)+"px");
-      l.style.animationDuration = (20+Math.random()*14)+"s";
-      l.style.animationDelay = (-Math.random()*10)+"s";
-      frag.appendChild(l);
-    }
-
-    for(var j=0;j<70;j++){
-      var s = document.createElement("div");
-      s.className = "star";
-      var starSize = 1.5 + Math.random()*2;
-      s.style.width = starSize+"px";
-      s.style.height = starSize+"px";
-      s.style.left = (Math.random()*100)+"%";
-      s.style.top = (Math.random()*100)+"%";
-      s.style.animationDuration = (2+Math.random()*3.5)+"s";
-      s.style.animationDelay = (-Math.random()*5)+"s";
-      frag.appendChild(s);
-    }
-
-    for(var k=0;k<26;k++){
-      var d = document.createElement("div");
-      d.className = "drop";
-      var dropSize = 3 + Math.random()*4;
-      d.style.width = dropSize+"px";
-      d.style.height = dropSize+"px";
-      d.style.left = (Math.random()*100)+"%";
-      d.style.setProperty("--drift", (Math.random()*60-30)+"px");
-      d.style.animationDuration = (7+Math.random()*10)+"s";
-      d.style.animationDelay = (-Math.random()*16)+"s";
-      frag.appendChild(d);
-    }
-
-    host.appendChild(frag);
-  }
-
-  /* ---------- screens ---------- */
-  function showScreen(name){
-    document.querySelectorAll(".screen").forEach(function(sc){
-      sc.classList.toggle("active", sc.id === "screen-"+name);
-    });
-    if(name === "landing" && reorderMode){ setReorderMode(false); }
-    if(name === "list") renderGrid();
-    if(name === "landing") renderLandingCount();
-  }
-
-  function renderLandingCount(){
-    var el = document.getElementById("landing-count");
-    if(!animes.length){ el.textContent = ""; return; }
-    el.textContent = animes.length + (animes.length === 1 ? " anime guardado até agora" : " animes guardados até agora");
-  }
-
-  /* ---------- overlays ---------- */
-  function openOverlay(id){ document.getElementById(id).classList.add("open"); }
-  function closeOverlay(id){ document.getElementById(id).classList.remove("open"); }
-  document.addEventListener("click", function(e){
-    var closeBtn = e.target.closest("[data-close]");
-    if(closeBtn){ closeOverlay(closeBtn.getAttribute("data-close")); }
-    if(e.target.classList && e.target.classList.contains("overlay") && !e.target.classList.contains("overlay-fullscreen")){
-      e.target.classList.remove("open");
-    }
-  });
-  document.addEventListener("keydown", function(e){
-    if(e.key === "Escape"){
-      document.querySelectorAll(".overlay.open").forEach(function(o){ o.classList.remove("open"); });
-      closeViewOverlay();
-    }
-  });
-
-  /* ---------- card templates ---------- */
-  function coverHtml(cover){
-    if(cover){ return '<img src="'+cover+'" alt="">'; }
-    return '<span class="no-cover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span>';
-  }
-
-  var searchQuery = "";
-
-  function getFilteredAnimes(){
-    var pool = getRootAnimes();
-    if(!searchQuery) return pool;
-    var q = normalize(searchQuery);
-    return pool.filter(function(a){ return normalize(a.name).indexOf(q) !== -1; });
-  }
-
-  function renderGrid(){
-    var grid = document.getElementById("anime-grid");
-    var eyebrow = document.getElementById("list-eyebrow");
-    grid.innerHTML = "";
-
-    if(!getRootAnimes().length){
-      eyebrow.textContent = "sua coleção";
-      grid.innerHTML =
-        '<div class="empty-state">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="4"/></svg>' +
-          '<strong>ainda vazio por aqui</strong>' +
-          '<p>adicione o primeiro anime que você assistiu para começar sua coleção.</p>' +
-        '</div>';
-      return;
-    }
-
-    var filtered = reorderMode ? getRootAnimes() : getFilteredAnimes();
-
-    if(!filtered.length){
-      eyebrow.textContent = "nenhum resultado";
-      grid.innerHTML =
-        '<div class="empty-state">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>' +
-          '<strong>nada encontrado</strong>' +
-          '<p>nenhum anime bate com "'+ escapeHtml(searchQuery) +'". tenta outro termo.</p>' +
-        '</div>';
-      return;
-    }
-
-    eyebrow.textContent = reorderMode
-      ? (filtered.length + " no total — arraste ou selecione para reordenar")
-      : (filtered.length + (searchQuery
-          ? (filtered.length === 1 ? " resultado" : " resultados")
-          : (filtered.length === 1 ? " assistido" : " assistidos")));
-
-    var displayList = filtered.slice().reverse();
-    var frag = document.createDocumentFragment();
-
-    displayList.forEach(function(a, idx){
-      var isSelected = reorderMode && selectedIds.indexOf(a.id) !== -1;
-      var card = document.createElement("button");
-      card.type = "button";
-      card.className = "card " + (reorderMode ? "is-reordering" : "is-clickable") + (isSelected ? " is-selected" : "");
-      card.style.setProperty("--i", idx);
-      card.setAttribute("data-id", a.id);
-
-      var reorderExtrasHtml = "";
-      if(reorderMode){
-        reorderExtrasHtml =
-          '<span class="reorder-select-badge">✓</span>' +
-          '<span class="reorder-handle" title="Arraste para reordenar">' +
-            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg>' +
-          '</span>';
-      }
-
-      card.innerHTML =
-        '<span class="card-cover">'+ coverHtml(a.cover) + (reorderMode ? '' : ('<span class="card-rating">'+ formatRating(a.rating) +'</span>' + alertBadgeHtml(getChainTipNode(a)))) + reorderExtrasHtml +'</span>' +
-        '<span class="card-body">' +
-          '<span class="card-title">'+ escapeHtml(a.name) +'</span>' +
-        '</span>';
-
-      if(reorderMode){
-        wireCardDrag(card, a.id);
-        card.addEventListener("click", function(ev){
-          ev.preventDefault();
-          toggleCardSelection(card, a.id);
-        });
-      }else{
-        // toque na capa/cartão abre VISUALIZAÇÃO, nunca edição direta
-        card.addEventListener("click", function(){ openView(a.id); });
-      }
-
-      frag.appendChild(card);
-    });
-    grid.appendChild(frag);
-  }
-
-  function selectCardInnerHtml(a){
-    return '<span class="sc-cover">'+ coverHtml(a.cover) +'</span>' +
-           '<span class="sc-name">'+ escapeHtml(a.name) +'</span>' +
-           '<span class="sc-check">✓</span>';
-  }
-
-  function renderSelectGrid(){
-    var grid = document.getElementById("select-grid");
-    grid.innerHTML = "";
-    var frag = document.createDocumentFragment();
-    getRootAnimes().slice().reverse().forEach(function(a){
-      var card = document.createElement("button");
-      card.type = "button";
-      card.className = "select-card";
-      card.innerHTML = selectCardInnerHtml(a);
-      card.addEventListener("click", function(){
-        closeOverlay("overlay-select");
-        openEdit(a.id);
-      });
-      frag.appendChild(card);
-    });
-    grid.appendChild(frag);
-  }
-
-  /* ---------- image handling ---------- */
-  function resizeImage(file, maxWidth){
-    return new Promise(function(resolve, reject){
-      var reader = new FileReader();
-      reader.onerror = reject;
-      reader.onload = function(){
-        var img = new Image();
-        img.onerror = reject;
-        img.onload = function(){
-          var scale = Math.min(1, maxWidth / img.width);
-          var w = Math.round(img.width * scale);
-          var h = Math.round(img.height * scale);
-          var canvas = document.createElement("canvas");
-          canvas.width = w; canvas.height = h;
-          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL("image/jpeg", .82));
-        };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function wireDropzone(inputId, previewId, onResult){
-    var input = document.getElementById(inputId);
-    var preview = document.getElementById(previewId);
-    input.addEventListener("change", function(){
-      var file = input.files && input.files[0];
-      if(!file) return;
-      resizeImage(file, 480).then(function(dataUrl){
-        preview.innerHTML = '<img src="'+dataUrl+'" alt="">';
-        onResult(dataUrl);
-      }).catch(function(){
-        showToast("Não foi possível carregar essa imagem.", true);
-      });
-    });
-  }
-
-  var pendingAddCover = null;
-  var pendingEditCover = null;
-
-  wireDropzone("input-cover-add","preview-add", function(url){ pendingAddCover = url; });
-  wireDropzone("input-cover-edit","preview-edit", function(url){ pendingEditCover = url; });
-
-  /* ---------- rating live labels ---------- */
-  function wireRating(rangeId, labelId){
-    var range = document.getElementById(rangeId);
-    var label = document.getElementById(labelId);
-    range.addEventListener("input", function(){
-      label.textContent = formatRating(range.value);
-    });
-  }
-  wireRating("input-rating-add","rating-value-add");
-  wireRating("input-rating-edit","rating-value-edit");
-
-  /* ---------- temporada / juntar com a temporada ---------- */
-  var pendingLinkAdd = null;
-  var pendingLinkEdit = null;
-
-  function setLinkChoice(suffix, choice){
-    var btnNao = document.getElementById("link-nao-"+suffix);
-    var btnSim = document.getElementById("link-sim-"+suffix);
-    btnNao.classList.toggle("active", choice === "nao");
-    btnNao.setAttribute("aria-pressed", choice === "nao" ? "true" : "false");
-    btnSim.classList.toggle("active", choice === "sim");
-    btnSim.setAttribute("aria-pressed", choice === "sim" ? "true" : "false");
-  }
-
-  function clearPendingLink(suffix){
-    if(suffix === "add") pendingLinkAdd = null; else pendingLinkEdit = null;
-  }
-
-  function renderLinkGrid(suffix){
-    var grid = document.getElementById("link-grid-"+suffix);
-    var excludeId = suffix === "edit" ? document.getElementById("edit-id").value : null;
-    var selectedId = suffix === "add" ? pendingLinkAdd : pendingLinkEdit;
-    var pool = animes.filter(function(a){ return a.id !== excludeId; });
-
-    grid.innerHTML = "";
-    if(!pool.length){
-      grid.innerHTML = '<p class="modal-hint" style="grid-column:1/-1;">nenhum outro anime na lista ainda.</p>';
-      return;
-    }
-    var frag = document.createDocumentFragment();
-    pool.slice().reverse().forEach(function(a){
-      var card = document.createElement("button");
-      card.type = "button";
-      card.className = "select-card" + (a.id === selectedId ? " is-selected" : "");
-      card.innerHTML = selectCardInnerHtml(a);
-      card.addEventListener("click", function(){
-        if(suffix === "add") pendingLinkAdd = a.id; else pendingLinkEdit = a.id;
-        renderLinkGrid(suffix);
-      });
-      frag.appendChild(card);
-    });
-    grid.appendChild(frag);
-  }
-
-  function wireSeasonField(suffix){
-    var seasonInput = document.getElementById("input-season-"+suffix);
-    var linkBlock = document.getElementById("link-block-"+suffix);
-    var picker = document.getElementById("link-picker-"+suffix);
-    seasonInput.addEventListener("input", function(){
-      var n = parseInt(seasonInput.value, 10) || 1;
-      if(n > 1){
-        linkBlock.hidden = false;
-      }else{
-        linkBlock.hidden = true;
-        picker.hidden = true;
-        setLinkChoice(suffix, "nao");
-        clearPendingLink(suffix);
-      }
-    });
-  }
-
-  function wireLinkToggle(suffix){
-    var btnNao = document.getElementById("link-nao-"+suffix);
-    var btnSim = document.getElementById("link-sim-"+suffix);
-    var picker = document.getElementById("link-picker-"+suffix);
-    btnNao.addEventListener("click", function(){
-      setLinkChoice(suffix, "nao");
-      picker.hidden = true;
-      clearPendingLink(suffix);
-    });
-    btnSim.addEventListener("click", function(){
-      setLinkChoice(suffix, "sim");
-      picker.hidden = false;
-      renderLinkGrid(suffix);
-    });
-  }
-
-  wireSeasonField("add");
-  wireSeasonField("edit");
-  wireLinkToggle("add");
-  wireLinkToggle("edit");
-
-  function renderSeasonNav(anime){
-    var nav = document.getElementById("season-nav-edit");
-    nav.innerHTML = "";
-    var prev = getPrevSeason(anime);
-    var next = getNextSeason(anime);
-
-    if(prev){
-      var b1 = document.createElement("button");
-      b1.type = "button";
-      b1.className = "season-nav-btn";
-      b1.innerHTML = "← temporada antiga";
-      b1.addEventListener("click", function(){ openEdit(prev.id); });
-      nav.appendChild(b1);
-    }
-    if(next){
-      var b2 = document.createElement("button");
-      b2.type = "button";
-      b2.className = "season-nav-btn";
-      b2.innerHTML = "próxima temporada →";
-      b2.addEventListener("click", function(){ openEdit(next.id); });
-      nav.appendChild(b2);
-    }
-  }
-
-  /* ---------- add flow ---------- */
-  function resetAddForm(){
-    document.getElementById("form-add").reset();
-    document.getElementById("input-rating-add").value = 8;
-    document.getElementById("rating-value-add").textContent = "8/10";
-    document.getElementById("input-season-add").value = 1;
-    document.getElementById("link-block-add").hidden = true;
-    document.getElementById("link-picker-add").hidden = true;
-    setLinkChoice("add", "nao");
-    pendingLinkAdd = null;
-    pendingAddCover = null;
-    genreStateAdd = [];
-    updateGenreButtonLabel("add", genreStateAdd);
-    langStateAdd = "Legendado";
-    setLangUI("add", "Legendado");
-    setSpecialChoice("add", "nao");
-    document.getElementById("special-qty-block-add").hidden = true;
-    document.getElementById("input-special-qty-add").value = "";
-    document.getElementById("preview-add").innerHTML =
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
-  }
-
-  document.getElementById("btn-add").addEventListener("click", function(){
-    resetAddForm();
-    openOverlay("overlay-add");
-    document.getElementById("input-name-add").focus();
-  });
-
-  document.getElementById("form-add").addEventListener("submit", async function(e){
-    e.preventDefault();
-    var name = document.getElementById("input-name-add").value.trim();
-    if(!name){ document.getElementById("input-name-add").focus(); return; }
-    var seasonNum = parseInt(document.getElementById("input-season-add").value, 10) || 1;
-    var hasSpecial = document.getElementById("special-sim-add").classList.contains("active");
-    var specialQty = hasSpecial ? (parseInt(document.getElementById("input-special-qty-add").value, 10) || null) : null;
-    animes.push({
-      id: uid(),
-      name: name,
-      season: seasonNum,
-      place: document.getElementById("input-place-add").value.trim(),
-      dateStart: document.getElementById("input-datestart-add").value,
-      dateEnd: document.getElementById("input-dateend-add").value,
-      rating: Number(document.getElementById("input-rating-add").value),
-      cover: pendingAddCover,
-      linkedPrevId: seasonNum > 1 ? pendingLinkAdd : null,
-      language: langStateAdd,
-      genres: genreStateAdd.slice(),
-      hasSpecialEpisode: hasSpecial,
-      specialEpisodeCount: specialQty,
-      note: document.getElementById("input-note-add").value.trim(),
-      createdAt: Date.now(),
-      seasonAlert: null,
-      alertHistory: [],
-      watchedSeasonsLog: []
-    });
-    await saveAnimes();
-    closeOverlay("overlay-add");
-    searchQuery = "";
-    document.getElementById("search-input").value = "";
-    document.getElementById("search-clear").hidden = true;
-    renderGrid();
-    showToast("Anime adicionado.");
-  });
-
-  /* ---------- edit flow (única forma de editar) ---------- */
-  document.getElementById("btn-edit").addEventListener("click", function(){
-    if(!animes.length){
-      showToast("Você ainda não adicionou nenhum anime.", true);
-      return;
-    }
-    renderSelectGrid();
-    openOverlay("overlay-select");
-  });
-
-  document.getElementById("btn-organize").addEventListener("click", function(){
-    if(!reorderMode && !animes.length){
-      showToast("Você ainda não adicionou nenhum anime.", true);
-      return;
-    }
-    setReorderMode(!reorderMode);
-  });
-
-  function openEdit(id){
-    var anime = animes.find(function(a){ return a.id === id; });
-    if(!anime) return;
-    pendingEditCover = anime.cover || null;
-    pendingLinkEdit = anime.linkedPrevId || null;
-
-    document.getElementById("edit-id").value = anime.id;
-    document.getElementById("input-name-edit").value = anime.name || "";
-    document.getElementById("input-season-edit").value = anime.season || 1;
-    document.getElementById("input-place-edit").value = anime.place || "";
-    document.getElementById("input-datestart-edit").value = anime.dateStart || "";
-    document.getElementById("input-dateend-edit").value = anime.dateEnd || "";
-    document.getElementById("input-rating-edit").value = anime.rating || 0;
-    document.getElementById("rating-value-edit").textContent = formatRating(anime.rating || 0);
-    document.getElementById("input-note-edit").value = anime.note || "";
-    document.getElementById("preview-edit").innerHTML = anime.cover
-      ? '<img src="'+anime.cover+'" alt="">'
-      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
-
-    langStateEdit = anime.language || "Legendado";
-    setLangUI("edit", langStateEdit);
-    genreStateEdit = (anime.genres || []).slice();
-    updateGenreButtonLabel("edit", genreStateEdit);
-
-    var hasSpecial = !!anime.hasSpecialEpisode;
-    setSpecialChoice("edit", hasSpecial ? "sim" : "nao");
-    document.getElementById("special-qty-block-edit").hidden = !hasSpecial;
-    document.getElementById("input-special-qty-edit").value = anime.specialEpisodeCount || "";
-
-    var seasonNum = anime.season || 1;
-    var linkBlock = document.getElementById("link-block-edit");
-    var picker = document.getElementById("link-picker-edit");
-    if(seasonNum > 1){
-      linkBlock.hidden = false;
-      if(anime.linkedPrevId){
-        setLinkChoice("edit", "sim");
-        picker.hidden = false;
-        renderLinkGrid("edit");
-      }else{
-        setLinkChoice("edit", "nao");
-        picker.hidden = true;
-      }
-    }else{
-      linkBlock.hidden = true;
-      setLinkChoice("edit", "nao");
-      picker.hidden = true;
-    }
-
-    var alertBlock = document.getElementById("edit-alert-block");
-    if(anime.seasonAlert && anime.seasonAlert.status){
-      document.getElementById("edit-alert-title").textContent = alertChipLabel(anime.seasonAlert);
-      document.getElementById("edit-alert-sub").textContent = anime.seasonAlert.note ? anime.seasonAlert.note : "alerta encontrado pela análise de IA";
-      alertBlock.classList.add("show");
-    }else{
-      alertBlock.classList.remove("show");
-    }
-
-    renderSeasonNav(anime);
-    openOverlay("overlay-edit");
-  }
-
-  document.getElementById("form-edit").addEventListener("submit", async function(e){
-    e.preventDefault();
-    var id = document.getElementById("edit-id").value;
-    var anime = animes.find(function(a){ return a.id === id; });
-    if(!anime) return;
-    var name = document.getElementById("input-name-edit").value.trim();
-    if(!name){ document.getElementById("input-name-edit").focus(); return; }
-    var seasonNum = parseInt(document.getElementById("input-season-edit").value, 10) || 1;
-    anime.name = name;
-    anime.season = seasonNum;
-    anime.place = document.getElementById("input-place-edit").value.trim();
-    anime.dateStart = document.getElementById("input-datestart-edit").value;
-    anime.dateEnd = document.getElementById("input-dateend-edit").value;
-    anime.rating = Number(document.getElementById("input-rating-edit").value);
-    anime.cover = pendingEditCover;
-    anime.linkedPrevId = seasonNum > 1 ? pendingLinkEdit : null;
-    anime.language = langStateEdit;
-    anime.genres = genreStateEdit.slice();
-    var hasSpecialEdit = document.getElementById("special-sim-edit").classList.contains("active");
-    anime.hasSpecialEpisode = hasSpecialEdit;
-    anime.specialEpisodeCount = hasSpecialEdit ? (parseInt(document.getElementById("input-special-qty-edit").value, 10) || null) : null;
-    anime.note = document.getElementById("input-note-edit").value.trim();
-    await saveAnimes();
-    closeOverlay("overlay-edit");
-    renderGrid();
-    showToast("Alterações salvas.");
-  });
-
-  document.getElementById("btn-delete").addEventListener("click", async function(){
-    var id = document.getElementById("edit-id").value;
-    var anime = animes.find(function(a){ return a.id === id; });
-    if(!anime) return;
-    if(confirm('Excluir "'+anime.name+'" da sua lista? Essa ação não pode ser desfeita.')){
-      animes = animes.filter(function(a){ return a.id !== id; });
-      animes.forEach(function(a){ if(a.linkedPrevId === id) a.linkedPrevId = null; });
-      await saveAnimes();
-      closeOverlay("overlay-edit");
-      renderGrid();
-      showToast("Anime excluído.");
-    }
-  });
-
-  document.getElementById("btn-edit-remove-alert").addEventListener("click", function(){
-    var id = document.getElementById("edit-id").value;
-    if(id) openAlertReasonDialog(id);
-  });
-
-  /* ---------- remover alerta (motivo) ---------- */
-  var pendingAlertRemovalId = null;
-
-  function openAlertReasonDialog(animeId){
-    pendingAlertRemovalId = animeId;
-    var anime = animes.find(function(a){ return a.id === animeId; });
-    var hint = document.getElementById("alert-reason-hint");
-    var watchedBtn = document.getElementById("btn-reason-watched");
-    if(anime && anime.seasonAlert && anime.seasonAlert.status === "finished"){
-      hint.textContent = "Remover o indicador de obra finalizada de \"" + anime.name + "\"?";
-      watchedBtn.textContent = "Ok, remover";
-    }else if(anime && anime.seasonAlert){
-      hint.textContent = "Por que deseja remover o alerta de \"" + anime.name + "\" (temporada " + (anime.seasonAlert.seasonNumber || ((anime.season||1)+1)) + ")?";
-      watchedBtn.textContent = "Já assisti";
-    }else{
-      hint.textContent = "Por que deseja remover o alerta?";
-      watchedBtn.textContent = "Já assisti";
-    }
-    openOverlay("overlay-alert-reason");
-  }
-
-  async function removeAlert(animeId, reason, reasonText){
-    var anime = animes.find(function(a){ return a.id === animeId; });
-    if(!anime || !anime.seasonAlert){ closeOverlay("overlay-alert-reason"); return; }
-    var now = new Date();
-    var removed = anime.seasonAlert;
-
-    if(!Array.isArray(anime.alertHistory)) anime.alertHistory = [];
-    anime.alertHistory.push({
-      seasonNumber: removed.seasonNumber || anime.season || 1,
-      previousStatus: removed.status,
-      releaseDate: removed.releaseDate || null,
-      reason: reason,
-      reasonText: reasonText || "",
-      removedAt: now.getTime(),
-      removedDate: now.toISOString().slice(0,10),
-      removedTime: now.toTimeString().slice(0,5)
-    });
-
-    if(reason === "Já assisti"){
-      if(!Array.isArray(anime.watchedSeasonsLog)) anime.watchedSeasonsLog = [];
-      anime.watchedSeasonsLog.push({
-        seasonNumber: removed.seasonNumber || anime.season || 1,
-        watchedAt: now.getTime(),
-        dateWatched: now.toISOString().slice(0,10)
-      });
-    }
-
-    anime.seasonAlert = null;
-    await saveAnimes();
-    closeOverlay("overlay-alert-reason");
-    renderGrid();
-    if(currentViewId === animeId) openView(animeId);
-    if(document.getElementById("edit-id").value === animeId) openEdit(animeId);
-    showToast(reason === "Já assisti" ? "Alerta removido — temporada marcada como assistida." : "Alerta removido.");
-  }
-
-  document.getElementById("btn-reason-watched").addEventListener("click", function(){
-    var anime = animes.find(function(a){ return a.id === pendingAlertRemovalId; });
-    var isFinished = anime && anime.seasonAlert && anime.seasonAlert.status === "finished";
-    removeAlert(pendingAlertRemovalId, isFinished ? "Confirmado" : "Já assisti", "");
-  });
-  document.getElementById("btn-reason-other").addEventListener("click", function(){
-    var reasonText = prompt("Descreva o motivo:");
-    if(reasonText === null) return;
-    removeAlert(pendingAlertRemovalId, "Outro motivo", reasonText.trim());
-  });
-
-  /* ---------- VIEW MODE (somente leitura) ---------- */
-  var viewDetailsOpen = false;
-  var currentViewId = null;
-
-  function statusLabel(anime){
-    if(anime.dateEnd) return "Concluído";
-    if(anime.dateStart) return "Assistindo";
-    return "Sem status";
-  }
-
-  function detailRow(label, value, isEmpty){
-    return '<div class="detail-row">' +
-      '<span class="detail-label">'+ escapeHtml(label) +'</span>' +
-      '<span class="detail-value'+ (isEmpty ? ' empty' : '') +'">'+ (isEmpty ? value : escapeHtml(value)) +'</span>' +
-    '</div>';
-  }
-
-  function renderViewSeasonNav(anime){
-    var nav = document.getElementById("view-season-nav");
-    nav.innerHTML = "";
-    var prev = getPrevSeason(anime);
-    var next = getNextSeason(anime);
-
-    if(prev){
-      var b1 = document.createElement("button");
-      b1.type = "button";
-      b1.className = "season-nav-btn";
-      b1.innerHTML = "← Diminuir Temporada";
-      b1.addEventListener("click", function(){ openView(prev.id); });
-      nav.appendChild(b1);
-    }
-    if(next){
-      var b2 = document.createElement("button");
-      b2.type = "button";
-      b2.className = "season-nav-btn";
-      b2.innerHTML = "Avançar Temporada →";
-      b2.addEventListener("click", function(){ openView(next.id); });
-      nav.appendChild(b2);
-    }
-  }
-
-  function openView(id){
-    var anime = animes.find(function(a){ return a.id === id; });
-    if(!anime) return;
-    currentViewId = id;
-
-    document.getElementById("view-cover").innerHTML = anime.cover
-      ? '<img src="'+anime.cover+'" alt="">'
-      : '<span class="no-cover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span>';
-
-    var chainNodes = getChainNodes(anime);
-    document.getElementById("view-title").textContent = (anime.name || "") + (chainNodes.length > 1 ? (" — Temporada " + (anime.season || 1)) : "");
-    renderViewSeasonNav(anime);
-
-    document.getElementById("view-rating-chip").textContent = "★ " + formatRating(anime.rating);
-
-    var alertRow = document.getElementById("view-alert-row");
-    var alertChipEl = document.getElementById("view-alert-chip-el");
-    if(anime.seasonAlert && anime.seasonAlert.status){
-      alertChipEl.className = "alert-chip alert-" + anime.seasonAlert.status;
-      alertChipEl.textContent = alertChipLabel(anime.seasonAlert);
-      alertRow.classList.add("show");
-    }else{
-      alertRow.classList.remove("show");
-    }
-
-    var rows = "";
-    rows += detailRow("Status", statusLabel(anime));
-    rows += detailRow("Temporada", "Temporada " + (anime.season || 1));
-    rows += detailRow("Alerta de nova temporada", anime.seasonAlert ? alertStatusText(anime.seasonAlert) : "nenhum no momento", !anime.seasonAlert);
-    rows += detailRow("Áudio", anime.language || "não informado", !anime.language);
-    rows += detailRow("Gênero", (anime.genres && anime.genres.length) ? anime.genres.join(", ") : "não informado", !(anime.genres && anime.genres.length));
-    rows += detailRow("Episódio especial", anime.hasSpecialEpisode
-      ? ("Sim — " + (anime.specialEpisodeCount || "?") + (anime.specialEpisodeCount === 1 ? " episódio" : " episódios"))
-      : "Não", !anime.hasSpecialEpisode);
-    rows += detailRow("Onde assistiu", anime.place || "não informado", !anime.place);
-    rows += detailRow("Início", anime.dateStart ? formatDateBR(anime.dateStart) : "não informado", !anime.dateStart);
-    rows += detailRow("Fim da temporada", anime.dateEnd ? formatDateBR(anime.dateEnd) : "não informado", !anime.dateEnd);
-    rows += detailRow("Nota", formatRating(anime.rating));
-    rows += detailRow("Anotações", anime.note || "sem anotações", !anime.note);
-
-    var prev = getPrevSeason(anime);
-    var next = getNextSeason(anime);
-    if(prev) rows += detailRow("Temporada anterior", prev.name);
-    if(next) rows += detailRow("Próxima temporada", next.name);
-
-    document.getElementById("view-detail-card").innerHTML = rows;
-
-    viewDetailsOpen = false;
-    document.getElementById("view-details").classList.remove("is-open");
-    document.getElementById("view-expand-btn").classList.remove("is-open");
-    document.getElementById("view-expand-btn").firstChild.textContent = "detalhes ";
-
-    var ov = document.getElementById("view-overlay");
-    ov.classList.add("open");
-    ov.scrollTop = 0;
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeViewOverlay(){
-    var ov = document.getElementById("view-overlay");
-    if(!ov.classList.contains("open")) return;
-    ov.classList.remove("open");
-    document.body.style.overflow = "";
-  }
-
-  document.getElementById("btn-view-back").addEventListener("click", closeViewOverlay);
-
-  document.getElementById("btn-view-remove-alert").addEventListener("click", function(){
-    if(currentViewId) openAlertReasonDialog(currentViewId);
-  });
-
-  document.getElementById("view-expand-btn").addEventListener("click", function(){
-    viewDetailsOpen = !viewDetailsOpen;
-    document.getElementById("view-details").classList.toggle("is-open", viewDetailsOpen);
-    this.classList.toggle("is-open", viewDetailsOpen);
-  });
-
-  /* ---------- search ---------- */
-  var searchInput = document.getElementById("search-input");
-  var searchClear = document.getElementById("search-clear");
-
-  searchInput.addEventListener("input", function(){
-    searchQuery = searchInput.value;
-    searchClear.hidden = !searchQuery;
-    renderGrid();
-  });
-
-  searchClear.addEventListener("click", function(){
-    searchQuery = "";
-    searchInput.value = "";
-    searchClear.hidden = true;
-    renderGrid();
-    searchInput.focus();
-  });
-
-  /* ---------- export / import (backup) ---------- */
-  function downloadJson(obj, filename){
-    var blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-  }
-
-  function pad2(n){ return (n<10 ? "0" : "") + n; }
-
-  document.getElementById("btn-export").addEventListener("click", function(){
-    if(!animes.length){
-      showToast("Sua lista está vazia — nada para exportar.", true);
-      return;
-    }
-    var payload = {
-      app: "yozora",
-      version: 1,
-      backup_version: 1,
-      exportedAt: new Date().toISOString(),
-      animes: animes
-    };
-    var d = new Date();
-    var filename = "yozora-backup-" + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()) + ".json";
-    downloadJson(payload, filename);
-    showToast("Backup exportado.");
-  });
-
-  document.getElementById("btn-import").addEventListener("click", function(){
-    document.getElementById("import-file-input").click();
-  });
-
-  document.getElementById("import-file-input").addEventListener("change", function(){
-    var file = this.files && this.files[0];
-    this.value = "";
-    if(!file) return;
-
-    var reader = new FileReader();
-    reader.onerror = function(){ showToast("Não foi possível ler o arquivo.", true); };
-    reader.onload = async function(){
-      var data;
-      try{
-        data = JSON.parse(reader.result);
-      }catch(e){
-        showToast("Arquivo inválido. Selecione um backup do yozora.", true);
-        return;
-      }
-      var incoming = Array.isArray(data) ? data : (Array.isArray(data.animes) ? data.animes : null);
-      if(!incoming){
-        showToast("Esse arquivo não parece ser um backup do yozora.", true);
-        return;
-      }
-      var proceed = true;
-      if(animes.length){
-        proceed = confirm("Importar esse backup vai substituir sua lista atual (" + animes.length + " " + (animes.length === 1 ? "anime" : "animes") + ") por " + incoming.length + " " + (incoming.length === 1 ? "anime" : "animes") + ". Deseja continuar?");
-      }
-      if(!proceed) return;
-
-      incoming.forEach(function(a){
-        if(!a.id) a.id = uid();
-        if(a.season == null) a.season = 1;
-        if(a.dateStart == null) a.dateStart = a.date || "";
-        if(a.dateEnd == null) a.dateEnd = "";
-        if(a.linkedPrevId === undefined) a.linkedPrevId = null;
-        if(a.rating == null) a.rating = 0;
-        if(a.createdAt == null) a.createdAt = Date.now();
-        if(a.language == null) a.language = "Legendado";
-        if(!Array.isArray(a.genres)) a.genres = [];
-        if(a.hasSpecialEpisode == null) a.hasSpecialEpisode = false;
-        if(a.specialEpisodeCount === undefined) a.specialEpisodeCount = null;
-        if(a.note == null) a.note = "";
-        if(a.seasonAlert === undefined) a.seasonAlert = null;
-        if(!Array.isArray(a.alertHistory)) a.alertHistory = [];
-        if(!Array.isArray(a.watchedSeasonsLog)) a.watchedSeasonsLog = [];
-      });
-
-      animes = incoming;
-      await saveAnimes();
-      searchQuery = "";
-      searchInput.value = "";
-      searchClear.hidden = true;
-      renderGrid();
-      renderLandingCount();
-      showToast("Backup importado: " + animes.length + " " + (animes.length === 1 ? "anime" : "animes") + ".");
-    };
-    reader.readAsText(file);
-  });
-
-  /* ---------- análise de temporadas por IA ---------- */
-  function getSeasonChain(anime){
-    return getChainNodes(anime).map(function(n){ return n.season || 1; });
-  }
-
-  function todayIso(){ return new Date().toISOString().slice(0,10); }
-
-  function buildAiExportPayload(){
-    var instructions =
-"Você está analisando um backup do aplicativo yozora, um diário pessoal de animes assistidos.\n\n" +
-"Cada anime pode aparecer mais de uma vez na lista \"animes\" (uma entrada por temporada já registrada, ligadas por \"existingSeasons\"). Ao decidir em qual entrada colocar o campo \"proposedAlert\", use sempre a entrada cujo \"currentSeason\" seja o maior dentro do mesmo grupo de \"existingSeasons\" — ou seja, a temporada mais recente já registrada daquela obra.\n\n" +
-"Para CADA obra da lista, sem pular nenhuma, siga esta checklist na ordem — ela tem 3 perguntas independentes, e você deve responder as 3 para todo anime, não só para os que já têm alerta:\n\n" +
-"1) NOVA TEMPORADA: existe uma temporada anunciada que ainda NÃO está em \"existingSeasons\" nem em \"watchedSeasonsLog\"? Se sim, monte \"proposedAlert\" com status \"red\" (confirmada, sem data), \"yellow\" (confirmada, com data futura) ou \"green\" (já lançada).\n\n" +
-"2) ALERTA PENDENTE JÁ SAIU: se \"currentAlert\" já existir com status \"red\" ou \"yellow\", essa temporada específica JÁ FOI LANÇADA desde a última análise? Se sim, devolva \"proposedAlert\" com status \"green\" para confirmar.\n\n" +
-"3) OBRA FINALIZADA — FAÇA ISSO PARA TODOS, inclusive os que NUNCA tiveram nenhum alerta antes, não pule esta pergunta: essa obra já terminou oficialmente, sem nenhuma nova temporada prevista? Isso inclui casos clássicos e amplamente conhecidos (ex: Death Note, Cowboy Bebop, Fullmetal Alchemist Brotherhood, Code Geass) — para esses, o conhecimento geral/consenso público já é evidência suficiente, não precisa de uma fonte oficial recente. Se você tem confiança razoável de que não haverá mais temporadas, devolva \"proposedAlert\" com status \"finished\", mesmo que essa obra nunca tenha tido nenhum alerta antes.\n\n" +
-"Se nenhuma das 3 perguntas acima resultar em novidade para aquele anime, não adicione o campo \"proposedAlert\" para ele (ou deixe null). Não considere rumores ou especulação como confirmação para as perguntas 1 e 2 — mas para a pergunta 3 (obra finalizada), consenso público bem estabelecido conta como evidência.\n\n" +
-"O campo \"proposedAlert\" segue este formato exato:\n" +
-'{ "status": "red" | "yellow" | "green" | "finished", "seasonNumber": <número ou null>, "releaseDate": "AAAA-MM-DD" ou null, "note": "<explicação curta e a fonte>" }\n\n' +
-"Significado de cada status (para referência):\n" +
-"RED = nova temporada confirmada, mas SEM data de estreia divulgada. Exibido como alerta (!) vermelho.\n" +
-"YELLOW = nova temporada confirmada COM data de estreia divulgada (ainda não lançada). Exibido como alerta (!) amarelo.\n" +
-"GREEN = a temporada JÁ FOI LANÇADA. Não é mais um alerta pendente — é uma confirmação, exibida como um símbolo de \"correto\" (✓) verde.\n" +
-"FINISHED = a obra terminou oficialmente, sem nenhuma nova temporada prevista (\"seasonNumber\" e \"releaseDate\" podem ficar null). Exibido como um símbolo (✓) branco.\n\n" +
-"Regras obrigatórias — muito importantes:\n" +
-"- NÃO altere o campo \"id\" de nenhum anime.\n" +
-"- NÃO remova nenhum anime da lista, nem adicione animes novos.\n" +
-"- NÃO altere nome, capa, nota, temporada, idioma, gênero, datas, anotações ou qualquer outro campo além de \"proposedAlert\".\n" +
-"- NÃO apague \"watchedSeasonsLog\" nem \"alertHistory\".\n" +
-"- NÃO invente temporadas ou lançamentos sem evidência real de pesquisa (a exceção é a pergunta 3, onde consenso público bem conhecido basta).\n" +
-"- Respeite \"watchedSeasonsLog\": nunca repita alerta de uma temporada já assistida.\n\n" +
-"Ao terminar, devolva o MESMO arquivo JSON (a mesma estrutura completa), apenas incluindo o campo \"proposedAlert\" dentro de cada anime que tiver resposta positiva em alguma das 3 perguntas. Esse arquivo devolvido será importado de volta no aplicativo yozora, na opção \"Importar backup analisado\".";
-
-    var animesPayload = animes.map(function(a){
-      return {
-        id: a.id,
-        name: a.name,
-        currentSeason: a.season || 1,
-        existingSeasons: getSeasonChain(a),
-        registeredInfo: {
-          language: a.language || "",
-          genres: a.genres || [],
-          place: a.place || "",
-          rating: a.rating || 0,
-          dateStart: a.dateStart || "",
-          dateEnd: a.dateEnd || "",
-          note: a.note || "",
-          hasSpecialEpisode: !!a.hasSpecialEpisode,
-          specialEpisodeCount: a.specialEpisodeCount || null
-        },
-        watchedSeasonsLog: a.watchedSeasonsLog || [],
-        alertHistory: (a.alertHistory || []).map(function(h){
-          return { seasonNumber: h.seasonNumber, reason: h.reason, reasonText: h.reasonText || "", removedDate: h.removedDate || "" };
-        }),
-        currentAlert: a.seasonAlert || null,
-        coverInfo: { hasCover: !!a.cover, coverRef: a.id }
-      };
-    });
-
-    return {
-      app: "yozora",
-      type: "ai_season_analysis_request",
-      backup_version: 1,
-      generated_at: new Date().toISOString(),
-      current_date: todayIso(),
-      instructions: instructions,
-      animes: animesPayload
-    };
-  }
-
-  document.getElementById("btn-ai").addEventListener("click", function(){
-    openOverlay("overlay-ai");
-  });
-
-  /* ---------- reformatar sinais ---------- */
-  var resetSelectedIds = [];
-  var resetUnlockAlso = false;
-
-  function setResetUnlockChoice(v){
-    resetUnlockAlso = v;
-    var naoBtn = document.getElementById("reset-unlock-nao");
-    var simBtn = document.getElementById("reset-unlock-sim");
-    naoBtn.classList.toggle("active", !v);
-    naoBtn.setAttribute("aria-pressed", (!v).toString());
-    simBtn.classList.toggle("active", v);
-    simBtn.setAttribute("aria-pressed", v.toString());
-  }
-  document.getElementById("reset-unlock-nao").addEventListener("click", function(){ setResetUnlockChoice(false); });
-  document.getElementById("reset-unlock-sim").addEventListener("click", function(){ setResetUnlockChoice(true); });
-
-  function renderResetSelectGrid(){
-    resetSelectedIds = [];
-    setResetUnlockChoice(false);
-    var grid = document.getElementById("reset-select-grid");
-    var hint = document.getElementById("reset-select-hint");
-    grid.innerHTML = "";
-    var roots = getRootAnimes().filter(chainHasSignal);
-    if(!roots.length){
-      hint.textContent = "nenhum anime tem sinais para apagar no momento.";
-      return;
-    }
-    hint.textContent = "ou toque para escolher animes específicos:";
-    var frag = document.createDocumentFragment();
-    roots.slice().reverse().forEach(function(root){
-      var card = document.createElement("button");
-      card.type = "button";
-      card.className = "select-card";
-      card.innerHTML = selectCardInnerHtml(root);
-      card.addEventListener("click", function(){
-        var idx = resetSelectedIds.indexOf(root.id);
-        if(idx === -1){
-          resetSelectedIds.push(root.id);
-          card.classList.add("is-selected");
-        }else{
-          resetSelectedIds.splice(idx, 1);
-          card.classList.remove("is-selected");
-        }
-      });
-      frag.appendChild(card);
-    });
-    grid.appendChild(frag);
-  }
-
-  document.getElementById("btn-ai-reset").addEventListener("click", function(){
-    renderResetSelectGrid();
-    closeOverlay("overlay-ai");
-    openOverlay("overlay-reset-alerts");
-  });
-
-  document.getElementById("btn-reset-all").addEventListener("click", async function(){
-    var roots = getRootAnimes().filter(chainHasSignal);
-    if(!roots.length){
-      showToast("Nenhum anime tem sinais para apagar.", true);
-      return;
-    }
-    var msg = "Apagar os sinais de TODOS os " + roots.length + " " + (roots.length === 1 ? "anime" : "animes") + " com símbolo?" + (resetUnlockAlso ? " Isso também desbloqueia as temporadas marcadas como já assistidas, permitindo que a IA sugira o alerta de novo." : " Isso inclui os que você removeu manualmente.") + " Essa ação não pode ser desfeita.";
-    if(!confirm(msg)) return;
-    roots.forEach(function(root){ resetChainSignals(root, resetUnlockAlso); });
-    await saveAnimes();
-    closeOverlay("overlay-reset-alerts");
-    renderGrid();
-    showToast(resetUnlockAlso ? "Sinais apagados e temporadas desbloqueadas em todos os animes." : "Sinais apagados de todos os animes.");
-  });
-
-  document.getElementById("btn-reset-selected").addEventListener("click", async function(){
-    if(!resetSelectedIds.length){
-      showToast("Selecione pelo menos um anime.", true);
-      return;
-    }
-    var count = resetSelectedIds.length;
-    var msg = "Apagar os sinais dos " + count + " " + (count === 1 ? "anime selecionado" : "animes selecionados") + "?" + (resetUnlockAlso ? " Isso também desbloqueia as temporadas marcadas como já assistidas, permitindo que a IA sugira o alerta de novo." : " Isso inclui os que você removeu manualmente.") + " Essa ação não pode ser desfeita.";
-    if(!confirm(msg)) return;
-    resetSelectedIds.forEach(function(id){
-      var root = animes.find(function(a){ return a.id === id; });
-      if(root) resetChainSignals(root, resetUnlockAlso);
-    });
-    await saveAnimes();
-    closeOverlay("overlay-reset-alerts");
-    renderGrid();
-    showToast(resetUnlockAlso ? "Sinais apagados e temporadas desbloqueadas nos selecionados." : "Sinais apagados dos animes selecionados.");
-  });
-
-  document.getElementById("btn-ai-export").addEventListener("click", function(){
-    if(!animes.length){
-      showToast("Você ainda não adicionou nenhum anime.", true);
-      return;
-    }
-    var payload = buildAiExportPayload();
-    var d = new Date();
-    var filename = "yozora-para-ia-" + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()) + ".json";
-    downloadJson(payload, filename);
-    closeOverlay("overlay-ai");
-    showToast("Arquivo pronto — envie para a IA que preferir.");
-  });
-
-  document.getElementById("btn-ai-import").addEventListener("click", function(){
-    document.getElementById("import-ai-file-input").click();
-  });
-
-  var pendingAiApply = [];
-
-  function pickAlertField(entry){
-    if(entry.proposedAlert !== undefined) return entry.proposedAlert;
-    if(entry.seasonAlert !== undefined) return entry.seasonAlert;
-    if(entry.alert !== undefined) return entry.alert;
-    return undefined;
-  }
-
-  function isValidAlertShape(alert){
-    if(!alert || typeof alert !== "object") return false;
-    if(["red","yellow","green","finished"].indexOf(alert.status) === -1) return false;
-    return true;
-  }
-
-  function alertChangeText(alert){
-    if(alert.status === "finished") return alertChipLabel(alert);
-    return "Temporada " + alert.seasonNumber + " — " + alertChipLabel(alert);
-  }
-
-  function processAiResult(incomingList){
-    var diffs = [];
-    var ignoredCount = 0;
-    var byId = {};
-    incomingList.forEach(function(entry){ if(entry && entry.id) byId[entry.id] = entry; });
-
-    animes.forEach(function(a){
-      var entry = byId[a.id];
-      if(!entry) return;
-      var proposed = pickAlertField(entry);
-      if(proposed === undefined || proposed === null) return;
-
-      if(!isValidAlertShape(proposed)){
-        ignoredCount++;
-        return;
-      }
-
-      var seasonNumber = parseInt(proposed.seasonNumber, 10) || (a.season || 1) + 1;
-      var maxWatched = (a.watchedSeasonsLog || []).reduce(function(max,w){ return Math.max(max, w.seasonNumber || 0); }, 0);
-      if(seasonNumber <= maxWatched){
-        ignoredCount++;
-        return;
-      }
-
-      var releaseDate = (typeof proposed.releaseDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(proposed.releaseDate)) ? proposed.releaseDate : null;
-      var note = typeof proposed.note === "string" ? proposed.note.slice(0,300) : "";
-
-      var newAlert = { status: proposed.status, seasonNumber: seasonNumber, releaseDate: releaseDate, note: note, foundAt: Date.now() };
-      var old = a.seasonAlert;
-      var isSame = old && old.status === newAlert.status && old.seasonNumber === newAlert.seasonNumber && old.releaseDate === newAlert.releaseDate;
-      if(isSame) return;
-
-      diffs.push({ id: a.id, name: a.name, cover: a.cover, newAlert: newAlert });
-    });
-
-    if(!diffs.length){
-      showToast(ignoredCount ? "Nada de novo para aplicar — algumas sugestões foram ignoradas por segurança." : "Nenhuma novidade encontrada nesse arquivo.", true);
-      return;
-    }
-
-    pendingAiApply = diffs;
-    renderAiDiff(diffs, ignoredCount);
-    closeOverlay("overlay-ai");
-    openOverlay("overlay-ai-diff");
-  }
-
-  function renderAiDiff(diffs, ignoredCount){
-    var list = document.getElementById("ai-diff-list");
-    var warningEl = document.getElementById("ai-diff-warning");
-    list.innerHTML = "";
-    warningEl.innerHTML = ignoredCount
-      ? '<div class="diff-warning">⚠️ ' + ignoredCount + (ignoredCount === 1 ? " sugestão foi ignorada" : " sugestões foram ignoradas") + " por segurança (temporada já assistida ou formato inválido).</div>"
-      : "";
-
-    var frag = document.createDocumentFragment();
-    diffs.forEach(function(d){
-      var row = document.createElement("div");
-      row.className = "diff-row";
-      row.innerHTML =
-        '<span class="diff-cover">'+ coverHtml(d.cover) +'</span>' +
-        '<span class="diff-info">' +
-          '<span class="diff-name">'+ escapeHtml(d.name) +'</span>' +
-          '<span class="diff-change alert-chip alert-'+ d.newAlert.status +'">'+ escapeHtml(alertChangeText(d.newAlert)) +'</span>' +
-        '</span>';
-      frag.appendChild(row);
-    });
-    list.appendChild(frag);
-  }
-
-  document.getElementById("import-ai-file-input").addEventListener("change", function(){
-    var file = this.files && this.files[0];
-    this.value = "";
-    if(!file) return;
-    var reader = new FileReader();
-    reader.onerror = function(){ showToast("Não foi possível ler o arquivo.", true); };
-    reader.onload = function(){
-      var data;
-      try{ data = JSON.parse(reader.result); }
-      catch(e){ showToast("Arquivo inválido. Selecione o backup devolvido pela IA.", true); return; }
-      var incomingList = Array.isArray(data.animes) ? data.animes : (Array.isArray(data) ? data : null);
-      if(!incomingList){
-        showToast("Esse arquivo não parece ser um backup analisado do yozora.", true);
-        return;
-      }
-      processAiResult(incomingList);
-    };
-    reader.readAsText(file);
-  });
-
-  document.getElementById("btn-ai-diff-cancel").addEventListener("click", function(){
-    pendingAiApply = [];
-    closeOverlay("overlay-ai-diff");
-  });
-
-  document.getElementById("btn-ai-diff-apply").addEventListener("click", async function(){
-    if(!pendingAiApply.length){ closeOverlay("overlay-ai-diff"); return; }
-    pendingAiApply.forEach(function(d){
-      var anime = animes.find(function(a){ return a.id === d.id; });
-      if(anime) anime.seasonAlert = d.newAlert;
-    });
-    await saveAnimes();
-    pendingAiApply = [];
-    closeOverlay("overlay-ai-diff");
-    renderGrid();
-    showToast("Alertas atualizados.");
-  });
-
-  /* ---------- navigation ---------- */
-  document.getElementById("btn-go-list").addEventListener("click", function(){ showScreen("list"); });
-  document.getElementById("btn-back").addEventListener("click", function(){ showScreen("landing"); });
-
-  window.addEventListener("resize", function(){
-    if(reorderMode) renderGrid();
-  });
-
-  /* ---------- init ---------- */
-  buildAmbient();
-  loadAnimes().then(function(list){
-    animes = list;
-    var changed = recalcAlertStatuses();
-    if(changed) saveAnimes();
-    renderLandingCount();
-    renderGrid();
-  });
+"use strict";
+var KEY="yozora_v2",OLD="yozora_animes_v1";
+var T={anime:{n:"Anime",s:"anime assistido",p:"animes assistidos",e:"🎬"},filme:{n:"Filme",s:"filme assistido",p:"filmes assistidos",e:"🍿"},serie:{n:"Série",s:"série assistida",p:"séries assistidas",e:"📺"},manga:{n:"Mangá",s:"mangá lido",p:"mangás lidos",e:"📖"}};
+var GEN=["Ação","Aventura","Comédia","Drama","Fantasia","Ficção Científica","Romance","Slice of Life","Terror","Suspense","Mistério","Sobrenatural","Isekai","Mecha","Esporte","Musical","Histórico","Psicológico","Escolar","Seinen","Shoujo","Shounen"];
+var genSel=[],linkId=null,S={schema:2,tabs:[]},cur=null,org=false,sel=[],drag=null,cover=null,editing=null,addType=null;
+var $=function(i){return document.getElementById(i)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function uid(){return window.crypto&&crypto.randomUUID?crypto.randomUUID():"id-"+Date.now()+Math.random().toString(16).slice(2)}
+function norm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
+var tt;function toast(m){var e=$("toast");e.textContent=m;e.classList.add("on");clearTimeout(tt);tt=setTimeout(function(){e.classList.remove("on")},3200)}
+function rd(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function wr(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
+var locked=false;
+function save(){if(locked)return;if(!wr(KEY,JSON.stringify(S)))toast("Não foi possível salvar — armazenamento cheio?")}
+
+/* ===== carregar + migrar (nenhum anime antigo é perdido) ===== */
+function load(){
+  var raw=rd(KEY),old=rd(OLD);
+  if(raw){
+    try{var d=JSON.parse(raw);if(d&&Array.isArray(d.tabs)){S=d;return}}catch(e){}
+    wr(KEY+"_corrompido",raw);locked=true;toast("Dados ilegíveis: nada foi sobrescrito. Importe seu backup.");return;
+  }
+  if(old){
+    if(!rd(OLD+"_backup"))wr(OLD+"_backup",old);
+    try{var l=JSON.parse(old);
+      if(Array.isArray(l)&&l.length){l.forEach(function(a){a.type="anime";if(!a.id)a.id=uid()});
+        S.tabs.push({id:uid(),name:"Animes",types:["anime"],items:l});save();setTimeout(function(){toast("Seus animes antigos foram preservados na aba \"Animes\".")},600)}
+    }catch(e){locked=true;toast("Dados antigos ilegíveis: preservados sem alteração.")}
+  }
+}
+function recalc(){var t=new Date().toISOString().slice(0,10),c=0;S.tabs.forEach(function(b){b.items.forEach(function(a){var x=a.seasonAlert;if(x&&x.releaseDate&&x.status==="yellow"&&x.releaseDate<=t){x.status="green";c=1}})});if(c)save()}
+
+/* ===== helpers de dados ===== */
+function roots(b){return b.items.filter(function(a){return !a.linkedPrevId})}
+function tip(a,l){var n=a,g=0,x;while((x=l.find(function(y){return y.linkedPrevId===n.id}))&&g++<50)n=x;return n}
+function fmt(n){return (Math.round(Number(n||0)*10)/10)+"/10"}
+function show(n){document.querySelectorAll(".scr").forEach(function(s){s.classList.toggle("on",s.id==="s-"+n)});window.scrollTo(0,0)}
+function sob(a){var x=a&&a.seasonAlert;return x&&x.status?'<span class="bd '+x.status+'">'+(x.status==="red"||x.status==="yellow"?"!":"✓")+'</span>':""}
+function altxt(x){if(!x)return"nenhum no momento";var d=x.releaseDate?x.releaseDate.split("-").reverse().join("/"):"";return({red:"🔴 continuação confirmada, sem data",yellow:"🟡 continuação confirmada — "+(d||"data definida"),green:"🟢 nova temporada lançada"+(d?" em "+d:""),finished:"⚪✔ obra totalmente finalizada"})[x.status]||""}
+
+/* ===== telas ===== */
+function renderTabs(){
+  var g=$("tabs-grid");g.innerHTML="";
+  if(!S.tabs.length){g.innerHTML='<div class="emp"><strong>nenhuma aba ainda</strong>crie sua primeira aba para começar — por exemplo "Animes".</div>';return}
+  S.tabs.forEach(function(b){
+    var c=document.createElement("button");c.className="card tab";
+    c.innerHTML="<h3>"+esc(b.name)+"</h3>"+b.types.map(function(t){return'<span class="chip">'+T[t].e+" "+T[t].n+"</span>"}).join("")+"<small>"+roots(b).length+" "+(roots(b).length===1?"obra":"obras")+"</small>";
+    c.onclick=function(){openTab(b.id)};g.appendChild(c)});
+}
+function openTab(id){cur=S.tabs.find(function(b){return b.id===id});if(!cur)return;org=false;sel=[];
+  $("q").value="";$("tab-name").textContent=cur.name;
+  $("ai").hidden=!(cur.types.indexOf("anime")>-1||cur.types.indexOf("filme")>-1);
+  setOrg(false);show("tab")}
+function counts(){
+  var r=roots(cur);return cur.types.map(function(t){var n=r.filter(function(a){return a.type===t}).length;return n+" "+(n===1?T[t].s:T[t].p)}).join(" · ")}
+function renderGrid(){
+  var g=$("grid"),all=roots(cur),q=norm($("q").value);g.innerHTML="";$("cnt").textContent=counts();
+  if(!all.length){g.innerHTML='<div class="emp"><strong>ainda vazio por aqui</strong>toque em "Adicionar" para começar esta aba.</div>';return}
+  var list=all.filter(function(a){return org||!q||norm(a.name).indexOf(q)>-1}).slice().reverse();
+  if(!list.length){g.innerHTML='<div class="emp"><strong>nada encontrado</strong>nenhuma obra bate com "'+esc($("q").value)+'".</div>';return}
+  list.forEach(function(a){
+    var c=document.createElement("button");c.type="button";c.className="card"+(sel.indexOf(a.id)>-1?" sel":"");c.setAttribute("data-id",a.id);
+    var tag=a.type==="serie"?'<span class="tg">'+(a.watched||[]).length+"/"+(a.seasons||0)+" temp.</span>":(a.type==="filme"?"":'<span class="tg">★ '+fmt(a.rating)+"</span>");
+    c.innerHTML='<span class="cv">'+(a.cover?'<img src="'+a.cover+'" alt="">':T[a.type]?T[a.type].e:"🎬")+(org?"":tag+sob(a.type==="anime"||a.type==="filme"?tip(a,cur.items):null))+(cur.types.length>1?'<span class="ty">'+T[a.type].n+"</span>":"")+'</span><span class="nm">'+esc(a.name)+"</span>";
+    if(org){c.draggable=true;
+      c.ondragstart=function(){drag=a.id};c.ondragover=function(e){e.preventDefault()};
+      c.ondrop=function(e){e.preventDefault();if(drag&&drag!==a.id)dropOn(drag,a.id);drag=null};
+      c.onclick=function(){var i=sel.indexOf(a.id);if(i>-1)sel.splice(i,1);else sel.push(a.id);renderGrid();tbar()}}
+    else c.onclick=function(){openView(a)};
+    g.appendChild(c)});
+}
+function setOrg(v){org=v;$("org").classList.toggle("act",v);$("org-l").textContent=v?"Concluir":"Organizar";$("hint").hidden=!v;$("sb").hidden=v;sel=[];tbar();renderGrid()}
+function tbar(){$("tb").classList.toggle("on",org&&sel.length>0);$("tb-n").textContent=sel.length+(sel.length===1?" selecionado":" selecionados")}
+function dropOn(a,b){var it=cur.items,i=it.findIndex(function(x){return x.id===a}),o=it.splice(i,1)[0],j=it.findIndex(function(x){return x.id===b});it.splice(j<0?it.length:j,0,o);save();renderGrid()}
+function move(dir){
+  if(!sel.length)return;var cols=getComputedStyle($("grid")).gridTemplateColumns.split(" ").length;
+  var disp=function(){return roots(cur).slice().reverse()};
+  var pos=function(id){return disp().findIndex(function(x){return x.id===id})};
+  var order=sel.slice().sort(function(a,b){return(dir==="dn"||dir==="r")?pos(b)-pos(a):pos(a)-pos(b)});
+  var moved=false;
+  order.forEach(function(id){var d=disp(),i=d.findIndex(function(x){return x.id===id});
+    if(dir==="l"&&i%cols===0)return;if(dir==="r"&&(i%cols===cols-1||i===d.length-1))return;
+    var k=i+(dir==="u"?-cols:dir==="dn"?cols:dir==="l"?-1:1);if(k<0||k>=d.length)return;
+    var ra=cur.items.indexOf(d[i]),rb=cur.items.indexOf(d[k]),t=cur.items[ra];cur.items[ra]=cur.items[rb];cur.items[rb]=t;moved=true});
+  if(moved){save();renderGrid()}}
+
+/* ===== modais ===== */
+function openM(h){$("md").innerHTML=h;$("ov").classList.add("on")}
+function closeM(){$("ov").classList.remove("on")}
+$("ov").addEventListener("click",function(e){if(e.target.id==="ov")closeM();var c=e.target.closest("[data-x]");if(c)closeM()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeM()});
+
+function fd(d){return d?d.split("-").reverse().join("/"):""}
+function openView(a){
+  var ch=[],r=a,g=0,p,n;
+  while(r.linkedPrevId&&(p=cur.items.find(function(x){return x.id===r.linkedPrevId}))&&g++<50)r=p;
+  n=r;g=0;while(n&&g++<50){ch.push(n);var m=n;n=cur.items.find(function(x){return x.linkedPrevId===m.id})}
+  var pv=cur.items.find(function(x){return x.id===a.linkedPrevId}),nx=cur.items.find(function(x){return x.linkedPrevId===a.id});
+  var al=(a.type==="anime"||a.type==="filme")?a.seasonAlert:null,R=[["Tipo",T[a.type].n]],add=function(l,v){R.push([l,v!=null&&String(v).trim()?v:""])};
+  if(a.type==="anime"){add("Status",a.dateEnd?"Concluído":a.dateStart?"Assistindo":"");add("Temporada","Temporada "+(a.season||1));add("Áudio",a.language);add("Gênero",(a.genres||[]).join(", "));if(a.hasSpecialEpisode)add("Episódio especial","Sim — "+(a.specialEpisodeCount||"?"))}
+  if(a.type==="manga"){add("Status",a.status);add("Capítulos lidos",a.chapters)}
+  if(a.type==="serie")add("Temporadas","assistidas "+(a.watched||[]).length+" de "+(a.seasons||0));
+  add(a.type==="manga"?"Onde leu":"Onde assistiu",a.place);add("Início",fd(a.dateStart));add("Fim",fd(a.dateEnd));
+  if(a.type==="anime"||a.type==="manga")add("Nota",fmt(a.rating));
+  add("Anotações",a.note);if(pv)add("Temporada anterior",pv.name);if(nx)add("Próxima temporada",nx.name);
+  var h='<div style="text-align:center"><div class="cv" style="width:min(60vw,220px);border-radius:18px;overflow:hidden;margin:0 auto 16px">'+(a.cover?'<img src="'+a.cover+'" alt="">':T[a.type].e)+'</div><h3>'+esc(a.name)+(ch.length>1?" — Temporada "+(a.season||1):"")+"</h3>";
+  if(pv||nx)h+='<div class="seg" style="margin-top:14px">'+(pv?'<button type="button" id="vp">← Diminuir Temporada</button>':"")+(nx?'<button type="button" id="vn">Avançar Temporada →</button>':"")+"</div>";
+  if(a.type==="anime"||a.type==="manga")h+='<p><span class="chip" style="font-size:14px;padding:7px 16px;color:var(--aur);border-color:var(--ls);background:var(--card)">★ '+fmt(a.rating)+"</span></p>";
+  if(al)h+='<div class="al" style="margin-top:6px;text-align:left"><span>'+altxt(al)+'</span><button type="button" class="btn s" id="vr" style="padding:8px 14px">Remover !</button></div>';
+  h+='<button type="button" class="gh" id="vd">detalhes ▾</button></div><div id="vdt" hidden>'+R.map(function(x){return'<div class="rw"><span>'+esc(x[0])+'</span><span'+(x[1]===""?' class="e">não informado':">"+esc(x[1]))+"</span></div>"}).join("")+'</div><div class="ma"><button class="btn s" data-x>Fechar</button><button class="btn p" id="ve">Editar</button></div>';
+  openM(h);
+  $("vd").onclick=function(){var d=$("vdt");d.hidden=!d.hidden;this.textContent=d.hidden?"detalhes ▾":"detalhes ▴"};
+  $("ve").onclick=function(){openForm(a.type,a)};
+  if($("vp"))$("vp").onclick=function(){openView(pv)};if($("vn"))$("vn").onclick=function(){openView(nx)};
+  if($("vr"))$("vr").onclick=function(){var x=a.seasonAlert,w=x.status!=="finished"&&confirm("Essa temporada você já assistiu?\nOK = já assisti (a IA não sugere de novo) · Cancelar = outro motivo");
+    if(w)(a.watchedSeasonsLog=a.watchedSeasonsLog||[]).push({seasonNumber:x.seasonNumber||(a.season||1)+1,dateWatched:new Date().toISOString().slice(0,10)});
+    (a.alertHistory=a.alertHistory||[]).push({status:x.status,seasonNumber:x.seasonNumber,removedAt:Date.now()});a.seasonAlert=null;save();renderGrid();openView(a);toast("Alerta removido.")}
+}
+function genPick(cb){
+  var tmp=genSel.slice(),m=$("md2");
+  m.innerHTML='<h3>Gêneros</h3><p class="mh">toque para marcar quantos quiser, depois confirme.</p><p class="eb" id="gcn" style="margin-bottom:12px"></p><div class="gg">'+GEN.map(function(x){return'<button type="button" data-g="'+esc(x)+'"><span>'+esc(x)+'</span><span></span></button>'}).join("")+'</div><div class="ma"><button type="button" class="btn s" id="gc">Cancelar</button><button type="button" class="btn p" id="gk">Confirmar</button></div>';
+  function ui(){$("gcn").textContent=tmp.length?tmp.length+(tmp.length===1?" selecionado":" selecionados"):"nenhum selecionado";m.querySelectorAll(".gg button").forEach(function(b){var on=tmp.indexOf(b.dataset.g)>-1;b.classList.toggle("on",on);b.lastChild.textContent=on?"✓":""})}
+  m.querySelector(".gg").onclick=function(e){var b=e.target.closest("button");if(!b)return;var i=tmp.indexOf(b.dataset.g);if(i>-1)tmp.splice(i,1);else tmp.push(b.dataset.g);ui()};
+  $("gc").onclick=function(){$("ov2").classList.remove("on")};
+  $("gk").onclick=function(){genSel=tmp.slice();$("ov2").classList.remove("on");cb()};
+  ui();$("ov2").classList.add("on")
+}
+function newTab(){
+  var types=[];
+  openM('<h3>Criar Aba</h3><p class="mh">dê um nome e escolha até 2 tipos de conteúdo.</p><div class="f"><label>Nome</label><input type="text" id="tn" placeholder="ex: Animes"></div><div class="f"><label>Tipo (máx. 2)</label><div class="seg g" id="tt">'+Object.keys(T).map(function(k){return'<button type="button" data-t="'+k+'">'+T[k].e+" "+T[k].n+"</button>"}).join("")+'</div></div><div class="ma"><button class="btn s" data-x>Cancelar</button><button class="btn p" id="tok">Criar</button></div>');
+  $("tt").onclick=function(e){var b=e.target.closest("button");if(!b)return;var t=b.dataset.t,i=types.indexOf(t);
+    if(i>-1){types.splice(i,1);b.classList.remove("on")}else if(types.length>=2){toast("Escolha no máximo dois tipos.")}else{types.push(t);b.classList.add("on")}};
+  $("tok").onclick=function(){var n=$("tn").value.trim();if(!n){$("tn").focus();return}if(!types.length){toast("Escolha pelo menos um tipo.");return}
+    var b={id:uid(),name:n,types:types.slice(),items:[]};S.tabs.push(b);save();closeM();renderTabs();openTab(b.id)}}
+
+function tabSettings(){
+  openM('<h3>Gerenciar aba</h3><p class="mh">renomeie ou exclua esta aba.</p><div class="f"><label>Nome</label><input type="text" id="rn" value="'+esc(cur.name)+'"></div><div class="ma sp"><button class="btn d" id="dt">Excluir aba</button><div style="display:flex;gap:10px"><button class="btn s" data-x>Cancelar</button><button class="btn p" id="rk">Salvar</button></div></div>');
+  $("rk").onclick=function(){var n=$("rn").value.trim();if(!n)return;cur.name=n;save();closeM();$("tab-name").textContent=n;toast("Aba renomeada.")};
+  $("dt").onclick=function(){if(confirm('Excluir a aba "'+cur.name+'" e as '+cur.items.length+" obras dentro dela? Isso não pode ser desfeito. Dica: exporte um backup antes.")){S.tabs=S.tabs.filter(function(b){return b!==cur});save();closeM();renderTabs();show("tabs")}}}
+
+function pickType(){
+  if(cur.types.length===1)return openForm(cur.types[0],null);
+  openM('<h3>Adicionar</h3><p class="mh">o que você quer adicionar?</p><div class="seg" id="pt">'+cur.types.map(function(k){return'<button type="button" data-t="'+k+'">'+T[k].e+" "+T[k].n+"</button>"}).join("")+'</div><div class="ma"><button class="btn s" data-x>Cancelar</button></div>');
+  $("pt").onclick=function(e){var b=e.target.closest("button");if(b)openForm(b.dataset.t,null)}}
+
+function segH(k,opts,val,cls){return'<div class="seg '+(cls||"")+'" data-k="'+k+'">'+opts.map(function(o){return'<button type="button" data-v="'+esc(o)+'" class="'+((Array.isArray(val)?val.indexOf(o)>-1:val===o)?"on":"")+'">'+esc(o)+"</button>"}).join("")+"</div>"}
+function fld(l,h){return'<div class="f"><label>'+l+"</label>"+h+"</div>"}
+
+function openForm(type,it){
+  editing=it;addType=type;cover=it?it.cover||null:null;var v=it||{};
+  var h='<h3>'+(it?"Editar ":"Adicionar ")+T[type].n.toLowerCase()+'</h3><p class="mh">'+(it?"ajuste os detalhes e confirme.":"preencha os detalhes.")+"</p>";
+  if(it&&(type==="anime"||type==="filme")){var x=tip(it,cur.items).seasonAlert;h+='<div class="al"><span>'+(type==="filme"?"Terá continuação? ":"Continuação: ")+altxt(x)+"</span>"+(x?'<button type="button" class="btn s" id="ra" style="padding:8px 14px">Remover !</button>':"")+"</div>"}
+  h+='<form id="fm" novalidate>'+fld("Imagem",'<label class="dz"><i id="pv">'+(cover?'<img src="'+cover+'" alt="">':"🖼")+'</i><span><b style="color:var(--paper)">Escolher imagem</b><br>PNG ou JPG</span><input type="file" id="fc" accept="image/*"></label>');
+  h+=fld("Nome",'<input type="text" data-k="name" value="'+esc(v.name||"")+'" placeholder="ex: Frieren">');
+  if(type==="anime")h+=fld("Temporada",'<input type="number" min="1" data-k="season" id="sn" value="'+(v.season||1)+'">')+'<div id="lk"></div>'+fld("Dublado ou legendado",segH("language",["Dublado","Legendado"],v.language||"Legendado"))+fld("Gênero",'<button type="button" class="gp" id="gb"></button>');
+  if(type==="manga")h+=fld("Status",segH("status",["Lendo","Concluído"],v.status||"Lendo"))+fld("Capítulos lidos",'<input type="number" min="0" data-k="chapters" value="'+(v.chapters!=null?v.chapters:"")+'" placeholder="ex: 120">');
+  if(type==="serie")h+=fld("Quantidade de temporadas",'<input type="number" min="1" id="ns" value="'+(v.seasons||1)+'">')+fld("Temporadas assistidas (toque para marcar)",'<div class="seg g w" id="sw"></div>');
+  h+=fld(type==="manga"?"Onde leu?":"Onde assistiu?",'<input type="text" data-k="place" value="'+esc(v.place||"")+'" placeholder="ex: '+(type==="manga"?"MangaPlus":"Crunchyroll, Netflix...")+'">');
+  if(type==="anime"||type==="manga")h+=fld("Nota",'<div class="rg"><input type="range" min="0" max="10" step="0.5" data-k="rating" value="'+(v.rating!=null?v.rating:8)+'"><b id="rv">'+fmt(v.rating!=null?v.rating:8)+"</b></div>");
+  h+='<div class="ma'+(it?" sp":"")+'">'+(it?'<button type="button" class="btn d" id="del">Excluir</button>':"")+'<div style="display:flex;gap:10px"><button type="button" class="btn s" data-x>Cancelar</button><button type="submit" class="btn p">Confirmar</button></div></div></form>';
+  openM(h);
+  var md=$("md");
+  md.querySelectorAll(".seg[data-k]").forEach(function(s){s.onclick=function(e){var b=e.target.closest("button");if(!b)return;if(s.dataset.k==="genres")b.classList.toggle("on");else{s.querySelectorAll("button").forEach(function(x){x.classList.remove("on")});b.classList.add("on")}}});
+  var r=md.querySelector('input[type=range]');if(r)r.oninput=function(){$("rv").textContent=fmt(r.value)};
+  $("fc").onchange=function(){var f=this.files[0];if(!f)return;resize(f,480).then(function(u){cover=u;$("pv").innerHTML='<img src="'+u+'" alt="">'}).catch(function(){toast("Não foi possível carregar essa imagem.")})};
+  var watched=(v.watched||[]).slice();
+  function sw(){var n=Math.max(1,parseInt($("ns").value,10)||1),w=$("sw");w.innerHTML="";watched=watched.filter(function(x){return x<=n});
+    for(var i=1;i<=n;i++)(function(i){var b=document.createElement("button");b.type="button";b.textContent="T"+i;if(watched.indexOf(i)>-1)b.className="on";
+      b.onclick=function(){var k=watched.indexOf(i);if(k>-1)watched.splice(k,1);else watched.push(i);b.classList.toggle("on")};w.appendChild(b)})(i)}
+  if(type==="serie"){$("ns").oninput=sw;sw()}
+  if(type==="anime"){
+    genSel=(v.genres||[]).slice();linkId=v.linkedPrevId||null;
+    var gl=function(){var b=$("gb");b.className="gp"+(genSel.length?" has":"");b.innerHTML="<span>"+(genSel.length?esc(genSel.join(", ")):"Escolher gêneros")+"</span>›"};gl();
+    $("gb").onclick=function(){genPick(gl)};
+    var shown=false;
+    var lk=function(){
+      if((parseInt($("sn").value,10)||1)<2){$("lk").innerHTML="";shown=false;linkId=null;return}
+      if(shown)return;shown=true;
+      $("lk").innerHTML=fld("Juntar com a temporada",'<div class="seg"><button type="button" id="ln">Não</button><button type="button" id="ls">Sim</button></div><p class="mh" id="lh" style="margin:12px 0 8px" hidden>qual foi a temporada antiga?</p><div class="sg" id="lgr" hidden></div>');
+      var gr=function(){var b=$("lgr");b.innerHTML="";var pool=cur.items.filter(function(x){return x.type==="anime"&&(!it||x.id!==it.id)}).reverse();
+        if(!pool.length)b.innerHTML='<p class="mh">nenhum outro anime na aba ainda.</p>';
+        pool.forEach(function(x){var c=document.createElement("button");c.type="button";c.className="card sc"+(x.id===linkId?" on":"");c.innerHTML='<span class="cv">'+(x.cover?'<img src="'+x.cover+'" alt="">':"🎬")+'</span><span class="n">'+esc(x.name)+"</span>";c.onclick=function(){linkId=x.id;gr()};b.appendChild(c)})};
+      var st=function(y){$("ln").classList.toggle("on",!y);$("ls").classList.toggle("on",y);$("lgr").hidden=!y;$("lh").hidden=!y;if(y)gr();else linkId=null};
+      $("ln").onclick=function(){st(false)};$("ls").onclick=function(){st(true)};st(!!linkId)};
+    $("sn").oninput=lk;lk()}
+  if($("ra"))$("ra").onclick=function(){var t=tip(it,cur.items),x=t.seasonAlert;if(!x)return;
+    var w=x.status!=="finished"&&confirm("Essa temporada você já assistiu?\nOK = já assisti (a IA não sugere de novo) · Cancelar = outro motivo");
+    if(w){(t.watchedSeasonsLog=t.watchedSeasonsLog||[]).push({seasonNumber:x.seasonNumber||(t.season||1)+1,dateWatched:new Date().toISOString().slice(0,10)})}
+    (t.alertHistory=t.alertHistory||[]).push({status:x.status,seasonNumber:x.seasonNumber,removedAt:Date.now()});t.seasonAlert=null;save();closeM();renderGrid();toast("Alerta removido.")};
+  if($("del"))$("del").onclick=function(){if(confirm('Excluir "'+it.name+'"? Isso não pode ser desfeito.')){cur.items=cur.items.filter(function(a){return a.id!==it.id});cur.items.forEach(function(a){if(a.linkedPrevId===it.id)a.linkedPrevId=null});save();closeM();renderGrid();toast("Obra excluída.")}};
+  $("fm").onsubmit=function(e){e.preventDefault();
+    var o=it||{id:uid(),type:type,createdAt:Date.now(),seasonAlert:null,alertHistory:[],watchedSeasonsLog:[]};
+    var nm=md.querySelector('[data-k=name]').value.trim();if(!nm){md.querySelector('[data-k=name]').focus();return}
+    o.name=nm;o.cover=cover;
+    md.querySelectorAll("[data-k]").forEach(function(el){var k=el.dataset.k;if(k==="name")return;
+      if(el.classList.contains("seg")){var on=[].slice.call(el.querySelectorAll("button.on")).map(function(b){return b.dataset.v});o[k]=k==="genres"?on:on[0]}
+      else if(el.type==="range")o[k]=Number(el.value);
+      else if(el.type==="number")o[k]=el.value===""?null:Number(el.value);
+      else o[k]=el.value.trim()});
+    if(type==="anime"){o.genres=genSel.slice();o.season=parseInt($("sn").value,10)||1;o.linkedPrevId=o.season>1?linkId:null}
+    if(type==="serie"){o.seasons=Math.max(1,parseInt($("ns").value,10)||1);o.watched=watched.sort(function(a,b){return a-b})}
+    if(!it)cur.items.push(o);save();closeM();renderGrid();toast(it?"Alterações salvas.":"Adicionado.")}
+}
+function resize(f,mw){return new Promise(function(ok,no){var r=new FileReader();r.onerror=no;r.onload=function(){var i=new Image();i.onerror=no;i.onload=function(){var s=Math.min(1,mw/i.width),c=document.createElement("canvas");c.width=Math.round(i.width*s);c.height=Math.round(i.height*s);c.getContext("2d").drawImage(i,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.82))};i.src=r.result};r.readAsDataURL(f)})}
+
+/* ===== backup e IA ===== */
+function dl(o,n){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(o,null,2)],{type:"application/json"}));a.download=n;document.body.appendChild(a);a.click();a.remove()}
+function stamp(){var d=new Date();return d.getFullYear()+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2)}
+function importBackup(txt){
+  var d;try{d=JSON.parse(txt)}catch(e){return toast("Arquivo inválido.")}
+  var inc=null;
+  if(d&&Array.isArray(d.tabs))inc=d.tabs;
+  else{var l=Array.isArray(d)?d:(d&&Array.isArray(d.animes)?d.animes:null);if(l){l.forEach(function(a){a.type="anime";if(!a.id)a.id=uid()});inc=[{id:uid(),name:"Animes",types:["anime"],items:l}]}}
+  if(!inc)return toast("Não parece um backup do yozora.");
+  var n=inc.reduce(function(s,b){return s+(b.items||[]).length},0);
+  var mode=S.tabs.length?(confirm("Importar "+n+" obras.\nOK = MESCLAR com o que você já tem (nada é apagado)\nCancelar = não importar")?"merge":null):"merge";
+  if(!mode)return;
+  inc.forEach(function(b){var ex=S.tabs.find(function(x){return x.id===b.id});
+    if(!ex)S.tabs.push(b);else{var ids={};ex.items.forEach(function(a){ids[a.id]=1});(b.items||[]).forEach(function(a){if(!ids[a.id])ex.items.push(a)})}});
+  locked=false;save();renderTabs();toast("Backup importado: "+n+" obras.")}
+
+function aiPanel(){
+  openM('<h3>Análise por IA</h3><p class="mh">gere um arquivo para uma IA pesquisar continuações e importe o que ela devolver.</p><div class="ma" style="flex-direction:column"><button class="btn p" id="ae" style="justify-content:center">✨ Preparar backup para IA</button><button class="btn s" id="ai-i" style="justify-content:center">Importar backup analisado</button><input type="file" id="f-ai" accept=".json,application/json" hidden><button class="btn s" data-x style="justify-content:center">Fechar</button></div>');
+  $("ae").onclick=function(){
+    var items=cur.items.filter(function(a){return a.type==="anime"||a.type==="filme"}).map(function(a){
+      return{id:a.id,name:a.name,type:a.type,currentSeason:a.season||1,existingSeasons:chain(a),watchedSeasonsLog:a.watchedSeasonsLog||[],currentAlert:a.seasonAlert||null}});
+    if(!items.length)return toast("Essa aba ainda não tem animes ou filmes.");
+    var ins="Você está analisando um backup do app yozora. Para CADA obra, sem pular nenhuma, responda: (1) existe uma continuação/temporada anunciada que ainda não está em existingSeasons nem em watchedSeasonsLog? (2) se currentAlert for red ou yellow, essa continuação já foi lançada? (3) a obra está oficialmente finalizada, sem continuação prevista? Obras clássicas bem conhecidas contam pelo consenso público. Para filmes: finished = não terá continuação. Quando houver resposta, adicione em cada obra o campo proposedAlert: {\"status\":\"red\"|\"yellow\"|\"green\"|\"finished\",\"seasonNumber\":<número ou null>,\"releaseDate\":\"AAAA-MM-DD\" ou null,\"note\":\"<explicação curta e fonte>\"}. red = confirmada sem data; yellow = confirmada com data futura; green = nova temporada lançada neste ano; finished = obra finalizada. Regras: NÃO altere ids, NÃO remova nem adicione obras, NÃO altere nenhum outro campo, NÃO invente sem evidência (exceto consenso público para finished), respeite watchedSeasonsLog. Devolva o MESMO arquivo JSON com proposedAlert incluído.";
+    dl({app:"yozora",type:"ai_season_analysis_request",current_date:new Date().toISOString().slice(0,10),instructions:ins,animes:items},"yozora-para-ia-"+stamp()+".json");closeM();toast("Arquivo pronto — envie para a IA.")};
+  $("ai-i").onclick=function(){$("f-ai").click()};
+  $("f-ai").onchange=function(){var f=this.files[0];this.value="";if(!f)return;var r=new FileReader();r.onload=function(){applyAi(r.result)};r.readAsText(f)}}
+function chain(a){var r=a,g=0,p;while(r.linkedPrevId&&(p=cur.items.find(function(x){return x.id===r.linkedPrevId}))&&g++<50)r=p;var out=[],n=r;g=0;while(n&&g++<50){out.push(n.season||1);n=cur.items.find(function(x){return x.linkedPrevId===n.id})}return out}
+function applyAi(txt){
+  var d;try{d=JSON.parse(txt)}catch(e){return toast("Arquivo inválido.")}
+  var l=Array.isArray(d.animes)?d.animes:(Array.isArray(d)?d:null);if(!l)return toast("Não parece um backup analisado.");
+  var by={};l.forEach(function(e){if(e&&e.id)by[e.id]=e});var diffs=[];
+  S.tabs.forEach(function(b){b.items.forEach(function(a){var e=by[a.id],p=e&&(e.proposedAlert||e.seasonAlert||e.alert);
+    if(!p||["red","yellow","green","finished"].indexOf(p.status)<0)return;
+    var sn=parseInt(p.seasonNumber,10)||(a.season||1)+1,mw=(a.watchedSeasonsLog||[]).reduce(function(m,w){return Math.max(m,w.seasonNumber||0)},0);
+    if(p.status!=="finished"&&sn<=mw)return;
+    var rd=/^\d{4}-\d{2}-\d{2}$/.test(p.releaseDate||"")?p.releaseDate:null,o=a.seasonAlert;
+    if(o&&o.status===p.status&&o.seasonNumber===sn&&o.releaseDate===rd)return;
+    diffs.push({a:a,n:{status:p.status,seasonNumber:sn,releaseDate:rd,note:String(p.note||"").slice(0,300),foundAt:Date.now()}})})});
+  if(!diffs.length)return toast("Nenhuma novidade para aplicar.");
+  if(!confirm(diffs.length+" alerta(s) sugerido(s) pela IA:\n\n"+diffs.slice(0,15).map(function(x){return"• "+x.a.name+" — "+altxt(x.n)}).join("\n")+(diffs.length>15?"\n…":"")+"\n\nAplicar? Nada mais é alterado."))return;
+  diffs.forEach(function(x){x.a.seasonAlert=x.n});save();closeM();renderGrid();toast("Alertas atualizados.")}
+
+/* ===== eventos ===== */
+$("go").onclick=function(){renderTabs();show("tabs")};
+$("t-back").onclick=function(){show("land")};
+$("tab-back").onclick=function(){setOrg(false);renderTabs();show("tabs")};
+$("new-tab").onclick=newTab;$("tab-set").onclick=tabSettings;$("add").onclick=pickType;$("ai").onclick=aiPanel;
+$("org").onclick=function(){if(!org&&!roots(cur).length)return toast("Ainda não há obras para organizar.");setOrg(!org)};
+$("q").oninput=renderGrid;
+["u","l","dn","r"].forEach(function(k){$(k).onclick=function(){move(k)}});
+$("tb-c").onclick=function(){sel=[];tbar();renderGrid()};
+$("bk-out").onclick=function(){if(!S.tabs.length)return toast("Nada para exportar ainda.");dl({app:"yozora",schema:2,exportedAt:new Date().toISOString(),tabs:S.tabs},"yozora-backup-"+stamp()+".json");toast("Backup exportado.")};
+$("bk-in").onclick=function(){$("f-bk").click()};
+$("f-bk").onchange=function(){var f=this.files[0];this.value="";if(!f)return;var r=new FileReader();r.onload=function(){importBackup(r.result)};r.readAsText(f)};
+window.addEventListener("resize",function(){if(org)renderGrid()});
+
+/* ===== fundo ===== */
+(function(){var h=$("sky"),c=["#ff8fb1","#8de8d0","#b79bff"],i,e;for(i=0;i<3;i++){e=document.createElement("div");e.className="gl";var z=240+Math.random()*200;e.style.cssText="width:"+z+"px;height:"+z+"px;left:"+Math.random()*100+"%;top:"+Math.random()*100+"%;background:"+c[i];h.appendChild(e)}
+for(i=0;i<60;i++){e=document.createElement("div");e.className="st";var s=1.5+Math.random()*2;e.style.cssText="width:"+s+"px;height:"+s+"px;left:"+Math.random()*100+"%;top:"+Math.random()*100+"%;animation-delay:"+-Math.random()*5+"s;animation-duration:"+(2+Math.random()*3)+"s";h.appendChild(e)}})();
+
+(function(){var h=$("sky"),R=Math.random,i;
+  function mk(c,css){var x=document.createElement("div");x.className=c;x.style.cssText=css;h.appendChild(x);return x}
+  mk("mn","");
+  for(i=0;i<2;i++)mk("au","top:"+(15+i*35)+"%;animation-delay:"+(-i*7)+"s;animation-duration:"+(16+i*6)+"s");
+  for(i=0;i<14;i++)mk("pt","left:"+R()*100+"%;--dx:"+(R()*160-60)+"px;width:"+(7+R()*6)+"px;height:"+(10+R()*7)+"px;animation-duration:"+(11+R()*10)+"s;animation-delay:"+(-R()*20)+"s");
+  for(i=0;i<16;i++){var z=3+R()*4;mk("ff","left:"+R()*100+"%;--dx:"+(R()*80-40)+"px;width:"+z+"px;height:"+z+"px;animation-duration:"+(14+R()*14)+"s;animation-delay:"+(-R()*20)+"s")}
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  function shoot(){var x=mk("sh","left:"+R()*60+"%;top:"+R()*40+"%");setTimeout(function(){x.remove()},1500);setTimeout(shoot,3500+R()*5000)}
+  setTimeout(shoot,1800)})();
+load();recalc();
 })();
 </script>
 </body>
