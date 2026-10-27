@@ -226,10 +226,10 @@ function openView(a){
   n=r;g=0;while(n&&g++<50){ch.push(n);var m=n;n=cur.items.find(function(x){return x.linkedPrevId===m.id})}
   var pv=cur.items.find(function(x){return x.id===a.linkedPrevId}),nx=cur.items.find(function(x){return x.linkedPrevId===a.id});
   var al=(a.type==="anime"||a.type==="filme")?a.seasonAlert:null,R=[["Tipo",T[a.type].n]],add=function(l,v){R.push([l,v!=null&&String(v).trim()?v:""])};
-  if(a.type==="anime"){add("Status",a.dateEnd?"Concluído":a.dateStart?"Assistindo":"");add("Temporada","Temporada "+(a.season||1));add("Áudio",a.language);add("Gênero",(a.genres||[]).join(", "));if(a.hasSpecialEpisode)add("Episódio especial","Sim — "+(a.specialEpisodeCount||"?"))}
+  if(a.type==="anime"){add("Assistido?",a.seen===true?"Sim":a.seen===false?"Não":"");add("Temporada","Temporada "+(a.season||1));add("Áudio",a.language);add("Gênero",(a.genres||[]).join(", "));if(a.hasSpecialEpisode)add("Episódio especial","Sim — "+(a.specialEpisodeCount||"?"))}
   if(a.type==="manga"){add("Status",a.status);add("Capítulos lidos",a.chapters)}
   if(a.type==="serie")add("Temporadas","assistidas "+(a.watched||[]).length+" de "+(a.seasons||0));
-  add(a.type==="manga"?"Onde leu":"Onde assistiu",a.place);add("Início",fd(a.dateStart));add("Fim",fd(a.dateEnd));
+  add(a.type==="manga"?"Onde leu":"Onde assistiu",a.place);
   if(a.type==="anime"||a.type==="manga")add("Nota",fmt(a.rating));
   add("Anotações",a.note);if(pv)add("Temporada anterior",pv.name);if(nx)add("Próxima temporada",nx.name);
   var h='<div style="text-align:center"><div class="cv" style="width:min(60vw,220px);border-radius:18px;overflow:hidden;margin:0 auto 16px">'+(a.cover?'<img src="'+a.cover+'" alt="">':T[a.type].e)+'</div><h3>'+esc(a.name)+(ch.length>1?" — Temporada "+(a.season||1):"")+"</h3>";
@@ -254,6 +254,17 @@ function genPick(cb){
   $("gk").onclick=function(){genSel=tmp.slice();$("ov2").classList.remove("on");cb()};
   ui();$("ov2").classList.add("on")
 }
+function askSeen(){
+  var q=[];S.tabs.forEach(function(b){b.items.forEach(function(a){if(a.dateStart||a.dateEnd)q.push(a)})});
+  if(!q.length)return;var total=q.length;
+  function step(){
+    if(!q.length){closeM();renderTabs();toast("Pronto! Início e fim foram trocados por \"Assistido?\".");return}
+    var a=q[0];
+    openM('<div style="text-align:center"><p class="eb">'+(total-q.length+1)+" de "+total+'</p><div class="cv" style="width:min(50vw,180px);border-radius:16px;overflow:hidden;margin:0 auto 14px">'+(a.cover?'<img src="'+a.cover+'" alt="">':"🎬")+"</div><h3>"+esc(a.name)+(a.season>1?" — Temporada "+a.season:"")+'</h3><p class="mh" style="margin-top:10px">O yozora agora usa "Assistido?" no lugar de Início e Fim. Você já assistiu?</p><div class="ma" style="justify-content:center"><button type="button" class="btn s" id="sno">Não</button><button type="button" class="btn p" id="syes">Sim</button></div><button type="button" class="gh" data-x>decidir depois</button></div>');
+    function ans(v){a.seen=v;delete a.dateStart;delete a.dateEnd;save();q.shift();step()}
+    $("syes").onclick=function(){ans(true)};$("sno").onclick=function(){ans(false)}
+  }
+  step()}
 function newTab(){
   var types=[];
   openM('<h3>Criar Aba</h3><p class="mh">dê um nome e escolha até 2 tipos de conteúdo.</p><div class="f"><label>Nome</label><input type="text" id="tn" placeholder="ex: Animes"></div><div class="f"><label>Tipo (máx. 2)</label><div class="seg g" id="tt">'+Object.keys(T).map(function(k){return'<button type="button" data-t="'+k+'">'+T[k].e+" "+T[k].n+"</button>"}).join("")+'</div></div><div class="ma"><button class="btn s" data-x>Cancelar</button><button class="btn p" id="tok">Criar</button></div>');
@@ -281,7 +292,7 @@ function openForm(type,it){
   if(it&&(type==="anime"||type==="filme")){var x=tip(it,cur.items).seasonAlert;h+='<div class="al"><span>'+(type==="filme"?"Terá continuação? ":"Continuação: ")+altxt(x)+"</span>"+(x?'<button type="button" class="btn s" id="ra" style="padding:8px 14px">Remover !</button>':"")+"</div>"}
   h+='<form id="fm" novalidate>'+fld("Imagem",'<label class="dz"><i id="pv">'+(cover?'<img src="'+cover+'" alt="">':"🖼")+'</i><span><b style="color:var(--paper)">Escolher imagem</b><br>PNG ou JPG</span><input type="file" id="fc" accept="image/*"></label>');
   h+=fld("Nome",'<input type="text" data-k="name" value="'+esc(v.name||"")+'" placeholder="ex: Frieren">');
-  if(type==="anime")h+=fld("Temporada",'<input type="number" min="1" data-k="season" id="sn" value="'+(v.season||1)+'">')+'<div id="lk"></div>'+fld("Dublado ou legendado",segH("language",["Dublado","Legendado"],v.language||"Legendado"))+fld("Gênero",'<button type="button" class="gp" id="gb"></button>');
+  if(type==="anime")h+=fld("Temporada",'<input type="number" min="1" data-k="season" id="sn" value="'+(v.season||1)+'">')+'<div id="lk"></div>'+fld("Dublado ou legendado",segH("language",["Dublado","Legendado"],v.language||"Legendado"))+fld("Gênero",'<button type="button" class="gp" id="gb"></button>')+fld("Assistido?",segH("seen",["Sim","Não"],v.seen===false?"Não":"Sim"));
   if(type==="manga")h+=fld("Status",segH("status",["Lendo","Concluído"],v.status||"Lendo"))+fld("Capítulos lidos",'<input type="number" min="0" data-k="chapters" value="'+(v.chapters!=null?v.chapters:"")+'" placeholder="ex: 120">');
   if(type==="serie")h+=fld("Quantidade de temporadas",'<input type="number" min="1" id="ns" value="'+(v.seasons||1)+'">')+fld("Temporadas assistidas (toque para marcar)",'<div class="seg g w" id="sw"></div>');
   h+=fld(type==="manga"?"Onde leu?":"Onde assistiu?",'<input type="text" data-k="place" value="'+esc(v.place||"")+'" placeholder="ex: '+(type==="manga"?"MangaPlus":"Crunchyroll, Netflix...")+'">');
@@ -326,7 +337,7 @@ function openForm(type,it){
       else if(el.type==="range")o[k]=Number(el.value);
       else if(el.type==="number")o[k]=el.value===""?null:Number(el.value);
       else o[k]=el.value.trim()});
-    if(type==="anime"){o.genres=genSel.slice();o.season=parseInt($("sn").value,10)||1;o.linkedPrevId=o.season>1?linkId:null}
+    if(type==="anime"){o.genres=genSel.slice();o.season=parseInt($("sn").value,10)||1;o.linkedPrevId=o.season>1?linkId:null;o.seen=o.seen==="Sim";delete o.dateStart;delete o.dateEnd}
     if(type==="serie"){o.seasons=Math.max(1,parseInt($("ns").value,10)||1);o.watched=watched.sort(function(a,b){return a-b})}
     if(!it)cur.items.push(o);save();closeM();renderGrid();toast(it?"Alterações salvas.":"Adicionado.")}
 }
@@ -375,7 +386,7 @@ function applyAi(txt){
   diffs.forEach(function(x){x.a.seasonAlert=x.n});save();closeM();renderGrid();toast("Alertas atualizados.")}
 
 /* ===== eventos ===== */
-$("go").onclick=function(){renderTabs();show("tabs")};
+$("go").onclick=function(){renderTabs();show("tabs");askSeen()};
 $("t-back").onclick=function(){show("land")};
 $("tab-back").onclick=function(){setOrg(false);renderTabs();show("tabs")};
 $("new-tab").onclick=newTab;$("tab-set").onclick=tabSettings;$("add").onclick=pickType;$("ai").onclick=aiPanel;
